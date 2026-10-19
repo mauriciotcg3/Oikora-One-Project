@@ -15,3 +15,4 @@ substitua).
 | [OIK-ADR-0001](0001-stack-base-e-topologia.md) | Stack base e topologia (PHP/Laravel como API + React) | Aceito |
 | [OIK-ADR-0002](0002-banco-e-isolamento-multi-organizacao.md) | Banco de dados e isolamento multi-organização (PostgreSQL + RLS por organização) | Aceito |
 | [OIK-ADR-0003](0003-identidade-autenticacao-e-sessao.md) | Identidade, autenticação e sessão (conta global + Sanctum cookie/token) | Aceito |
+| [OIK-ADR-0004](0004-autorizacao-recurso-acao-escopo-e-dados-sensiveis.md) | Autorização recurso × ação × escopo e dados sensíveis (modelo próprio + criptografia de documentos e saúde) | Aceito |
