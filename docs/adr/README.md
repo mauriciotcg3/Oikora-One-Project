@@ -18,3 +18,4 @@ substitua).
 | [OIK-ADR-0004](0004-autorizacao-recurso-acao-escopo-e-dados-sensiveis.md) | Autorização recurso × ação × escopo e dados sensíveis (modelo próprio + criptografia de documentos e saúde) | Aceito |
 | [OIK-ADR-0005](0005-auditoria-historico-e-operacoes-desfaziveis.md) | Auditoria, histórico e operações desfazíveis (LGPD) (módulo próprio de auditoria + snapshot para desfazer) | Aceito |
 | [OIK-ADR-0006](0006-frontend-web.md) | Frontend web — painel e área do membro (SPA Vite com duas entradas + MUI) | Aceito |
+| [OIK-ADR-0007](0007-app-nas-lojas.md) | App nas lojas — área do membro em React Native com Expo | Aceito |
