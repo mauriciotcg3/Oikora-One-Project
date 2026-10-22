@@ -21,3 +21,4 @@ substitua).
 | [OIK-ADR-0007](0007-app-nas-lojas.md) | App nas lojas — área do membro em React Native com Expo | Aceito |
 | [OIK-ADR-0008](0008-assincrono-e-avisos-multicanal.md) | Assíncrono e avisos multicanal — módulo Avisos com caixa de saída no PostgreSQL | Aceito |
 | [OIK-ADR-0009](0009-migracao-do-inchurch.md) | Migração do inChurch — módulo Migração com área de preparação e virada em lote | Aceito |
+| [OIK-ADR-0010](0010-qualidade-ci-e-observabilidade.md) | Qualidade, CI e observabilidade — testes com PostgreSQL real, GitHub Actions e Grafana Cloud + Sentry | Aceito |
