@@ -20,3 +20,4 @@ substitua).
 | [OIK-ADR-0006](0006-frontend-web.md) | Frontend web — painel e área do membro (SPA Vite com duas entradas + MUI) | Aceito |
 | [OIK-ADR-0007](0007-app-nas-lojas.md) | App nas lojas — área do membro em React Native com Expo | Aceito |
 | [OIK-ADR-0008](0008-assincrono-e-avisos-multicanal.md) | Assíncrono e avisos multicanal — módulo Avisos com caixa de saída no PostgreSQL | Aceito |
+| [OIK-ADR-0009](0009-migracao-do-inchurch.md) | Migração do inChurch — módulo Migração com área de preparação e virada em lote | Aceito |
