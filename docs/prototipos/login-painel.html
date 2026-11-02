@@ -1,0 +1,562 @@
+<!doctype html>
+<!-- Protótipo visual da tela de login do painel (OIK-SPEC-0001, T-38). Aprovado pelo usuário em 2026-11-01.
+     Referência visual para a implementação em web/src/features/Identidade; não é código de produção. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Login do Oikora One</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#3E2B1E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap">
+<style>
+/* Layout: à esquerda um campo de cor café com a porta de casa acesa ao entardecer (oikos = casa e família);
+   à direita o formulário sobre o chão claro. No celular o campo vira uma faixa curta acima do formulário. */
+:root {
+  --ground: #F9F7F5;
+  --surface: #FFFFFF;
+  --sunk: #F1ECE7;
+  --border: #E3DAD2;
+  --control: #CDBFB3;
+  --ink: #3E2B1E;
+  --muted: #6B5646;
+  --primary: #5D4432;
+  --primary-hover: #4A3527;
+  --primary-ink: #FFFFFF;
+  --honey: #E8A33D;
+  --field: #3E2B1E;
+  --field-ink: #F8EFE6;
+  --field-muted: #D8C5B3;
+  --leaf: #6E5038;
+  --danger: #B42318;
+  --danger-soft: #FDECEA;
+  --font: "Poppins", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r-field: 10px;
+  --r-box: 16px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #17110D; --surface: #211913; --sunk: #2A2019; --border: #3A2D24; --control: #5A493D;
+    --ink: #F5ECE4; --muted: #C2B1A3; --primary: #E8A33D; --primary-hover: #F2B85F; --primary-ink: #24170D;
+    --field: #271B13; --field-ink: #F5ECE4; --field-muted: #CDB8A5; --leaf: #5D4432;
+    --danger: #FF9C90; --danger-soft: #3B1D1B; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #17110D; --surface: #211913; --sunk: #2A2019; --border: #3A2D24; --control: #5A493D;
+  --ink: #F5ECE4; --muted: #C2B1A3; --primary: #E8A33D; --primary-hover: #F2B85F; --primary-ink: #24170D;
+  --field: #271B13; --field-ink: #F5ECE4; --field-muted: #CDB8A5; --leaf: #5D4432;
+  --danger: #FF9C90; --danger-soft: #3B1D1B; color-scheme: dark;
+}
+
+html, body { height: 100%; }
+body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.55; }
+* { box-sizing: border-box; }
+button, input, a, summary { touch-action: manipulation; }
+
+.shell { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
+/* Campo de boas-vindas */
+.art { background: var(--field); color: var(--field-ink); display: flex; }
+.art-inner {
+  width: 100%; display: flex; flex-direction: column; justify-content: space-between; gap: 40px;
+  padding-block: 40px;
+  padding-left: max(48px, env(safe-area-inset-left, 0px));
+  padding-right: max(48px, env(safe-area-inset-right, 0px));
+}
+.brand { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 1.125rem; }
+.brand svg { width: 36px; height: 36px; flex: none; }
+.welcome { display: grid; gap: 24px; justify-items: start; }
+.welcome svg.door { width: min(100%, 420px); height: auto; }
+.statement { margin: 0; font-weight: 600; font-size: 2.25rem; line-height: 1.12; letter-spacing: -0.02em; text-wrap: balance; max-width: 15ch; }
+.welcome .lede { margin: 0; color: var(--field-muted); font-size: 1.0625rem; max-width: 36ch; }
+.art-foot { margin: 0; color: var(--field-muted); font-size: .875rem; }
+
+.halo { transform-origin: 200px 300px; animation: halo 6s ease-in-out infinite; }
+@keyframes halo { 0%, 100% { opacity: .55; transform: scale(1); } 50% { opacity: .85; transform: scale(1.05); } }
+
+/* Formulário */
+.side { display: flex; align-items: center; justify-content: center; }
+.form-wrap {
+  width: 100%; max-width: 456px; display: grid; gap: 24px;
+  padding-block: 48px;
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+}
+.view { display: grid; gap: 24px; animation: rise .3s ease-out; }
+@keyframes rise { from { opacity: .4; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.view header { display: grid; gap: 8px; }
+.view h1 { margin: 0; font-weight: 600; font-size: 2rem; line-height: 1.15; letter-spacing: -0.02em; text-wrap: balance; }
+.view header p { margin: 0; color: var(--muted); }
+.view header p strong { color: var(--ink); font-weight: 600; }
+
+form { display: grid; gap: 16px; }
+.field { display: grid; gap: 8px; }
+.field label { font-weight: 500; font-size: .9375rem; }
+.field-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.control {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--control); border-radius: var(--r-field);
+  padding: 0 14px; min-height: 52px; transition: border-color .15s, box-shadow .15s;
+}
+.control:hover { border-color: var(--muted); }
+.control:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent); }
+.control.invalid { border-color: var(--danger); }
+.control.invalid:focus-within { box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 22%, transparent); }
+.control > svg { width: 18px; height: 18px; flex: none; color: var(--muted); }
+.control input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font: inherit; font-size: 1rem; padding: 13px 0; }
+.control input::placeholder { color: var(--muted); opacity: 1; }
+.hint { font-size: .875rem; color: var(--muted); min-height: 1.4em; }
+.hint:empty { min-height: 0; }
+.hint.error { color: var(--danger); font-weight: 500; }
+
+.icon-btn { border: 0; background: transparent; color: var(--muted); cursor: pointer; width: 40px; height: 40px; margin-right: -8px; border-radius: 8px; display: grid; place-items: center; transition: color .15s, background-color .15s; }
+.icon-btn svg { width: 20px; height: 20px; }
+.icon-btn:hover { color: var(--ink); background: var(--sunk); }
+.icon-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+
+.link { color: var(--primary); background: none; border: 0; padding: 4px 0; font: inherit; font-weight: 500; font-size: .9375rem; cursor: pointer; border-radius: 4px; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 4px; transition: text-decoration-color .15s; }
+.link:hover { text-decoration-color: currentColor; }
+.link:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.link[disabled] { color: var(--muted); cursor: default; text-decoration: none; font-weight: 400; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 52px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--primary); color: var(--primary-ink); font: inherit; font-weight: 600; font-size: 1rem;
+  transition: background-color .15s, transform .1s;
+}
+.btn:hover { background: var(--primary-hover); }
+.btn:active { transform: scale(.985); }
+.btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+.btn[aria-busy="true"] { cursor: progress; }
+.btn.ghost { background: var(--sunk); color: var(--ink); }
+.btn.ghost:hover { background: var(--border); }
+.spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.banner { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; border-radius: var(--r-field); background: var(--danger-soft); color: var(--ink); font-size: .9375rem; }
+.banner svg { width: 20px; height: 20px; flex: none; margin-top: 2px; color: var(--danger); }
+
+.back { justify-self: start; display: inline-flex; align-items: center; gap: 4px; margin-left: -4px; }
+.back svg { width: 18px; height: 18px; }
+
+/* Código de 6 dígitos */
+.otp-set { border: 0; margin: 0; padding: 0; display: grid; gap: 8px; min-width: 0; }
+.otp { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+.otp input {
+  width: 100%; min-width: 0; height: 60px; text-align: center; font: inherit; font-weight: 600; font-size: 1.5rem; color: var(--ink);
+  background: var(--surface); border: 1px solid var(--control); border-radius: var(--r-field);
+  font-variant-numeric: tabular-nums; outline: 0; transition: border-color .15s, box-shadow .15s;
+}
+.otp input:hover { border-color: var(--muted); }
+.otp input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent); }
+.otp.invalid input { border-color: var(--danger); }
+.otp.shake { animation: shake .35s; }
+@keyframes shake { 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-3px); } }
+
+.alt { display: grid; gap: 4px; justify-items: start; padding: 16px; border-radius: var(--r-box); background: var(--sunk); }
+.alt p { margin: 0 0 4px; font-size: .875rem; color: var(--muted); }
+
+.done { display: grid; justify-items: start; gap: 12px; }
+.done .mark { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--sunk); color: var(--primary); }
+.done .mark svg { width: 30px; height: 30px; }
+.done p { margin: 0; color: var(--muted); max-width: 36ch; }
+
+.help { margin: 0; color: var(--muted); font-size: .9375rem; }
+
+.demo { background: var(--sunk); border-radius: var(--r-box); padding: 14px 16px; font-size: .875rem; color: var(--ink); }
+.demo summary { cursor: pointer; font-weight: 500; }
+.demo summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; border-radius: 4px; }
+.demo ul { margin: 10px 0 2px; padding-left: 18px; display: grid; gap: 4px; color: var(--muted); }
+.demo b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .art-inner { padding-block: 20px 24px; gap: 16px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .welcome { grid-template-columns: 84px minmax(0, 1fr); align-items: center; column-gap: 16px; row-gap: 4px; }
+  .welcome svg.door { width: 84px; grid-row: span 2; }
+  .statement { font-size: 1.375rem; max-width: none; }
+  .welcome .lede { font-size: .9375rem; }
+  .art-foot { display: none; }
+  .side { align-items: flex-start; }
+  .form-wrap { padding-block: 32px 40px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .view h1 { font-size: 1.625rem; }
+}
+@media (max-width: 360px) { .otp { gap: 6px; } .otp input { height: 52px; font-size: 1.25rem; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <aside class="art" aria-label="Boas-vindas">
+    <div class="art-inner">
+      <div class="brand" translate="no">
+        <svg viewBox="0 0 36 36" width="36" height="36" aria-hidden="true"><circle cx="18" cy="18" r="18" fill="#F8EFE6" opacity=".12"/><path d="M10 29V17a8 8 0 0 1 16 0v12Z" fill="#E8A33D"/><path d="M10 29V16.5a8 8 0 0 1 3.4-6.5V27Z" fill="#6E5038"/></svg>
+        Oikora One
+      </div>
+      <div class="welcome">
+        <svg class="door" viewBox="0 0 400 360" width="420" height="378" role="img" aria-label="Ilustração de uma porta aberta com luz saindo de dentro da casa">
+          <circle class="halo" cx="200" cy="190" r="160" fill="#E8A33D" opacity=".14"/>
+          <circle cx="200" cy="190" r="112" fill="#E8A33D" opacity=".16"/>
+          <path d="M130 352 270 352 340 300 60 300Z" transform="matrix(1 0 0 -1 0 652)" fill="#E8A33D" opacity=".28"/>
+          <path d="M40 300H360" stroke="var(--field-muted)" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+          <path d="M130 300V160a70 70 0 0 1 140 0v140Z" fill="#E8A33D"/>
+          <path d="M130 300V158c0-30 15-52 40-62v190Z" fill="var(--leaf)"/>
+          <circle cx="160" cy="214" r="4.5" fill="#E8A33D"/>
+        </svg>
+        <p class="statement">Que bom ter você aqui.</p>
+        <p class="lede">Entre para cuidar das pessoas da sua igreja, cada uma com seu nome e sua história.</p>
+      </div>
+      <p class="art-foot"><span translate="no">Oikos</span>, no grego, quer dizer casa e família.</p>
+    </div>
+  </aside>
+
+  <main class="side">
+    <div class="form-wrap">
+
+      <!-- 1. Entrar -->
+      <section class="view" data-view="login" aria-labelledby="t-login">
+        <header>
+          <h1 id="t-login">Entrar</h1>
+          <p>Use o e-mail ou o celular que você cadastrou.</p>
+        </header>
+        <div class="banner" id="login-banner" role="alert" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01" stroke-linecap="round"/></svg>
+          <span id="login-banner-text"></span>
+        </div>
+        <form id="form-login" novalidate>
+          <div class="field">
+            <label for="identificador">E-mail ou celular</label>
+            <div class="control" id="ctl-identificador">
+              <svg id="ico-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6" stroke-linejoin="round"/></svg>
+              <svg id="ico-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" hidden><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2" stroke-linecap="round"/></svg>
+              <input id="identificador" name="identificador" type="text" inputmode="email" autocomplete="username" placeholder="voce@exemplo.com" aria-describedby="hint-identificador" spellcheck="false" autocapitalize="off">
+            </div>
+            <div class="hint" id="hint-identificador" aria-live="polite"></div>
+          </div>
+          <div class="field">
+            <div class="field-row">
+              <label for="senha">Senha</label>
+              <button type="button" class="link" data-go="esqueci">Esqueci minha senha</button>
+            </div>
+            <div class="control" id="ctl-senha">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" stroke-linecap="round"/></svg>
+              <input id="senha" name="senha" type="password" autocomplete="current-password" aria-describedby="hint-senha">
+              <button type="button" class="icon-btn" id="toggle-senha" aria-label="Mostrar senha" aria-pressed="false">
+                <svg id="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg id="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" hidden><path d="M3 3l18 18M10.6 6.1A9.6 9.6 0 0 1 12 6c6 0 9.5 6 9.5 6a17 17 0 0 1-3 3.6M6.5 7.6C4 9.3 2.5 12 2.5 12S6 18 12 18a9 9 0 0 0 4-.9" stroke-linecap="round"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+              </button>
+            </div>
+            <div class="hint" id="hint-senha" aria-live="polite"></div>
+          </div>
+          <button type="submit" class="btn" id="btn-entrar">Entrar</button>
+        </form>
+        <p class="help">Primeiro acesso? Abra o link do convite que você recebeu. Se tiver dúvidas, fale com a secretaria da sua igreja.</p>
+      </section>
+
+      <!-- 2. Código de verificação -->
+      <section class="view" data-view="codigo" aria-labelledby="t-codigo" hidden>
+        <button type="button" class="link back" data-go="login"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar</button>
+        <header>
+          <h1 id="t-codigo">Confirme que é você</h1>
+          <p id="codigo-destino">Enviamos um código de 6 dígitos para <strong id="codigo-contato">m•••@exemplo.com</strong>. Ele vale por 10 minutos.</p>
+        </header>
+        <form id="form-codigo" novalidate>
+          <fieldset class="otp-set">
+            <legend class="sr-only">Código de 6 dígitos</legend>
+            <div class="otp" id="otp">
+              <input id="otp-1" name="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Dígito 1">
+              <input id="otp-2" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Dígito 2">
+              <input id="otp-3" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Dígito 3">
+              <input id="otp-4" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Dígito 4">
+              <input id="otp-5" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Dígito 5">
+              <input id="otp-6" inputmode="numeric" autocomplete="off" maxlength="1" aria-label="Dígito 6">
+            </div>
+            <div class="hint" id="hint-otp" aria-live="polite"></div>
+          </fieldset>
+          <button type="submit" class="btn" id="btn-confirmar">Confirmar</button>
+        </form>
+        <div class="alt">
+          <p>Não chegou?</p>
+          <button type="button" class="link" id="reenviar" disabled>Reenviar em 0:30</button>
+          <button type="button" class="link" id="trocar-canal">Receber pelo WhatsApp</button>
+          <button type="button" class="link" data-go="recuperacao">Usar um código de recuperação</button>
+        </div>
+      </section>
+
+      <!-- 2b. Código de recuperação -->
+      <section class="view" data-view="recuperacao" aria-labelledby="t-recup" hidden>
+        <button type="button" class="link back" data-go="codigo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar</button>
+        <header>
+          <h1 id="t-recup">Código de recuperação</h1>
+          <p>Use um dos 10 códigos que você guardou ao ativar a verificação em duas etapas. Cada um funciona uma vez só.</p>
+        </header>
+        <form id="form-recup" novalidate>
+          <div class="field">
+            <label for="cod-recup">Código</label>
+            <div class="control" id="ctl-recup">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M21 12v2" stroke-linecap="round"/></svg>
+              <input id="cod-recup" name="codigo_recuperacao" autocomplete="off" spellcheck="false" autocapitalize="characters" placeholder="ABCD-1234" aria-describedby="hint-recup">
+            </div>
+            <div class="hint" id="hint-recup" aria-live="polite"></div>
+          </div>
+          <button type="submit" class="btn">Confirmar</button>
+        </form>
+      </section>
+
+      <!-- 3. Esqueci a senha -->
+      <section class="view" data-view="esqueci" aria-labelledby="t-esqueci" hidden>
+        <button type="button" class="link back" data-go="login"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>Voltar para o login</button>
+        <header>
+          <h1 id="t-esqueci">Vamos recuperar seu acesso</h1>
+          <p>Digite o e-mail ou o celular da sua conta. Enviamos as instruções para criar uma senha nova.</p>
+        </header>
+        <form id="form-esqueci" novalidate>
+          <div class="field">
+            <label for="identificador-esqueci">E-mail ou celular</label>
+            <div class="control" id="ctl-esqueci">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6" stroke-linejoin="round"/></svg>
+              <input id="identificador-esqueci" name="identificador" type="text" inputmode="email" autocomplete="username" placeholder="voce@exemplo.com" aria-describedby="hint-esqueci" spellcheck="false" autocapitalize="off">
+            </div>
+            <div class="hint" id="hint-esqueci" aria-live="polite"></div>
+          </div>
+          <button type="submit" class="btn" id="btn-esqueci">Enviar instruções</button>
+        </form>
+      </section>
+
+      <section class="view" data-view="esqueci-ok" aria-labelledby="t-esqueci-ok" hidden>
+        <div class="done">
+          <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6" stroke-linejoin="round"/></svg></div>
+          <h1 id="t-esqueci-ok" class="view-title">Confira sua caixa de entrada</h1>
+          <p>Se existir uma conta com esse contato, as instruções chegam em instantes. Veja também a pasta de spam.</p>
+        </div>
+        <button type="button" class="btn ghost" data-go="login">Voltar para o login</button>
+      </section>
+
+      <!-- 4. Tudo certo -->
+      <section class="view" data-view="sucesso" aria-labelledby="t-sucesso" hidden>
+        <div class="done">
+          <div class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h1 id="t-sucesso">Tudo certo</h1>
+          <p>Abrindo o painel da sua igreja…</p>
+        </div>
+        <button type="button" class="btn ghost" id="recomecar">Recomeçar a demonstração</button>
+      </section>
+
+      <details class="demo" open>
+        <summary>Como testar este protótipo</summary>
+        <ul>
+          <li>Qualquer e-mail ou celular, com a senha <b>oikora123</b>, pede o código.</li>
+          <li>O código certo é <b>123456</b>. Qualquer outro mostra o erro.</li>
+          <li>A senha <b>bloqueada</b> simula muitas tentativas seguidas.</li>
+          <li>Outra senha qualquer mostra a mensagem de dados que não conferem.</li>
+        </ul>
+      </details>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const views = [...document.querySelectorAll('[data-view]')];
+  const state = { contato: '', canal: 'email', timer: null };
+
+  function show(name) {
+    views.forEach((v) => { v.hidden = v.dataset.view !== name; });
+    const target = views.find((v) => v.dataset.view === name);
+    const first = target && (target.querySelector('input') || target.querySelector('h1'));
+    if (first) { if (first.tagName === 'H1') first.tabIndex = -1; setTimeout(() => first.focus(), 30); }
+    if (name === 'codigo') startResend();
+  }
+  document.addEventListener('click', (e) => {
+    const go = e.target.closest('[data-go]');
+    if (go) show(go.dataset.go);
+  });
+
+  // E-mail ou celular: reconhece o tipo enquanto a pessoa digita e aplica a máscara brasileira.
+  const onlyDigits = (s) => s.replace(/\D/g, '');
+  const looksLikePhone = (v) => /^[\s(+]*\d/.test(v) && !v.includes('@');
+  function maskPhone(v) {
+    let d = onlyDigits(v);
+    if (d.startsWith('55') && d.length > 11) d = d.slice(2);
+    d = d.slice(0, 11);
+    if (d.length <= 2) return d.length ? '(' + d : '';
+    if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+    if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  }
+  function bindIdentificador(input, ctl, hint, icons) {
+    input.addEventListener('input', () => {
+      clearError(ctl, hint);
+      const phone = looksLikePhone(input.value);
+      if (phone) { input.value = maskPhone(input.value); input.inputMode = 'tel'; hint.textContent = 'Celular do Brasil, com DDD.'; }
+      else { input.inputMode = 'email'; hint.textContent = ''; }
+      if (icons) { icons.mail.hidden = phone; icons.phone.hidden = !phone; }
+    });
+  }
+  function validateIdentificador(v) {
+    const value = v.trim();
+    if (!value) return 'Digite seu e-mail ou celular.';
+    if (looksLikePhone(value)) return onlyDigits(value).length < 10 ? 'O celular precisa do DDD e do número.' : '';
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value) ? '' : 'Esse e-mail parece incompleto. Confira o @ e o final, como .com ou .br.';
+  }
+  function setError(ctl, hint, msg) { ctl.classList.add('invalid'); hint.textContent = msg; hint.className = 'hint error'; ctl.querySelector('input').setAttribute('aria-invalid', 'true'); }
+  function clearError(ctl, hint) { ctl.classList.remove('invalid'); hint.className = 'hint'; hint.textContent = ''; const i = ctl.querySelector('input'); if (i) i.removeAttribute('aria-invalid'); }
+  function busy(btn, on, label) {
+    if (on) {
+      btn.dataset.label = btn.textContent;
+      btn.replaceChildren();
+      const sp = document.createElement('span'); sp.className = 'spinner'; sp.setAttribute('aria-hidden', 'true');
+      btn.append(sp, label); btn.setAttribute('aria-busy', 'true'); btn.disabled = true;
+    } else { btn.textContent = btn.dataset.label; btn.removeAttribute('aria-busy'); btn.disabled = false; }
+  }
+  function mascara(contato) {
+    if (contato.includes('@')) { const [u, dom] = contato.split('@'); return `${u[0]}•••@${dom}`; }
+    const d = onlyDigits(contato); return `(${d.slice(0, 2)}) •••••-${d.slice(-4)}`;
+  }
+
+  const idInput = $('#identificador'), idCtl = $('#ctl-identificador'), idHint = $('#hint-identificador');
+  bindIdentificador(idInput, idCtl, idHint, { mail: $('#ico-mail'), phone: $('#ico-phone') });
+  const senha = $('#senha'), senhaCtl = $('#ctl-senha'), senhaHint = $('#hint-senha');
+
+  $('#toggle-senha').addEventListener('click', (e) => {
+    const btn = e.currentTarget, visible = senha.type === 'text';
+    senha.type = visible ? 'password' : 'text';
+    btn.setAttribute('aria-pressed', String(!visible));
+    btn.setAttribute('aria-label', visible ? 'Mostrar senha' : 'Ocultar senha');
+    $('#eye-open').hidden = !visible; $('#eye-closed').hidden = visible;
+    senha.focus();
+  });
+  senha.addEventListener('input', () => clearError(senhaCtl, senhaHint));
+  senha.addEventListener('keyup', (e) => {
+    if (senhaCtl.classList.contains('invalid') || !e.getModifierState) return;
+    senhaHint.className = 'hint';
+    senhaHint.textContent = e.getModifierState('CapsLock') ? 'O Caps Lock está ligado.' : '';
+  });
+
+  const banner = $('#login-banner'), bannerText = $('#login-banner-text');
+  $('#form-login').addEventListener('submit', (e) => {
+    e.preventDefault();
+    banner.hidden = true;
+    const errId = validateIdentificador(idInput.value);
+    const errSenha = senha.value ? '' : 'Digite sua senha.';
+    if (errId) setError(idCtl, idHint, errId);
+    if (errSenha) setError(senhaCtl, senhaHint, errSenha);
+    if (errId || errSenha) { (errId ? idInput : senha).focus(); return; }
+
+    const btn = $('#btn-entrar');
+    busy(btn, true, 'Entrando…');
+    setTimeout(() => {
+      busy(btn, false);
+      if (senha.value === 'oikora123') {
+        state.contato = idInput.value.trim(); state.canal = state.contato.includes('@') ? 'email' : 'whatsapp';
+        renderDestino(); show('codigo');
+      } else if (senha.value === 'bloqueada') {
+        bannerText.textContent = 'Foram muitas tentativas seguidas. Por segurança, espere 5 minutos e tente de novo.';
+        banner.hidden = false;
+      } else {
+        bannerText.textContent = 'Os dados não conferem. Confira o e-mail ou celular e a senha e tente de novo.';
+        banner.hidden = false; senha.value = ''; senha.focus();
+      }
+    }, 900);
+  });
+
+  // Código de 6 dígitos: avança sozinho, aceita colar e confirma ao completar.
+  const otp = $('#otp'), boxes = [...otp.querySelectorAll('input')], otpHint = $('#hint-otp');
+  function renderDestino() {
+    const temEmail = state.contato.includes('@');
+    const destino = state.canal === 'email'
+      ? (temEmail ? mascara(state.contato) : 'm•••@exemplo.com')
+      : (temEmail ? '(11) •••••-4321' : mascara(state.contato));
+    const p = $('#codigo-destino'), strong = document.createElement('strong');
+    strong.textContent = destino;
+    p.replaceChildren(`Enviamos um código de 6 dígitos ${state.canal === 'email' ? 'para' : 'no WhatsApp'} `, strong, '. Ele vale por 10 minutos.');
+    $('#trocar-canal').textContent = state.canal === 'email' ? 'Receber pelo WhatsApp' : 'Receber por e-mail';
+    boxes.forEach((b) => (b.value = '')); otp.classList.remove('invalid'); otpHint.textContent = ''; otpHint.className = 'hint';
+  }
+  function fill(from, digits) {
+    digits.split('').forEach((d, i) => { if (boxes[from + i]) boxes[from + i].value = d; });
+    boxes[Math.min(from + digits.length, 5)].focus();
+    if (boxes.every((b) => b.value)) verify();
+  }
+  boxes.forEach((box, i) => {
+    box.addEventListener('input', () => {
+      otp.classList.remove('invalid'); otpHint.textContent = ''; otpHint.className = 'hint';
+      const d = onlyDigits(box.value); box.value = '';
+      if (d) fill(i, d.slice(0, 6 - i));
+    });
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !box.value && i > 0) { boxes[i - 1].value = ''; boxes[i - 1].focus(); e.preventDefault(); }
+      if (e.key === 'ArrowLeft' && i > 0) boxes[i - 1].focus();
+      if (e.key === 'ArrowRight' && i < 5) boxes[i + 1].focus();
+    });
+    box.addEventListener('paste', (e) => {
+      const d = onlyDigits((e.clipboardData || window.clipboardData).getData('text'));
+      if (d) { e.preventDefault(); fill(0, d.slice(0, 6)); }
+    });
+    box.addEventListener('focus', () => box.select());
+  });
+  function verify() {
+    const code = boxes.map((b) => b.value).join('');
+    const btn = $('#btn-confirmar');
+    if (code.length < 6) { otp.classList.add('invalid'); otpHint.className = 'hint error'; otpHint.textContent = 'Digite os 6 números do código.'; boxes.find((b) => !b.value).focus(); return; }
+    busy(btn, true, 'Confirmando…');
+    setTimeout(() => {
+      busy(btn, false);
+      if (code === '123456') { show('sucesso'); return; }
+      otp.classList.add('invalid', 'shake'); setTimeout(() => otp.classList.remove('shake'), 400);
+      otpHint.className = 'hint error'; otpHint.textContent = 'Código incorreto. Confira a mensagem e digite de novo.';
+      boxes.forEach((b) => (b.value = '')); boxes[0].focus();
+    }, 700);
+  }
+  $('#form-codigo').addEventListener('submit', (e) => { e.preventDefault(); verify(); });
+
+  const reenviar = $('#reenviar');
+  function startResend() {
+    clearInterval(state.timer);
+    let s = 30; reenviar.disabled = true; reenviar.textContent = 'Reenviar em 0:30';
+    state.timer = setInterval(() => {
+      s -= 1;
+      if (s <= 0) { clearInterval(state.timer); reenviar.disabled = false; reenviar.textContent = 'Reenviar código'; return; }
+      reenviar.textContent = `Reenviar em 0:${String(s).padStart(2, '0')}`;
+    }, 1000);
+  }
+  reenviar.addEventListener('click', () => { renderDestino(); otpHint.textContent = 'Enviamos um código novo.'; startResend(); boxes[0].focus(); });
+  $('#trocar-canal').addEventListener('click', () => {
+    state.canal = state.canal === 'email' ? 'whatsapp' : 'email';
+    renderDestino(); otpHint.textContent = 'Código enviado pelo novo canal.'; startResend(); boxes[0].focus();
+  });
+
+  $('#form-recup').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const ctl = $('#ctl-recup'), hint = $('#hint-recup'), v = $('#cod-recup').value.trim();
+    if (v.replace(/[^a-z0-9]/gi, '').length < 8) { setError(ctl, hint, 'O código tem 8 letras e números, como ABCD-1234.'); $('#cod-recup').focus(); return; }
+    clearError(ctl, hint); show('sucesso');
+  });
+
+  const esqInput = $('#identificador-esqueci'), esqCtl = $('#ctl-esqueci'), esqHint = $('#hint-esqueci');
+  bindIdentificador(esqInput, esqCtl, esqHint);
+  $('#form-esqueci').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const err = validateIdentificador(esqInput.value);
+    if (err) { setError(esqCtl, esqHint, err); esqInput.focus(); return; }
+    const btn = $('#btn-esqueci'); busy(btn, true, 'Enviando…');
+    setTimeout(() => { busy(btn, false); show('esqueci-ok'); }, 800);
+  });
+
+  $('#recomecar').addEventListener('click', () => {
+    $('#form-login').reset(); banner.hidden = true; clearError(idCtl, idHint); clearError(senhaCtl, senhaHint);
+    $('#ico-mail').hidden = false; $('#ico-phone').hidden = true; show('login');
+  });
+})();
+</script>
+</body>
+</html>
