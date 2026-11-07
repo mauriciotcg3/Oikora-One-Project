@@ -5,3 +5,7 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Laravel
+api/vendor/
+api/.phpunit.cache/

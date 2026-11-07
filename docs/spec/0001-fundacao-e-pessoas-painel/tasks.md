@@ -27,7 +27,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** o teste deve FALHAR (Red). Só prosseguir para a implementação depois que o usuário aprovar o teste e confirmar essa falha.
 - **Critério de aceite final:** testes passando (Green); `docker compose up` sobe todos os serviços; versões registradas no `plan.md` §9 (U-15); comandos de teste registrados no `project.md` (CTX-011).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Parcial (fatia do login, 2026-11-07): Laravel, PostgreSQL, Caddy, `versoes.env` e `/saude` prontos. Falta MinIO, workers, `packages/api-contrato/` e o teste da raiz do painel.
 
 ## T-02 — CI no GitHub Actions e Pre-Review Gate
 - **Issue:** #2
@@ -67,7 +67,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; a suíte roda com a conexão `oikora_app` (CA-08).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Green (fatia do login, 2026-11-07). `oikora_dono` ganhou BYPASSRLS, para validar FK com RLS forçada (confirmado pelo usuário, registrado no `plan.md` §2).
 
 ## T-04 — Contexto de organização por requisição e por job
 - **Issue:** #4
@@ -215,7 +215,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** RN-12 — atualizar `docs/modules/identidade.md`.
-- **Status:** Pendente
+- **Status:** Parcial (fatia do login, 2026-11-07): login, logout, sessão, limite, eventos e RLS de identidade Green. Login responde 204, conforme o contrato do front. `acessos.pessoa_id` sem FK até a T-09; política de senha sem rota até a T-12/T-22.
 
 ## T-11 — Envio de códigos de identidade (fila `codigos`)
 - **Issue:** #11
@@ -236,7 +236,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; nenhuma chamada de rede real (`preventStrayRequests`).
 - **Regra de negócio associada:** RN-21 (códigos) — atualizar `docs/modules/avisos.md`.
-- **Status:** Pendente
+- **Status:** Parcial (recorte de códigos, 2026-11-07): fila `codigos`, Contract, reserva por SMS, limites e estado do envio Green, com adapters falsos. Faltam os adapters reais de Postmark, Meta e Twilio.
 
 ## T-12 — Verificação de contato, 2FA e recuperação de senha
 - **Issue:** #12
@@ -258,7 +258,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** RN-16 — atualizar `docs/modules/identidade.md`.
-- **Status:** Pendente
+- **Status:** Green (2026-11-07): os 7 casos passam, e código, recuperação, TOTP e verificação foram validados no navegador com a API real. A obrigação de 2FA vem da porta `ExigenciaDeDoisFatores`, que só responde de verdade com a T-16 (CA-10 fica para lá). As rotas `/conta/*` e o token de redefinição ainda não têm tela.
 
 ## T-13 — Catálogo de permissões, papéis, atribuições e alcance
 - **Issue:** #13

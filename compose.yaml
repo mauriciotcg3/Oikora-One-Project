@@ -1,8 +1,76 @@
-# Dev local (OIK-ADR-0011 §4). Por enquanto só o front, com a API simulada;
-# postgres, php-fpm, caddy, minio e os workers entram com o Laravel na T-01.
+# Dev local (OIK-ADR-0011 §4). Subir com: docker compose --env-file versoes.env up --build
+# MinIO e os demais workers entram quando a primeira task precisar deles (T-01 parcial na fatia do login).
 name: oikora-one
 
+x-api: &api
+  build:
+    context: ./api
+    args:
+      PHP_VERSAO: ${PHP_VERSAO:?use --env-file versoes.env}
+  image: oikora-one-api:dev
+  volumes:
+    - ./api:/var/www/api
+    # vendor em volume nomeado: na pasta do Windows, instalar e carregar as classes fica muito lento.
+    - api-vendor:/var/www/api/vendor
+
 services:
+  postgres:
+    image: postgres:${POSTGRES_VERSAO:?use --env-file versoes.env}-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres_dev
+    volumes:
+      - postgres-dados:/var/lib/postgresql/data
+      - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d oikora_teste"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Prepara a API e sai: dependências, .env, chave, migrations (como oikora_dono) e dados fictícios.
+  api-preparar:
+    <<: *api
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        [ -f .env ] || cp .env.example .env
+        composer install --no-interaction --no-progress
+        grep -q '^APP_KEY=base64' .env || php artisan key:generate --force
+        php artisan migrate --database=pgsql_dono --force
+        php artisan db:seed --database=pgsql_dono --force
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    <<: *api
+    depends_on:
+      api-preparar:
+        condition: service_completed_successfully
+      worker-codigos:
+        condition: service_started
+
+  # Worker dedicado: um lote de avisos nunca atrasa um 2FA (OIK-ADR-0008 §3).
+  worker-codigos:
+    <<: *api
+    command: ["php", "artisan", "queue:work", "--queue=codigos", "--sleep=1"]
+    restart: unless-stopped
+    depends_on:
+      api-preparar:
+        condition: service_completed_successfully
+
+  caddy:
+    image: caddy:${CADDY_VERSAO:?use --env-file versoes.env}-alpine
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./api/public:/var/www/api/public:ro
+    depends_on:
+      - api
+
   web:
     build:
       context: .
@@ -12,11 +80,16 @@ services:
       - "127.0.0.1:5173:5173"
     environment:
       OBSERVAR_POR_POLLING: "true"
+      VITE_API_SIMULADA: "false"
+      # O Vite repassa /api e /sanctum: front e API ficam na mesma origem, como exige a sessão (OIK-ADR-0003 §9).
+      API_PROXY: http://caddy:80
     volumes:
       - ./web/src:/app/web/src
       - ./web/public:/app/web/public
       - ./web/painel.html:/app/web/painel.html
       - ./web/vite.config.ts:/app/web/vite.config.ts
+    depends_on:
+      - caddy
     healthcheck:
       test:
         - CMD
@@ -27,3 +100,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+
+volumes:
+  postgres-dados:
+  api-vendor:

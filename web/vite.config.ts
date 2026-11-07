@@ -10,18 +10,24 @@ const reescreverEntradas: Connect.NextHandleFunction = (req, _res, next) => {
 
 function entradasSpa(): Plugin {
   return {
-    name: 'oikora-entradas-spa',
-    configureServer: (server) => void server.middlewares.use(reescreverEntradas),
-    configurePreviewServer: (server) => void server.middlewares.use(reescreverEntradas),
+      name: 'oikora-entradas-spa',
+      configureServer: (server) => void server.middlewares.use(reescreverEntradas),
+      configurePreviewServer: (server) => void server.middlewares.use(reescreverEntradas),
   }
 }
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(({ mode }) => {
+  const ambiente = loadEnv(mode, '.', '')
+  const api = ambiente.API_PROXY
+
+  return {
   plugins: [react(), entradasSpa()],
   appType: 'mpa',
   server: {
+    // Mesma origem para front e API: a sessão vem em cookie (OIK-ADR-0003 §9).
+    proxy: api ? { '/api': api, '/sanctum': api } : undefined,
     // No Docker com pasta do Windows, o container não recebe os eventos de arquivo alterado.
-    watch: loadEnv(mode, '.', '').OBSERVAR_POR_POLLING === 'true' ? { usePolling: true, interval: 300 } : undefined,
+    watch: ambiente.OBSERVAR_POR_POLLING === 'true' ? { usePolling: true, interval: 300 } : undefined,
   },
   build: {
     rollupOptions: { input: { painel: 'painel.html' } },
@@ -32,4 +38,5 @@ export default defineConfig(({ mode }) => ({
     css: false,
     restoreMocks: true,
   },
-}))
+  }
+})
