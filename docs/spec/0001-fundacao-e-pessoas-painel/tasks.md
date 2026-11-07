@@ -11,10 +11,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 ## Fase A — Base
 
 ## T-01 — Bootstrap do monorepo e ambiente local
+- **Issue:** #1
 - **Objetivo:** criar o workspace pnpm (`api/`, `web/` com a entrada `painel`, `packages/api-contrato/`), o arquivo único de versões e o Docker Compose local (PG 17 + `pg_trgm`/`unaccent`, Caddy + PHP-FPM, MinIO), com `GET /api/v1/saude`.
 - **Context Pack:** `context/T-01.md`
 - **Arquivos de entrada:** `plan.md` §1, §9, §10; `spec.md` E-01.
-- **Arquivos de saída:** `package.json`, `pnpm-workspace.yaml`, `versoes.env`, `compose.yaml`, `api/**` (Laravel), `web/**` (Vite, entrada `painel`), `packages/api-contrato/package.json`, `api/routes/api.php`, `plan.md` §9 (versões fixadas).
+- **Arquivos de saída:** `package.json`, `pnpm-workspace.yaml`, `versoes.env`, `compose.yaml`, `api/**` (Laravel), `web/**` (Vite, entrada `painel`), `packages/api-contrato/package.json`, `api/routes/api.php`, `plan.md`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Saude/SaudeTest.php`; `web/src/app/painel/__tests__/raiz.test.tsx`
@@ -29,6 +30,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-02 — CI no GitHub Actions e Pre-Review Gate
+- **Issue:** #2
 - **Objetivo:** criar `composer gate`, `pnpm gate`, o workflow de PR com filtro por caminho, o workflow noturno (vazio até a T-45) e o Dependabot, com PHPStan nível 8, Pint, Deptrac, cobertura de linhas alteradas, gitleaks e auditoria de dependências.
 - **Context Pack:** `context/T-02.md`
 - **Arquivos de entrada:** `plan.md` §1, §9; `spec.md` E-02.
@@ -47,6 +49,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-03 — Isolamento por organização no banco (RLS)
+- **Issue:** #3
 - **Objetivo:** criar os papéis `oikora_dono`/`oikora_app`/`oikora_plataforma`, a função `app_organizacao_atual()`, a tabela `organizacoes`, as macros de migration `organizacao()` e `foreignComposta()` e o teste de catálogo da RLS.
 - **Context Pack:** `context/T-03.md`
 - **Arquivos de entrada:** `plan.md` §2, §3.1.
@@ -67,6 +70,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-04 — Contexto de organização por requisição e por job
+- **Issue:** #4
 - **Objetivo:** implementar o middleware HTTP `ContextoOrganizacao` (transação + `set_config(..., true)` + `X-Organizacao-Esperada`) e o middleware de job `ContextoOrganizacaoJob`, com o contrato `ResolvedorOrganizacaoAtiva` (a implementação real é da T-16).
 - **Context Pack:** `context/T-04.md`
 - **Arquivos de entrada:** `plan.md` §2; T-03 concluída.
@@ -87,6 +91,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-05 — Contrato OpenAPI e pacote `api-contrato`
+- **Issue:** #5
 - **Objetivo:** gerar o OpenAPI com Scramble, versioná-lo, gerar tipos e cliente em `packages/api-contrato` e incluir a verificação "gerado = versionado" + `oasdiff` no CI.
 - **Context Pack:** `context/T-05.md`
 - **Arquivos de entrada:** `plan.md` §7, §9; T-01, T-02 concluídas.
@@ -105,6 +110,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-06 — Instrumentação no código e log seguro
+- **Issue:** #6
 - **Objetivo:** implementar `X-Request-Id`, logs JSON no stdout com redação, o SDK OpenTelemetry (exportação desligável no dev), `X-Cliente` e a herança do `request_id` em jobs.
 - **Context Pack:** `context/T-06.md`
 - **Arquivos de entrada:** `plan.md` §1, §9; `spec.md` E-15.
@@ -128,10 +134,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 ## Fase B — Núcleo: auditoria, organização, identidade, autorização, avisos
 
 ## T-07 — Auditoria: registro na transação e imutabilidade
+- **Issue:** #7
 - **Objetivo:** criar `auditoria` (particionada por mês), `auditoria_plataforma`, o enum `EventoAuditoria`, o serviço `Auditoria::registrar` na transação, o comando de partições e retenção (conexão `pgsql_dono`) e o teste de arquitetura das Actions de escrita.
 - **Context Pack:** `context/T-07.md`
 - **Arquivos de entrada:** `plan.md` §3.4; T-03, T-04 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Auditoria/**`, migrations de `auditoria` e `auditoria_plataforma`, `api/tests/Arquitetura/AuditoriaArquiteturaTest.php`.
+- **Arquivos de saída:** `api/app/Modules/Auditoria/**`, `api/database/migrations/*_create_{auditoria,auditoria_plataforma}_table.php`, `api/tests/Arquitetura/AuditoriaArquiteturaTest.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Auditoria/RegistroAuditoriaTest.php`; `api/tests/Rls/AuditoriaImutavelTest.php`; `api/tests/Arquitetura/AuditoriaArquiteturaTest.php`
@@ -148,10 +155,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-08 — Organização: schema de regionais e igrejas
+- **Issue:** #8
 - **Objetivo:** completar `organizacoes` (estado, fuso, logo, cor, modo de matrícula, limite de WhatsApp) e criar `regionais` e `igrejas` com FK composta.
 - **Context Pack:** `context/T-08.md`
 - **Arquivos de entrada:** `plan.md` §3.1; T-03 concluída.
-- **Arquivos de saída:** `api/app/Modules/Organizacao/**` (Models, enums), migrations.
+- **Arquivos de saída:** `api/app/Modules/Organizacao/**` (Models, enums), `api/database/migrations/*_create_{regionais,igrejas}_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Rls/OrganizacaoRlsTest.php`; `api/tests/Unit/Organizacao/OrganizacaoTest.php`
@@ -166,10 +174,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-09 — Pessoas: schema, catálogo de campos e cifra de sensíveis
+- **Issue:** #9
 - **Objetivo:** criar `pessoas`, `pessoa_contatos` e `pessoa_enderecos`, o catálogo de campos da ficha (categoria e seção), o `CampoSensivelEncrypter` com rotação, o `cpf_hash` (HMAC) e o `nome_busca` com índice trigram.
 - **Context Pack:** `context/T-09.md`
 - **Arquivos de entrada:** `plan.md` §3.5, §5 (Cifra); T-08 concluída.
-- **Arquivos de saída:** `api/app/Modules/Pessoas/Domain/CampoFicha.php`, `api/app/Modules/Pessoas/Infrastructure/**`, `api/app/Shared/Cifra/**`, comando `oikora:chaves:recifrar`, migrations.
+- **Arquivos de saída:** `api/app/Modules/Pessoas/Domain/CampoFicha.php`, `api/app/Modules/Pessoas/Infrastructure/**`, `api/app/Shared/Cifra/**`, `api/database/migrations/*_create_{pessoas,pessoa_contatos,pessoa_enderecos}_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Pessoas/CifraCamposTest.php`; `api/tests/Unit/Pessoas/CatalogoCamposTest.php`
@@ -185,10 +194,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-10 — Contas, RLS de identidade e login
+- **Issue:** #10
 - **Objetivo:** criar `contas` com a RLS de identidade e as funções estreitas, `acessos` (U-30), `eventos_autenticacao` (U-31), o login e logout com Fortify headless (e-mail ou celular + senha), a sessão de 30 dias, a política de senha e o limite de tentativas configurável.
 - **Context Pack:** `context/T-10.md`
 - **Arquivos de entrada:** `plan.md` §3.2, §4; T-03, T-06, T-09 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Identidade/**`, `api/config/fortify.php`, `api/config/oikora.php`, `api/config/session.php`, migrations de `contas`/`sessions`/`codigos_verificacao`/`acessos`/`eventos_autenticacao`.
+- **Arquivos de saída:** `api/app/Modules/Identidade/**`, `api/config/fortify.php`, `api/config/oikora.php`, `api/config/session.php`, `api/database/migrations/*_create_{contas,sessions,codigos_verificacao,acessos,eventos_autenticacao}_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Identidade/LoginTest.php`; `api/tests/Rls/ContasRlsTest.php`
@@ -208,6 +218,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-11 — Envio de códigos de identidade (fila `codigos`)
+- **Issue:** #11
 - **Objetivo:** enviar códigos de verificação, 2FA e recuperação pela fila dedicada `codigos`. Canais: e-mail (Postmark), WhatsApp da plataforma (template `authentication`) e SMS Twilio de reserva só para +55. Usa adapters falsos nos testes.
 - **Context Pack:** `context/T-11.md`
 - **Arquivos de entrada:** `plan.md` §3.2, §3.6, §4; T-10 concluída.
@@ -228,6 +239,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-12 — Verificação de contato, 2FA e recuperação de senha
+- **Issue:** #12
 - **Objetivo:** implementar a verificação de e-mail e celular, o 2FA (código por mensagem, TOTP, códigos de recuperação, regra das 24h), a confirmação de senha de 15 min e a recuperação de senha que encerra todas as sessões.
 - **Context Pack:** `context/T-12.md`
 - **Arquivos de entrada:** `plan.md` §4; T-10, T-11 concluídas.
@@ -249,10 +261,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-13 — Catálogo de permissões, papéis, atribuições e alcance
+- **Issue:** #13
 - **Objetivo:** criar o enum `Permissao`, as tabelas `papeis`, `papel_permissoes` e `atribuicoes_papel`, o serviço `Alcance` por requisição, o atributo `#[RequerPermissao]` com a Policy e o teste de arquitetura.
 - **Context Pack:** `context/T-13.md`
 - **Arquivos de entrada:** `plan.md` §3.3, §5; T-04, T-08 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Autorizacao/**`, migrations, `api/tests/Autorizacao/MatrizPermissoesTest.php`.
+- **Arquivos de saída:** `api/app/Modules/Autorizacao/**`, `api/database/migrations/*_create_{papeis,papel_permissoes,atribuicoes_papel}_table.php`, `api/tests/Autorizacao/MatrizPermissoesTest.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Unit/Autorizacao/AlcanceTest.php`; `api/tests/Autorizacao/MatrizPermissoesTest.php`; `api/tests/Arquitetura/PermissaoDeclaradaTest.php`
@@ -268,6 +281,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-14 — Escopo de consulta de Pessoas, busca na denominação e projeção de sensíveis
+- **Issue:** #14
 - **Objetivo:** aplicar o filtro global `PessoaEscopoAlcance`, a classe única `BuscaDenominacao` e o `PessoaResource` com a projeção por categoria e `meta.acoes`, expostos em `GET /painel/pessoas/{id}` e `GET /painel/busca`.
 - **Context Pack:** `context/T-14.md`
 - **Arquivos de entrada:** `plan.md` §5, §7; T-09, T-13 concluídas.
@@ -288,6 +302,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-15 — Gestão de papéis e atribuições com travas
+- **Issue:** #15
 - **Objetivo:** implementar criar e editar papel, atribuir e remover atribuição, com a trava do último administrador e a anti-escalada, auditadas.
 - **Context Pack:** `context/T-15.md`
 - **Arquivos de entrada:** `plan.md` §3.3, §7; T-07, T-13 concluídas.
@@ -308,10 +323,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-16 — Organização ativa, `/me` e elevação do painel
+- **Issue:** #16
 - **Objetivo:** implementar o `ResolvedorOrganizacaoAtiva` real (sessão + revalidação contra acessos ativos), `GET /me` com capacidades, `PUT /me/organizacao-ativa` e a elevação do painel (2h/12h, 2FA quando exigido, cadastro obrigatório do 2FA do administrador).
 - **Context Pack:** `context/T-16.md`
 - **Arquivos de entrada:** `plan.md` §3.2, §4; T-04, T-12, T-13 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Identidade/Infrastructure/ResolvedorOrganizacaoSessao.php`, `api/app/Modules/Identidade/Presentation/Http/Middleware/ElevacaoPainel.php`, rotas.
+- **Arquivos de saída:** `api/app/Modules/Identidade/Infrastructure/ResolvedorOrganizacaoSessao.php`, `api/app/Modules/Identidade/Presentation/Http/Middleware/ElevacaoPainel.php`, `api/routes/api.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Identidade/OrganizacaoAtivaTest.php`; `api/tests/Feature/Identidade/ElevacaoPainelTest.php`
@@ -331,10 +347,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-17 — Avisos: caixa de saída transacional e idempotência
+- **Issue:** #17
 - **Objetivo:** criar `avisos`, `envios` (particionada) e o catálogo `TipoAviso`; implementar `Avisos::registrar` na transação do fato, o job de envio com `FOR UPDATE SKIP LOCKED`, a classificação temporário/definitivo, as tentativas, a varredura `envios:varrer` e a supressão `em_migracao`.
 - **Context Pack:** `context/T-17.md`
 - **Arquivos de entrada:** `plan.md` §3.6; T-04, T-07, T-08 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Avisos/{Contracts,Domain,Application,Infrastructure}/**`, migrations, agendamento em `api/routes/console.php`.
+- **Arquivos de saída:** `api/app/Modules/Avisos/{Contracts,Domain,Application,Infrastructure}/**`, `api/database/migrations/*_create_{avisos,envios}_table.php`, `api/routes/console.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Avisos/CaixaDeSaidaTest.php`
@@ -352,10 +369,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-18 — Avisos: canais e-mail e WhatsApp, regras por categoria, janela e preferências
+- **Issue:** #18
 - **Objetivo:** ligar os adapters Postmark e Meta (número da organização) ao envio, aplicar as regras de canal de `convite` e `servico`, o reenvio pelo próximo canal, a espera de 30 minutos pela entrega no WhatsApp, a janela diurna 8h–21h, as preferências e o descadastro (one-click e "SAIR").
 - **Context Pack:** `context/T-18.md`
 - **Arquivos de entrada:** `plan.md` §3.6; T-11, T-17 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Avisos/Application/**`, `api/app/Modules/Avisos/Infrastructure/**`, `api/resources/views/emails/**`, migration de `preferencias_aviso`.
+- **Arquivos de saída:** `api/app/Modules/Avisos/Application/**`, `api/app/Modules/Avisos/Infrastructure/**`, `api/resources/views/emails/**`, `api/database/migrations/*_create_preferencias_aviso_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Avisos/RegrasCanalTest.php`; `api/tests/Feature/Avisos/DescadastroTest.php`
@@ -372,6 +390,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-19 — Avisos: webhooks de status
+- **Issue:** #19
 - **Objetivo:** criar `POST /webhooks/{meta|postmark|twilio}` (e o `GET` de verificação da Meta) com assinatura validada, resposta rápida, processamento na fila `webhooks` e localização da organização por função estreita.
 - **Context Pack:** `context/T-19.md`
 - **Arquivos de entrada:** `plan.md` §3.6, §7; T-17, T-18 concluídas.
@@ -392,10 +411,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-20 — Avisos: caixa de avisos, uso e limite de WhatsApp
+- **Issue:** #20
 - **Objetivo:** expor a caixa de avisos (listar, não lidos, marcar lido, marcar todos), com texto montado na leitura pelo alcance de quem lê, e as preferências; criar `uso_mensageria` e o limite mensal configurável (avisos de 80% e 100%, valor em aberto).
 - **Context Pack:** `context/T-20.md`
 - **Arquivos de entrada:** `plan.md` §3.6, §7; T-17, T-18 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Avisos/Presentation/**`, `api/app/Modules/Avisos/Application/**`, migration de `uso_mensageria`.
+- **Arquivos de saída:** `api/app/Modules/Avisos/Presentation/**`, `api/app/Modules/Avisos/Application/**`, `api/database/migrations/*_create_uso_mensageria_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Avisos/CaixaAvisosTest.php`; `api/tests/Feature/Avisos/LimiteWhatsappTest.php`
@@ -411,10 +431,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-21 — Avisos: ligar o número de WhatsApp da organização
+- **Issue:** #21
 - **Objetivo:** implementar o "ligar número" pelo fluxo OAuth por redirecionamento (sem o SDK JavaScript da Meta), guardar o número com o token cifrado, criar os templates do catálogo na conta e desligar o número, com `avisos.whatsapp.gerir`.
 - **Context Pack:** `context/T-21.md`
 - **Arquivos de entrada:** `plan.md` §3.6, §13 (risco CSP); T-17 concluída.
-- **Arquivos de saída:** `api/app/Modules/Avisos/**` (Actions e adapter Meta), migration de `whatsapp_numeros`.
+- **Arquivos de saída:** `api/app/Modules/Avisos/**` (Actions e adapter Meta), `api/database/migrations/*_create_whatsapp_numeros_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Avisos/WhatsappNumeroTest.php`
@@ -430,10 +451,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-22 — Convite ao painel e revogação de acesso
+- **Issue:** #22
 - **Objetivo:** implementar emitir convite (Pessoa + papel + escopo, com anti-escalada), aceitar (login ou conta nova com senha própria → acesso + atribuição), revogar convite, expirar (comando diário) e revogar acesso.
 - **Context Pack:** `context/T-22.md`
 - **Arquivos de entrada:** `plan.md` §3.2, §4, §7; T-14, T-15, T-16, T-18 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Identidade/Application/Actions/{Convidar,AceitarConvite,RevogarConvite,RevogarAcesso}.php`, migration de `convites`, rotas.
+- **Arquivos de saída:** `api/app/Modules/Identidade/Application/Actions/{Convidar,AceitarConvite,RevogarConvite,RevogarAcesso}.php`, `api/database/migrations/*_create_convites_table.php`, `api/routes/api.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Identidade/ConviteTest.php`
@@ -451,6 +473,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-23 — Provisionamento da organização
+- **Issue:** #23
 - **Objetivo:** criar o comando `oikora:organizacao:provisionar` (conexão `pgsql_plataforma`), que cria a organização, os papéis prontos, a primeira igreja, a Pessoa do primeiro administrador e o convite dele, registrando em `auditoria_plataforma`.
 - **Context Pack:** `context/T-23.md`
 - **Arquivos de entrada:** `plan.md` §3.3, §4 (Provisionamento); T-22 concluída.
@@ -469,6 +492,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-24 — Configuração da organização e igrejas (API)
+- **Issue:** #24
 - **Objetivo:** expor `GET|PUT /painel/organizacao` (nome, fuso, cor com contraste AA, modo de matrícula, limite de WhatsApp), o upload do logo por URL assinada (MinIO/S3) e o cadastro e edição de igrejas.
 - **Context Pack:** `context/T-24.md`
 - **Arquivos de entrada:** `plan.md` §3.1, §7; T-15, T-16 concluídas.
@@ -492,10 +516,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 ## Fase C — Pessoas no painel (API)
 
 ## T-25 — Listas de valores e campos obrigatórios por vínculo
+- **Issue:** #25
 - **Objetivo:** criar `listas_valores` e `campos_obrigatorios`, com as rotas de manutenção protegidas por `pessoas.configurar` e auditadas.
 - **Context Pack:** `context/T-25.md`
 - **Arquivos de entrada:** `plan.md` §3.5, §7; T-09, T-15 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Pessoas/{Application,Presentation,Infrastructure}/Configuracao/**`, migrations.
+- **Arquivos de saída:** `api/app/Modules/Pessoas/{Application,Presentation,Infrastructure}/Configuracao/**`, `api/database/migrations/*_create_{listas_valores,campos_obrigatorios}_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Pessoas/ListasValoresTest.php`; `api/tests/Feature/Pessoas/CamposObrigatoriosTest.php`
@@ -511,10 +536,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-26 — Cadastro rápido com alerta de duplicidade
+- **Issue:** #26
 - **Objetivo:** implementar `GET /painel/pessoas/duplicidade` (enquanto digita) e `POST /painel/pessoas` (cadastro rápido), com o evento de entrada, "é outra pessoa" e a oferta de recuperar quem está na lixeira.
 - **Context Pack:** `context/T-26.md`
 - **Arquivos de entrada:** `plan.md` §6 (Duplicidade), §3.5; T-14, T-25 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/{Actions/CadastrarPessoa.php,Consultas/VerificarDuplicidade.php}`, migrations de `eventos_linha_do_tempo` e `pares_nao_duplicados`.
+- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/{Actions/CadastrarPessoa.php,Consultas/VerificarDuplicidade.php}`, `api/database/migrations/*_create_{eventos_linha_do_tempo,pares_nao_duplicados}_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Pessoas/CadastroRapidoTest.php`; `api/tests/Feature/Pessoas/DuplicidadeTest.php`
@@ -531,6 +557,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-27 — Ficha por seções, completude e foto
+- **Issue:** #27
 - **Objetivo:** implementar `PATCH /painel/pessoas/{id}` por seção, com validação por campo, permissão de categoria sensível, auditoria só com nomes de campos, completude pelo vínculo e upload da foto por URL assinada.
 - **Context Pack:** `context/T-27.md`
 - **Arquivos de entrada:** `plan.md` §3.5, §5, §7; T-14, T-25, T-26 concluídas.
@@ -550,6 +577,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-28 — Vínculo, situação e matrícula
+- **Issue:** #28
 - **Objetivo:** implementar a máquina de estados do vínculo (V→F→M), a inativação e reativação com motivo, a matrícula manual única e a recusa do modo automático, com os eventos na linha do tempo.
 - **Context Pack:** `context/T-28.md`
 - **Arquivos de entrada:** `plan.md` §6 (Transições), §3.5; T-26 concluída.
@@ -570,10 +598,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-29 — Linha do tempo manual, relacionamentos, funções e tipo de membro
+- **Issue:** #29
 - **Objetivo:** implementar o registro manual com data retroativa, os relacionamentos com tipos fixos e a inversa automática, as funções com período e o tipo de membro.
 - **Context Pack:** `context/T-29.md`
 - **Arquivos de entrada:** `plan.md` §3.5, §7; T-26, T-28 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/{RegistrarEventoManual,Relacionar,RemoverRelacionamento,AtribuirFuncao,EncerrarFuncao,DefinirTipoMembro}.php`, migrations de `relacionamentos` e `pessoa_funcoes`.
+- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/{RegistrarEventoManual,Relacionar,RemoverRelacionamento,AtribuirFuncao,EncerrarFuncao,DefinirTipoMembro}.php`, `api/database/migrations/*_create_{relacionamentos,pessoa_funcoes}_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Pessoas/LinhaDoTempoTest.php`; `api/tests/Feature/Pessoas/RelacionamentosTest.php`; `api/tests/Feature/Pessoas/FuncoesTest.php`
@@ -589,6 +618,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-30 — Lista de pessoas com filtros e paginação
+- **Issue:** #30
 - **Objetivo:** implementar `GET /painel/pessoas` com 25/50/100 por página, ordenação e os filtros da U-17 (igreja, vínculo, situação, tipo de membro, função, ficha incompleta, aniversariantes do mês), com a projeção do alcance e a contagem com critério.
 - **Context Pack:** `context/T-30.md`
 - **Arquivos de entrada:** `plan.md` §6, §7; T-27, T-29 concluídas.
@@ -608,10 +638,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-31 — Exportação XLSX/CSV por job
+- **Issue:** #31
 - **Objetivo:** implementar `POST /painel/exportacoes` (filtro ou selecionados; pessoas, aniversários e novos convertidos) e `GET /painel/exportacoes/{id}`, com o job na fila `pesadas` que recalcula o alcance, gera com OpenSpout, grava no S3/MinIO, avisa `servico.exportacao_pronta` e apaga em 24h.
 - **Context Pack:** `context/T-31.md`
 - **Arquivos de entrada:** `plan.md` §3.5, §6 (Exportação); T-17, T-30 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/{Actions/SolicitarExportacao.php,Jobs/GerarExportacao.php}`, migration de `exportacoes`.
+- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/{Actions/SolicitarExportacao.php,Jobs/GerarExportacao.php}`, `api/database/migrations/*_create_exportacoes_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Pessoas/ExportacaoTest.php`
@@ -628,10 +659,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-32 — Possíveis duplicados e mesclagem
+- **Issue:** #32
 - **Objetivo:** implementar `GET /painel/duplicados`, `POST /painel/duplicados/nao-duplicados` e `POST /painel/mesclagens`, com a escolha campo a campo, o snapshot em `operacoes_desfaziveis`, a movimentação dos filhos e a recusa quando as duas pessoas têm conta.
 - **Context Pack:** `context/T-32.md`
 - **Arquivos de entrada:** `plan.md` §3.4, §6 (Mesclagem); T-26, T-29 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/MesclarPessoas.php`, `api/app/Modules/Auditoria/Contracts/OperacoesDesfaziveis.php`, migration de `operacoes_desfaziveis`.
+- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/MesclarPessoas.php`, `api/app/Modules/Auditoria/Contracts/OperacoesDesfaziveis.php`, `api/database/migrations/*_create_operacoes_desfaziveis_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Pessoas/MesclagemTest.php`
@@ -649,10 +681,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-33 — Desfazer mesclagem
+- **Issue:** #33
 - **Objetivo:** implementar `POST /painel/mesclagens/{id}/desfazer` como Action de compensação, com o conflito campo a campo, e a expiração da operação em 90 dias.
 - **Context Pack:** `context/T-33.md`
 - **Arquivos de entrada:** `plan.md` §6 (Mesclagem); T-32 concluída.
-- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/DesfazerMesclagem.php`, job de expiração.
+- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/DesfazerMesclagem.php`, `api/app/Modules/Pessoas/Application/Jobs/**`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Pessoas/DesfazerMesclagemTest.php`
@@ -668,10 +701,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-34 — Transferência entre igrejas
+- **Issue:** #34
 - **Objetivo:** implementar solicitar (destino), aprovar e recusar (origem, com justificativa), com um único pedido pendente por pessoa, os avisos de serviço e a mudança de igreja que mantém vínculo e matrícula.
 - **Context Pack:** `context/T-34.md`
 - **Arquivos de entrada:** `plan.md` §3.5, §6 (Transferência); T-17, T-28 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/{SolicitarTransferencia,AprovarTransferencia,RecusarTransferencia}.php`, migration de `transferencias`.
+- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/{SolicitarTransferencia,AprovarTransferencia,RecusarTransferencia}.php`, `api/database/migrations/*_create_transferencias_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Pessoas/TransferenciaTest.php`
@@ -687,10 +721,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-35 — Lixeira, removedor de Pessoas e purga
+- **Issue:** #35
 - **Objetivo:** implementar excluir (motivo), listar a lixeira, recuperar em até 30 dias, o removedor com os modos `anonimizar` e `apagar` (recusa em produção sem modo), `exclusoes_executadas` e o job diário de purga por organização.
 - **Context Pack:** `context/T-35.md`
 - **Arquivos de entrada:** `plan.md` §3.5 (Removedor), §6 (Lixeira); T-26, T-29 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/{ExcluirPessoa,RecuperarPessoa}.php`, `api/app/Modules/Pessoas/Infrastructure/RemovedorPessoas.php`, `api/app/Modules/Pessoas/Application/Jobs/PurgarLixeira.php`, migration de `exclusoes_executadas`.
+- **Arquivos de saída:** `api/app/Modules/Pessoas/Application/Actions/{ExcluirPessoa,RecuperarPessoa}.php`, `api/app/Modules/Pessoas/Infrastructure/RemovedorPessoas.php`, `api/app/Modules/Pessoas/Application/Jobs/PurgarLixeira.php`, `api/database/migrations/*_create_exclusoes_executadas_table.php`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Pessoas/LixeiraTest.php`; `api/tests/Feature/Pessoas/RemovedorPessoasTest.php`
@@ -708,6 +743,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-36 — Novos convertidos e datas comemorativas
+- **Issue:** #36
 - **Objetivo:** implementar o registro de conversão e de batismo, `GET /painel/novos-convertidos` e `GET /painel/aniversarios` (nascimento, batismo, casamento; dia, semana, mês, no fuso da organização).
 - **Context Pack:** `context/T-36.md`
 - **Arquivos de entrada:** `plan.md` §6, §7; T-28, T-30 concluídas.
@@ -732,6 +768,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 ## Fase D — Painel web (`web/`, entrada `painel`)
 
 ## T-37 — Base do painel: http, formulários, i18n, tema e observabilidade
+- **Issue:** #37
 - **Objetivo:** montar `app/painel` (TanStack Router e Query, tema MUI com o logo, Error Boundary com `trace_id`, i18next `pt-BR`), `shared/http` (cabeçalhos e tratamento de 401/419/403/409), `shared/forms` (422 → campo) e OTel no navegador.
 - **Context Pack:** `context/T-37.md`
 - **Arquivos de entrada:** `plan.md` §8; T-05 concluída.
@@ -752,6 +789,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-38 — Telas de identidade: login, 2FA, elevação, convite e recuperação
+- **Issue:** #38
 - **Objetivo:** criar a feature `Identidade` com login, desafio e cadastro de 2FA, códigos de recuperação, diálogo de elevação, aceite de convite (com definição de senha), recuperação de senha e seletor de organização.
 - **Context Pack:** `context/T-38.md`
 - **Arquivos de entrada:** `plan.md` §7, §8; T-12, T-16, T-22, T-37 concluídas.
@@ -771,6 +809,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-39 — Telas de organização, igrejas, listas, obrigatórios e WhatsApp
+- **Issue:** #39
 - **Objetivo:** criar as telas de configuração da organização (logo, cor, fuso, modo de matrícula), igrejas, listas de valores, obrigatórios por vínculo e ligar/desligar WhatsApp.
 - **Context Pack:** `context/T-39.md`
 - **Arquivos de entrada:** `plan.md` §8; T-21, T-24, T-25, T-37 concluídas.
@@ -790,6 +829,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-40 — Telas de acessos, convites, papéis e auditoria
+- **Issue:** #40
 - **Objetivo:** criar as telas de acessos (convidar Pessoa com papel e escopo, revogar), papéis (criar e editar permissões do catálogo, com marcação de sensíveis) e consulta de auditoria com filtros.
 - **Context Pack:** `context/T-40.md`
 - **Arquivos de entrada:** `plan.md` §8; T-15, T-22, T-37, T-46 concluídas.
@@ -808,6 +848,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-41 — Telas de lista de pessoas, cadastro rápido e busca
+- **Issue:** #41
 - **Objetivo:** criar a lista com DataGrid MIT (25/50/100, filtros na URL, seleção e "exportar selecionados"), o cadastro rápido com alerta de duplicidade e "salvar e cadastrar outro", e a busca na denominação.
 - **Context Pack:** `context/T-41.md`
 - **Arquivos de entrada:** `plan.md` §8; T-26, T-30, T-31, T-37 concluídas.
@@ -827,6 +868,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-42 — Tela da ficha por seções
+- **Issue:** #42
 - **Objetivo:** criar a ficha com seções (pessoais, documentos, contatos, endereço, saúde, eclesiásticos, adicionais), barra de completude, foto, diálogos de vínculo e situação com motivo, linha do tempo (com registro manual), relacionamentos e funções.
 - **Context Pack:** `context/T-42.md`
 - **Arquivos de entrada:** `plan.md` §8; T-27, T-28, T-29, T-36, T-37 concluídas.
@@ -846,6 +888,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-43 — Telas de duplicados, mesclagem, transferências e lixeira
+- **Issue:** #43
 - **Objetivo:** criar a lista de duplicados, a comparação campo a campo com escolha, a tela da operação com "desfazer" e os conflitos, as transferências (enviadas e recebidas, aprovar e recusar com justificativa) e a lixeira com recuperar.
 - **Context Pack:** `context/T-43.md`
 - **Arquivos de entrada:** `plan.md` §8; T-32, T-33, T-34, T-35, T-37 concluídas.
@@ -865,6 +908,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-44 — Telas de novos convertidos, datas, exportações e caixa de avisos
+- **Issue:** #44
 - **Objetivo:** criar as listas de novos convertidos e de aniversários (dia, semana, mês) com exportação, a tela de exportações (estado e download), a caixa de avisos com contador e as preferências de aviso.
 - **Context Pack:** `context/T-44.md`
 - **Arquivos de entrada:** `plan.md` §8; T-20, T-31, T-36, T-37 concluídas.
@@ -884,6 +928,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-45 — Jornadas críticas no Playwright + axe (noturno)
+- **Issue:** #45
 - **Objetivo:** cobrir no Playwright, contra a API real com PostgreSQL e dados fictícios, as jornadas login com 2FA, troca de organização, ficha com categoria sensível e elevação no painel, com axe falhando em violação séria ou crítica.
 - **Context Pack:** `context/T-45.md`
 - **Arquivos de entrada:** `plan.md` §8, §9; T-23, T-38, T-42 concluídas.
@@ -907,6 +952,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 ## Complemento da Fase B (análise de consistência, U-30)
 
 ## T-46 — Consulta da auditoria (API)
+- **Issue:** #46
 - **Objetivo:** expor `GET /painel/auditoria`, paginado, com filtros de período, evento, ator e alvo, só para quem tem `auditoria.ver`, respeitando o alcance e sem valores de campo.
 - **Context Pack:** `context/T-46.md`
 - **Arquivos de entrada:** `plan.md` §3.4, §7; T-07, T-13, T-16 concluídas. Executar antes da T-40.
@@ -931,10 +977,11 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 ## Complemento da Onda 2 de permissões (ADR-0012)
 
 ## T-47 — Solicitações e concessões temporárias de permissão (API)
+- **Issue:** #47
 - **Objetivo:** implementar o ciclo de solicitar, cancelar, aprovar, recusar e revogar permissões temporárias, com duração máxima de 72 horas, aprovação exclusiva por administrador, anti-escalada, categorias sensíveis explícitas e validade integrada ao `Alcance`.
 - **Context Pack:** `context/T-47.md`
 - **Arquivos de entrada:** `plan.md` §3.3, §7, §11, §12; `contrato-permissoes.md`; T-07, T-13 e T-15 concluídas.
-- **Arquivos de saída:** `api/app/Modules/Autorizacao/{Application,Domain,Infrastructure,Presentation}/**`, migrations do módulo, `api/tests/{Feature,Integration}/Autorizacao/**`, `api/openapi.json`, `packages/api-contrato/**`, `docs/modules/autorizacao.md`.
+- **Arquivos de saída:** `api/app/Modules/Autorizacao/{Application,Domain,Infrastructure,Presentation}/**`, `api/database/migrations/*_create_{solicitacoes_permissao,solicitacao_permissoes,concessoes_permissao,concessao_permissoes}_table.php`, `api/tests/{Feature,Integration}/Autorizacao/**`, `api/openapi.json`, `packages/api-contrato/**`, `docs/modules/autorizacao.md`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `api/tests/Feature/Autorizacao/SolicitacoesPermissaoTest.php`; `api/tests/Integration/Autorizacao/ConcessoesPermissaoRlsTest.php`
@@ -952,6 +999,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Status:** Pendente
 
 ## T-48 — Solicitação e aprovação temporária de permissões (frontend)
+- **Issue:** #48
 - **Objetivo:** criar as telas de minhas solicitações e da fila administrativa de decisão/revogação, refletindo o contrato do backend sem inferir autorização no cliente.
 - **Context Pack:** `context/T-48.md`
 - **Arquivos de entrada:** `plan.md` §8; `contrato-permissoes.md`; T-37, T-40 e T-47 concluídas.
