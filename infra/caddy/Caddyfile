@@ -1,0 +1,7 @@
+# Dev local (OIK-ADR-0011 §2, §4): entrega a API Laravel pelo PHP-FPM.
+:80 {
+	root * /var/www/api/public
+	encode gzip
+	php_fastcgi api:9000
+	file_server
+}

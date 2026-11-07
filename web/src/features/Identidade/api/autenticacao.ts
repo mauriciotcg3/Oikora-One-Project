@@ -1,7 +1,7 @@
 import { ErroHttp, renovarCsrf, requisitar } from '../../../shared/http'
 
-// Contrato provisório do recorte do login (plan.md §7), simulado com MSW até a T-10/T-12:
-// - POST /auth/login → 204 entrou; 403 `dois_fatores_necessario` com canal e destino mascarado;
+// Contrato do login (plan.md §7). Login e logout já existem na API; os demais só no MSW até a T-11/T-12:
+// - POST /auth/login → 204 entrou; 403 `dois_fatores_necessario` com canal e destino mascarado; 403 `conta_bloqueada`;
 //   422 credencial inválida (mensagem nunca diz se a conta existe, OIK-ADR-0003 §4); 429 `muitas_tentativas`.
 // - POST /auth/2fa/confirmar → 204; 422 código incorreto.
 // - POST /auth/2fa/enviar → 200 com canal e destino.

@@ -37,7 +37,7 @@ Oikora-One-Project/
 ## 2. Isolamento por organização (E-03)
 
 - **Papéis de banco** (ADR-0002 §5):
-  - `oikora_dono` — migrations e purga de partição;
+  - `oikora_dono` — migrations e purga de partição, com `BYPASSRLS` porque o Postgres valida FK como dono e a RLS forçada barraria a validação (decisão do usuário, 2026-11-07; não amplia o poder real, pois o dono já pode desligar a RLS com `ALTER TABLE`);
   - `oikora_app` — API e workers, sem `BYPASSRLS` e sem ser dono;
   - `oikora_plataforma` — `BYPASSRLS`, só no comando de provisionamento.
   No Laravel são três conexões: `pgsql` (app, padrão), `pgsql_dono` e `pgsql_plataforma`.
@@ -269,6 +269,8 @@ O OpenAPI é gerado pelo Scramble e versionado em `api/openapi.json`; tipos e cl
 | `giggsey/libphonenumber-for-php` para E.164 no backend (U-29) | Mesma regra de telefone do front | ADR-0003 §1; ADR-0006 §13 — decisão local |
 | MinIO no Compose (dev/CI) | S3 local com URL assinada | U-19; ADR-0011 §7 |
 | Fila, sessão e cache `database` (PG) | Sem Redis | ADR-0008 §3; ADR-0011 §3 |
+
+**Versões fixadas no bootstrap (U-15, 2026-11-07):** PHP 8.5.12, Laravel 13.40, PostgreSQL 17.11, Caddy 2.11.9 (`versoes.env`); Fortify 1.41, Sanctum 4.3, Pest 4.7, Larastan 3.14 (`api/composer.lock`).
 
 ## 10. Estratégia de migração
 

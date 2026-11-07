@@ -14,7 +14,7 @@ ADRs: docs/adr/ (OIK)
 Spec: docs/spec/0001-fundacao-e-pessoas-painel/
 
 Current phase: DEVELOPMENT_IN_PROGRESS
-Development authorization: APPROVED (T-38, recorte do login, 2026-11-02)
+Development authorization: APPROVED (T-38, recorte do login, 2026-11-02; fatia do backend do login: T-01, T-03 e núcleo da T-10, 2026-11-07)
 Current owner: Software Engineer
 
 ## Convenção Git (opcional)
@@ -27,4 +27,7 @@ Só comandos que já rodaram com sucesso, com a duração observada.
 Pré-requisitos: Node 26.13.0 e pnpm 12.16.1. Instalar dependências: `pnpm install --frozen-lockfile` (~1 min com cache do pnpm).
 Teste focado: `<governança>/scripts/run-quiet.sh pnpm --filter web exec vitest run src/features/Identidade` (~20 s)
 Suíte do módulo: `<governança>/scripts/run-quiet.sh pnpm test:web` (~50 s)
-Pre-Review Gate (duração aproximada): `<governança>/scripts/run-quiet.sh pnpm gate` (~1,5 min). Só cobre o front; `composer gate` ainda não existe.
+Pre-Review Gate do front: `<governança>/scripts/run-quiet.sh pnpm gate` (~1,5 min).
+Subir tudo (Docker): `docker compose --env-file versoes.env up -d --build --wait web` (~2,5 min do zero).
+Pre-Review Gate da API (Postgres no ar): `docker compose --env-file versoes.env run --rm --no-deps -T api composer gate` (~1 min; Pint, PHPStan 8, Pest).
+Teste focado da API: `docker compose --env-file versoes.env run --rm --no-deps -T api ./vendor/bin/pest tests/Feature/Identidade` (~15 s).

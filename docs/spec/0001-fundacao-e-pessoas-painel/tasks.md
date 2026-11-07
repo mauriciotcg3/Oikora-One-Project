@@ -26,7 +26,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** o teste deve FALHAR (Red). Só prosseguir para a implementação depois que o usuário aprovar o teste e confirmar essa falha.
 - **Critério de aceite final:** testes passando (Green); `docker compose up` sobe todos os serviços; versões registradas no `plan.md` §9 (U-15); comandos de teste registrados no `project.md` (CTX-011).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Parcial (fatia do login, 2026-11-07): Laravel, PostgreSQL, Caddy, `versoes.env` e `/saude` prontos. Falta MinIO, workers, `packages/api-contrato/` e o teste da raiz do painel.
 
 ## T-02 — CI no GitHub Actions e Pre-Review Gate
 - **Objetivo:** criar `composer gate`, `pnpm gate`, o workflow de PR com filtro por caminho, o workflow noturno (vazio até a T-45) e o Dependabot, com PHPStan nível 8, Pint, Deptrac, cobertura de linhas alteradas, gitleaks e auditoria de dependências.
@@ -64,7 +64,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; a suíte roda com a conexão `oikora_app` (CA-08).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Green (fatia do login, 2026-11-07). `oikora_dono` ganhou BYPASSRLS, para validar FK com RLS forçada (confirmado pelo usuário, registrado no `plan.md` §2).
 
 ## T-04 — Contexto de organização por requisição e por job
 - **Objetivo:** implementar o middleware HTTP `ContextoOrganizacao` (transação + `set_config(..., true)` + `X-Organizacao-Esperada`) e o middleware de job `ContextoOrganizacaoJob`, com o contrato `ResolvedorOrganizacaoAtiva` (a implementação real é da T-16).
@@ -205,7 +205,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** RN-12 — atualizar `docs/modules/identidade.md`.
-- **Status:** Pendente
+- **Status:** Parcial (fatia do login, 2026-11-07): login, logout, sessão, limite, eventos e RLS de identidade Green. Login responde 204, conforme o contrato do front. `acessos.pessoa_id` sem FK até a T-09; política de senha sem rota até a T-12/T-22.
 
 ## T-11 — Envio de códigos de identidade (fila `codigos`)
 - **Objetivo:** enviar códigos de verificação, 2FA e recuperação pela fila dedicada `codigos`. Canais: e-mail (Postmark), WhatsApp da plataforma (template `authentication`) e SMS Twilio de reserva só para +55. Usa adapters falsos nos testes.
