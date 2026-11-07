@@ -4,22 +4,22 @@ namespace App\Modules\Identidade\Application;
 
 use RuntimeException;
 
-/** Motivo pelo qual o segundo fator não abriu a sessão. A Presentation traduz para o contrato HTTP. */
+/** Motivo pelo qual o código não foi aceito. A Presentation traduz para o contrato HTTP. */
 final class FalhaDeDesafio extends RuntimeException
 {
-    private function __construct(public readonly string $motivo)
+    private function __construct(public readonly string $motivo, public readonly ?string $canal = null)
     {
         parent::__construct($motivo);
     }
 
-    public static function codigoIncorreto(): self
+    public static function codigoIncorreto(?string $canal = null): self
     {
-        return new self('codigo_incorreto');
+        return new self('codigo_incorreto', $canal);
     }
 
-    public static function muitasTentativas(): self
+    public static function muitasTentativas(?string $canal = null): self
     {
-        return new self('muitas_tentativas');
+        return new self('muitas_tentativas', $canal);
     }
 
     public static function contaBloqueada(): self

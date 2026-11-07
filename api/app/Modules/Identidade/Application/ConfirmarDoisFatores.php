@@ -2,17 +2,24 @@
 
 namespace App\Modules\Identidade\Application;
 
-/** Confere o código do desafio aberto no login, sem abrir sessão: isso cabe a quem recebeu a requisição. */
+use App\Modules\Identidade\Domain\CodigoDeRecuperacao;
+use Illuminate\Cache\RateLimiter;
+use Illuminate\Contracts\Encryption\Encrypter;
+
+/** Confere o segundo fator do desafio aberto no login, sem abrir sessão: isso cabe a quem recebeu a requisição. */
 final class ConfirmarDoisFatores
 {
     public function __construct(
-        private readonly Codigos $codigos,
+        private readonly ConferirCodigo $conferir,
         private readonly Contas $contas,
         private readonly EventosAutenticacao $eventos,
+        private readonly Totp $totp,
+        private readonly Encrypter $cifra,
+        private readonly RateLimiter $limitador,
     ) {}
 
     /** @throws FalhaDeDesafio */
-    public function executar(int $contaId, string $codigo, string $identificadorResumo, string $ip): void
+    public function executar(int $contaId, ?string $codigo, ?string $codigoRecuperacao, string $identificadorResumo, string $ip): void
     {
         $ipResumo = Resumo::de($ip);
 
@@ -22,27 +29,80 @@ final class ConfirmarDoisFatores
             throw FalhaDeDesafio::contaBloqueada();
         }
 
-        $guardado = $this->codigos->abertoDaConta($contaId, EmissaoDeCodigos::DOIS_FATORES);
+        try {
+            $canal = $this->conferirFator($contaId, (string) $codigo, $codigoRecuperacao);
+        } catch (FalhaDeDesafio $falha) {
+            $evento = $falha->motivo === 'muitas_tentativas' ? 'auth.2fa.limite' : 'auth.2fa.falha';
+            $this->eventos->registrar($evento, $contaId, $identificadorResumo, $ipResumo, $falha->canal);
 
-        if ($guardado === null) {
-            $this->eventos->registrar('auth.2fa.falha', $contaId, $identificadorResumo, $ipResumo);
-
-            throw FalhaDeDesafio::codigoIncorreto();
+            throw $falha;
         }
 
-        if ($guardado->tentativas >= (int) config('oikora.codigos.tentativas')) {
-            $this->eventos->registrar('auth.2fa.limite', $contaId, $identificadorResumo, $ipResumo, $guardado->canal);
+        $this->eventos->registrar('auth.2fa.sucesso', $contaId, $identificadorResumo, $ipResumo, $canal);
+    }
 
-            throw FalhaDeDesafio::muitasTentativas();
+    /**
+     * @return string canal que completou o desafio
+     *
+     * @throws FalhaDeDesafio
+     */
+    private function conferirFator(int $contaId, string $codigo, ?string $codigoRecuperacao): string
+    {
+        if ($codigoRecuperacao !== null) {
+            return $this->porRecuperacao($contaId, $codigoRecuperacao);
         }
 
-        if (! hash_equals($guardado->hash, Resumo::de($codigo)) || ! $this->codigos->consumir($guardado->id)) {
-            $this->codigos->registrarErro($guardado->id);
-            $this->eventos->registrar('auth.2fa.falha', $contaId, $identificadorResumo, $ipResumo, $guardado->canal);
+        $fator = $this->contas->segundoFator($contaId);
 
-            throw FalhaDeDesafio::codigoIncorreto();
+        if ($fator?->canal === 'totp') {
+            return $this->porTotp($contaId, (string) $fator->segredoCifrado, $codigo);
         }
 
-        $this->eventos->registrar('auth.2fa.sucesso', $contaId, $identificadorResumo, $ipResumo, $guardado->canal);
+        return $this->conferir->executar($contaId, EmissaoDeCodigos::DOIS_FATORES, $codigo)->canal;
+    }
+
+    /** @throws FalhaDeDesafio */
+    private function porRecuperacao(int $contaId, string $codigo): string
+    {
+        return $this->comLimite($contaId, 'recuperacao', fn (): bool => $this->contas->consumirCodigoDeRecuperacao(
+            $contaId,
+            Resumo::de(CodigoDeRecuperacao::normalizar($codigo)),
+        ));
+    }
+
+    /** @throws FalhaDeDesafio */
+    private function porTotp(int $contaId, string $segredoCifrado, string $codigo): string
+    {
+        return $this->comLimite($contaId, 'totp', fn (): bool => $this->totp->conferir(
+            $contaId,
+            $this->cifra->decryptString($segredoCifrado),
+            $codigo,
+        ));
+    }
+
+    /**
+     * TOTP e recuperação não têm linha em `codigos_verificacao`, então os erros contam aqui.
+     *
+     * @param  callable(): bool  $conferir
+     *
+     * @throws FalhaDeDesafio
+     */
+    private function comLimite(int $contaId, string $canal, callable $conferir): string
+    {
+        $chave = 'identidade:segundo-fator:erros:'.$contaId;
+
+        if ($this->limitador->tooManyAttempts($chave, (int) config('oikora.codigos.tentativas'))) {
+            throw FalhaDeDesafio::muitasTentativas($canal);
+        }
+
+        if (! $conferir()) {
+            $this->limitador->hit($chave, (int) config('oikora.codigos.validade_minutos') * 60);
+
+            throw FalhaDeDesafio::codigoIncorreto($canal);
+        }
+
+        $this->limitador->clear($chave);
+
+        return $canal;
     }
 }

@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $celular
  * @property string $password
  * @property string $estado
+ * @property string|null $dois_fatores_canal
+ * @property string|null $two_factor_secret
+ * @property string|null $two_factor_recovery_codes
  * @property CarbonImmutable|null $email_verificado_em
  * @property CarbonImmutable|null $celular_verificado_em
  */

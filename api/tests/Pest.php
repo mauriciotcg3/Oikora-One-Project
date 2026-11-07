@@ -1,5 +1,7 @@
 <?php
 
+use App\Modules\Avisos\Infrastructure\Canais\Postmark\PostmarkFalso;
+use App\Modules\Identidade\Application\ExigenciaDeDoisFatores;
 use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -108,4 +110,63 @@ function novoNavegador(): void
 function emitirCodigo(int $contaId, string $finalidade, string $canal): int
 {
     return app(CodigosDeIdentidade::class)->emitir($contaId, $finalidade, $canal);
+}
+
+function criarContaVerificada(array $dados = []): int
+{
+    return criarConta(['email_verificado_em' => now(), 'celular_verificado_em' => now(), ...$dados]);
+}
+
+/** Entra na conta já criada, sem 2FA, e deixa o navegador com a sessão dela. */
+function logarNaConta(): string
+{
+    $cookie = cookieDaSessao(entrarCom('maria@exemplo.test')->assertNoContent());
+    comSessao($cookie);
+
+    return $cookie;
+}
+
+function logado(array $dados = []): string
+{
+    criarContaVerificada($dados);
+
+    return logarNaConta();
+}
+
+function confirmarSenhaAtual(string $cookie): void
+{
+    comSessao($cookie);
+    test()->postJson('/api/v1/conta/confirmar-senha', ['senha' => SENHA])->assertNoContent();
+    comSessao($cookie);
+}
+
+/** Ativa o 2FA por e-mail e devolve os códigos de recuperação. */
+function ativarDoisFatores(string $cookie): array
+{
+    confirmarSenhaAtual($cookie);
+
+    return test()->postJson('/api/v1/conta/2fa', ['canal' => 'email'])->assertOk()->json('codigos_recuperacao');
+}
+
+/** Até a T-16 ligar o papel Administrador, a obrigação vem desta porta. */
+function exigirDoisFatores(): void
+{
+    app()->instance(ExigenciaDeDoisFatores::class, new class implements ExigenciaDeDoisFatores
+    {
+        public function obrigatorio(int $contaId): bool
+        {
+            return true;
+        }
+    });
+}
+
+/** Redefine a senha por e-mail há `$horas` e deixa um navegador novo pronto para entrar. */
+function entrarDepoisDeRecuperar(int $horas): void
+{
+    test()->travel(-$horas)->hours();
+    test()->postJson('/api/v1/auth/senha/esqueci', ['identificador' => 'maria@exemplo.test'])->assertNoContent();
+    $token = collect(app(PostmarkFalso::class)->enviados)->last()->codigo;
+    test()->postJson('/api/v1/auth/senha/redefinir', ['token' => $token, 'senha' => 'outra-senha-forte-456'])->assertNoContent();
+    test()->travelBack();
+    novoNavegador();
 }

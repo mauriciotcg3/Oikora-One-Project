@@ -21,12 +21,16 @@ final class DoisFatoresController
             return $this->semDesafio();
         }
 
-        $dados = $request->validate(['codigo' => ['required', 'digits:6']]);
+        $dados = $request->validate([
+            'codigo' => ['required_without:codigo_recuperacao', 'digits:6'],
+            'codigo_recuperacao' => ['required_without:codigo', 'string', 'max:20'],
+        ]);
+        $recuperacao = $dados['codigo_recuperacao'] ?? null;
 
         try {
-            $confirmar->executar($desafio->contaId, (string) $dados['codigo'], $desafio->identificadorResumo, (string) $request->ip());
+            $confirmar->executar($desafio->contaId, $dados['codigo'] ?? null, $recuperacao, $desafio->identificadorResumo, (string) $request->ip());
         } catch (FalhaDeDesafio $falha) {
-            return $this->recusar($request, $falha, 'codigo', 'Código inválido.');
+            return $this->recusar($request, $falha, $recuperacao === null ? 'codigo' : 'codigo_recuperacao', 'Código inválido.');
         }
 
         DesafioPendente::fechar($request);

@@ -36,7 +36,7 @@ final class AbrirSessao
 
     private function recusar(EntrarRequest $request, FalhaDeLogin $falha): JsonResponse
     {
-        if ($falha->contaId !== null && $falha->canal !== 'totp') {
+        if ($falha->contaId !== null) {
             DesafioPendente::abrir($request, $falha->contaId, $falha->identificadorResumo);
         }
 
@@ -47,6 +47,10 @@ final class AbrirSessao
                 ['Retry-After' => $falha->segundosDeEspera],
             ),
             'conta_bloqueada' => response()->json(['codigo' => 'conta_bloqueada', 'message' => 'Conta bloqueada.'], 403),
+            'canal_indisponivel' => response()->json(
+                ['codigo' => 'canal_indisponivel', 'message' => 'Sua senha foi recuperada há pouco e não há outro canal para o código.'],
+                403,
+            ),
             'dois_fatores_necessario' => response()->json(
                 ['codigo' => 'dois_fatores_necessario', 'canal' => $falha->canal, 'destino' => $falha->destino],
                 403,

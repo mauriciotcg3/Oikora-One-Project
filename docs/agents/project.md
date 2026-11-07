@@ -14,7 +14,7 @@ ADRs: docs/adr/ (OIK)
 Spec: docs/spec/0001-fundacao-e-pessoas-painel/
 
 Current phase: DEVELOPMENT_IN_PROGRESS
-Development authorization: APPROVED (T-38, recorte do login, 2026-11-02; fatia do backend do login: T-01, T-03 e núcleo da T-10, 2026-11-07; T-11 e T-12 no recorte de 2FA por código e esqueci/redefinir senha, 2026-11-07)
+Development authorization: APPROVED (T-38, recorte do login, 2026-11-02; fatia do backend do login: T-01, T-03 e núcleo da T-10, 2026-11-07; T-11 no recorte de códigos e T-12 inteira, 2026-11-07)
 Current owner: Software Engineer
 
 ## Convenção Git (opcional)

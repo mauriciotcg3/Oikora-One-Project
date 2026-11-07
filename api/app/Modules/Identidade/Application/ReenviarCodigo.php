@@ -10,10 +10,11 @@ final class ReenviarCodigo
     public function __construct(
         private readonly CodigosDeIdentidade $codigos,
         private readonly Contas $contas,
+        private readonly RegraDoCanal $regra,
     ) {}
 
     /**
-     * @return string|null destino mascarado; null quando a conta não tem contato nesse canal
+     * @return string|null destino mascarado; null quando esse canal não pode ser usado
      *
      * @throws FalhaDeDesafio
      */
@@ -21,6 +22,11 @@ final class ReenviarCodigo
     {
         if ($this->contas->bloqueada($contaId)) {
             throw FalhaDeDesafio::contaBloqueada();
+        }
+
+        // Quem usa TOTP não cai para mensagem: isso enfraqueceria o segundo fator.
+        if ($this->contas->segundoFator($contaId)?->canal === 'totp' || $this->regra->escolher($contaId, $canal) !== $canal) {
+            return null;
         }
 
         $destino = $this->contas->destinoDoCodigo($contaId, $canal);

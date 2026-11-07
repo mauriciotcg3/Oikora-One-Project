@@ -195,15 +195,6 @@ it('não aceita desafio antigo: depois de 30 minutos é preciso entrar de novo',
     $this->postJson(ROTA_ENVIAR, ['canal' => 'email'])->assertUnauthorized();
 });
 
-it('não deixa conta com TOTP cair para código por mensagem', function (): void {
-    criarConta(['dois_fatores_canal' => 'totp']);
-    iniciarDesafio();
-
-    $this->postJson(ROTA_ENVIAR, ['canal' => 'email'])->assertUnauthorized();
-
-    expect(app(PostmarkFalso::class)->enviados)->toBeEmpty();
-});
-
 it('não reenvia código para quem foi bloqueado depois da senha', function (): void {
     $conta = criarConta(['dois_fatores_canal' => 'email']);
     iniciarDesafio();

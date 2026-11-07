@@ -15,6 +15,7 @@ final class Entrar
         private readonly LimiteDeTentativas $limite,
         private readonly Hasher $senhas,
         private readonly CodigosDeIdentidade $codigos,
+        private readonly RegraDoCanal $regra,
     ) {}
 
     /**
@@ -55,10 +56,16 @@ final class Entrar
 
         // A senha conferiu, mas a sessão só abre depois do segundo fator.
         if ($conta->canalDoisFatores !== null) {
-            $canal = $conta->canalDoisFatores;
+            $canal = $this->regra->escolher($conta->id, $conta->canalDoisFatores);
+
+            if ($canal === null) {
+                $this->eventos->registrar('auth.login.canal_indisponivel', $conta->id, $identificadorResumo, $ipResumo);
+
+                throw FalhaDeLogin::canalIndisponivel();
+            }
+
             $this->eventos->registrar('auth.login.dois_fatores_pendente', $conta->id, $identificadorResumo, $ipResumo, $canal);
 
-            // O TOTP não usa mensagem. Enquanto ele não existir, essa conta não abre desafio.
             if ($canal !== 'totp') {
                 $this->codigos->emitir($conta->id, EmissaoDeCodigos::DOIS_FATORES, $canal);
             }

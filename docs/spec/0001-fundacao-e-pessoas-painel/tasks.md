@@ -246,7 +246,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** RN-16 — atualizar `docs/modules/identidade.md`.
-- **Status:** Parcial (recorte de 2FA por código e recuperação, 2026-11-07): casos 1, 5 e 7 Green, e fluxo com código validado no navegador. Faltam os casos 2 (TOTP e códigos de recuperação), 3 (regra das 24h), 4 (confirmação de senha de 15 min) e 6 (verificação de contato), além da tela de redefinir senha.
+- **Status:** Green (2026-11-07): os 7 casos passam, e código, recuperação, TOTP e verificação foram validados no navegador com a API real. A obrigação de 2FA vem da porta `ExigenciaDeDoisFatores`, que só responde de verdade com a T-16 (CA-10 fica para lá). As rotas `/conta/*` e o token de redefinição ainda não têm tela.
 
 ## T-13 — Catálogo de permissões, papéis, atribuições e alcance
 - **Objetivo:** criar o enum `Permissao`, as tabelas `papeis`, `papel_permissoes` e `atribuicoes_papel`, o serviço `Alcance` por requisição, o atributo `#[RequerPermissao]` com a Policy e o teste de arquitetura.

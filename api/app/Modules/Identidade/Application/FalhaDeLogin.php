@@ -33,6 +33,11 @@ final class FalhaDeLogin extends RuntimeException
         return new self('conta_bloqueada');
     }
 
+    public static function canalIndisponivel(): self
+    {
+        return new self('canal_indisponivel');
+    }
+
     public static function doisFatores(int $contaId, string $identificadorResumo, string $canal, string $destino): self
     {
         return new self('dois_fatores_necessario', canal: $canal, destino: $destino, contaId: $contaId, identificadorResumo: $identificadorResumo);

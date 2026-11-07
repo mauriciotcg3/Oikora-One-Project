@@ -6,11 +6,15 @@ use App\Modules\Identidade\Application\Codigos;
 use App\Modules\Identidade\Application\Contas;
 use App\Modules\Identidade\Application\EmissaoDeCodigos;
 use App\Modules\Identidade\Application\EventosAutenticacao;
+use App\Modules\Identidade\Application\ExigenciaDeDoisFatores;
+use App\Modules\Identidade\Application\Totp;
 use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
 use App\Modules\Identidade\Infrastructure\CodigosPostgres;
 use App\Modules\Identidade\Infrastructure\ContasPostgres;
 use App\Modules\Identidade\Infrastructure\EventosAutenticacaoPostgres;
 use App\Modules\Identidade\Infrastructure\ProvedorDeContas;
+use App\Modules\Identidade\Infrastructure\SemExigenciaDeDoisFatores;
+use App\Modules\Identidade\Infrastructure\TotpGoogle2fa;
 use App\Modules\Identidade\Presentation\AbrirSessao;
 use App\Modules\Identidade\Presentation\EntrarRequest;
 use App\Modules\Identidade\Presentation\SemConteudo;
@@ -33,6 +37,8 @@ class IdentidadeServiceProvider extends ServiceProvider
         $this->app->bind(Contas::class, ContasPostgres::class);
         $this->app->bind(Codigos::class, CodigosPostgres::class);
         $this->app->bind(CodigosDeIdentidade::class, EmissaoDeCodigos::class);
+        $this->app->bind(ExigenciaDeDoisFatores::class, SemExigenciaDeDoisFatores::class);
+        $this->app->bind(Totp::class, TotpGoogle2fa::class);
         $this->app->bind(EventosAutenticacao::class, EventosAutenticacaoPostgres::class);
         $this->app->bind(LoginRequest::class, EntrarRequest::class);
         $this->app->singleton(LoginResponse::class, SemConteudo::class);
@@ -50,5 +56,6 @@ class IdentidadeServiceProvider extends ServiceProvider
 
         // Grupo `web`: login e logout sempre têm sessão e CSRF, venha a requisição de onde vier.
         Route::middleware('web')->prefix('api/v1/auth')->group(__DIR__.'/Presentation/rotas.php');
+        Route::middleware(['web', 'auth:web'])->prefix('api/v1/conta')->group(__DIR__.'/Presentation/rotas-conta.php');
     }
 }
