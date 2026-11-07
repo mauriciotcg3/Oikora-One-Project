@@ -18,4 +18,22 @@ return [
         'bloqueio_maximo_segundos' => (int) env('OIKORA_LOGIN_BLOQUEIO_MAXIMO', 3600),
         'memoria_violacoes_segundos' => (int) env('OIKORA_LOGIN_MEMORIA_VIOLACOES', 86400),
     ],
+
+    // Validade e SMS vêm dos ADRs 0003 §7 e 0008 §11; tentativas, reenvios e desafio são provisórios (U-22).
+    'codigos' => [
+        'validade_minutos' => (int) env('OIKORA_CODIGO_VALIDADE', 10),
+        'tentativas' => (int) env('OIKORA_CODIGO_TENTATIVAS', 5),
+        'reenvios' => (int) env('OIKORA_CODIGO_REENVIOS', 4),
+        'desafio_minutos' => (int) env('OIKORA_DESAFIO_VALIDADE', 30),
+        'sms_por_hora' => (int) env('OIKORA_SMS_POR_HORA', 3),
+        'sms_por_dia' => (int) env('OIKORA_SMS_POR_DIA', 10),
+    ],
+
+    // Validade do OIK-ADR-0003 §8; os limites de pedidos são provisórios (U-22).
+    'recuperacao' => [
+        'validade_minutos' => (int) env('OIKORA_RECUPERACAO_VALIDADE', 60),
+        'janela_segundos' => (int) env('OIKORA_RECUPERACAO_JANELA', 900),
+        'pedidos_por_identificador' => (int) env('OIKORA_RECUPERACAO_PEDIDOS_IDENTIFICADOR', 5),
+        'pedidos_por_ip' => (int) env('OIKORA_RECUPERACAO_PEDIDOS_IP', 30),
+    ],
 ];

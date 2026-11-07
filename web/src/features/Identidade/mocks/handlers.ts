@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw/http'
 
-// API simulada do login para o `pnpm dev`, enquanto a T-10/T-12 não existem (mesmo contrato de api/autenticacao.ts).
+// API simulada do login para o `pnpm dev` sem backend (mesmo contrato de api/autenticacao.ts).
 // Senha `oikora123` pede o código; código `123456` ou recuperação `ABCD-1234` entram;
 // senha `bloqueada` simula muitas tentativas; qualquer outra senha não confere.
 

@@ -33,6 +33,40 @@ final class ContasPostgres implements Contas
         };
     }
 
+    public function destinoDeEnvio(int $contaId, string $canal): string
+    {
+        $conta = $this->daPropriaConta($contaId);
+
+        return (string) ($canal === 'email' ? $conta?->email : $conta?->celular);
+    }
+
+    public function bloqueada(int $contaId): bool
+    {
+        return $this->daPropriaConta($contaId)?->estado !== 'ativa';
+    }
+
+    public function canalVerificado(int $contaId, string $identificador): ?string
+    {
+        $conta = $this->daPropriaConta($contaId);
+
+        return match (true) {
+            $conta === null => null,
+            $conta->email === $identificador && $conta->email_verificado_em !== null => 'email',
+            $conta->celular === $identificador && $conta->celular_verificado_em !== null => 'whatsapp',
+            default => null,
+        };
+    }
+
+    public function redefinirSenha(int $contaId, string $hashSenha): void
+    {
+        DB::transaction(function () use ($contaId, $hashSenha): void {
+            DB::select("select set_config('app.conta_id', ?, true)", [(string) $contaId]);
+
+            Conta::query()->whereKey($contaId)->update(['password' => $hashSenha]);
+            DB::table('sessions')->where('user_id', $contaId)->delete();
+        });
+    }
+
     /**
      * Lê a conta dentro de uma transação com `app.conta_id`, única forma de passar pela RLS de
      * identidade antes do contexto de organização (OIK-ADR-0011 §3).

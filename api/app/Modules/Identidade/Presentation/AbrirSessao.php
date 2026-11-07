@@ -25,7 +25,7 @@ final class AbrirSessao
                 (string) $request->ip(),
             );
         } catch (FalhaDeLogin $falha) {
-            return $this->recusar($falha);
+            return $this->recusar($request, $falha);
         }
 
         Auth::guard('web')->loginUsingId($contaId);
@@ -34,8 +34,12 @@ final class AbrirSessao
         return $proximo($request);
     }
 
-    private function recusar(FalhaDeLogin $falha): JsonResponse
+    private function recusar(EntrarRequest $request, FalhaDeLogin $falha): JsonResponse
     {
+        if ($falha->contaId !== null && $falha->canal !== 'totp') {
+            DesafioPendente::abrir($request, $falha->contaId, $falha->identificadorResumo);
+        }
+
         return match ($falha->motivo) {
             'muitas_tentativas' => response()->json(
                 ['codigo' => 'muitas_tentativas', 'message' => 'Muitas tentativas. Aguarde para tentar de novo.'],

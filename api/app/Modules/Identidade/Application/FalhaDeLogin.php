@@ -12,6 +12,8 @@ final class FalhaDeLogin extends RuntimeException
         public readonly int $segundosDeEspera = 0,
         public readonly ?string $canal = null,
         public readonly string $destino = '',
+        public readonly ?int $contaId = null,
+        public readonly string $identificadorResumo = '',
     ) {
         parent::__construct($motivo);
     }
@@ -31,8 +33,8 @@ final class FalhaDeLogin extends RuntimeException
         return new self('conta_bloqueada');
     }
 
-    public static function doisFatores(string $canal, string $destino): self
+    public static function doisFatores(int $contaId, string $identificadorResumo, string $canal, string $destino): self
     {
-        return new self('dois_fatores_necessario', canal: $canal, destino: $destino);
+        return new self('dois_fatores_necessario', canal: $canal, destino: $destino, contaId: $contaId, identificadorResumo: $identificadorResumo);
     }
 }

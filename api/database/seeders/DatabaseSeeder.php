@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
-    /** Só dados fictícios e só no dev (OIK-ADR-0011 §4): conta sem 2FA para testar o login. */
+    /** Só dados fictícios e só no dev (OIK-ADR-0011 §4): uma conta sem 2FA e uma com, para testar o login. */
     public function run(): void
     {
         if (! app()->environment('local')) {
@@ -22,6 +22,19 @@ class DatabaseSeeder extends Seeder
             'celular' => '+5511999990000',
             'password' => Hash::make('oikora123'),
             'estado' => 'ativa',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        DB::table('contas')->insertOrIgnore([
+            'uuid' => (string) Str::uuid(),
+            'email' => 'demo2fa@oikora.test',
+            'email_verificado_em' => now(),
+            'celular' => '+5511999990001',
+            'celular_verificado_em' => now(),
+            'password' => Hash::make('oikora123'),
+            'estado' => 'ativa',
+            'dois_fatores_canal' => 'email',
             'created_at' => now(),
             'updated_at' => now(),
         ]);

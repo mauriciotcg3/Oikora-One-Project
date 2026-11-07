@@ -2,8 +2,12 @@
 
 namespace App\Modules\Identidade;
 
+use App\Modules\Identidade\Application\Codigos;
 use App\Modules\Identidade\Application\Contas;
+use App\Modules\Identidade\Application\EmissaoDeCodigos;
 use App\Modules\Identidade\Application\EventosAutenticacao;
+use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
+use App\Modules\Identidade\Infrastructure\CodigosPostgres;
 use App\Modules\Identidade\Infrastructure\ContasPostgres;
 use App\Modules\Identidade\Infrastructure\EventosAutenticacaoPostgres;
 use App\Modules\Identidade\Infrastructure\ProvedorDeContas;
@@ -27,6 +31,8 @@ class IdentidadeServiceProvider extends ServiceProvider
         Fortify::ignoreRoutes();
 
         $this->app->bind(Contas::class, ContasPostgres::class);
+        $this->app->bind(Codigos::class, CodigosPostgres::class);
+        $this->app->bind(CodigosDeIdentidade::class, EmissaoDeCodigos::class);
         $this->app->bind(EventosAutenticacao::class, EventosAutenticacaoPostgres::class);
         $this->app->bind(LoginRequest::class, EntrarRequest::class);
         $this->app->singleton(LoginResponse::class, SemConteudo::class);

@@ -14,7 +14,7 @@ ADRs: docs/adr/ (OIK)
 Spec: docs/spec/0001-fundacao-e-pessoas-painel/
 
 Current phase: DEVELOPMENT_IN_PROGRESS
-Development authorization: APPROVED (T-38, recorte do login, 2026-11-02; fatia do backend do login: T-01, T-03 e núcleo da T-10, 2026-11-07)
+Development authorization: APPROVED (T-38, recorte do login, 2026-11-02; fatia do backend do login: T-01, T-03 e núcleo da T-10, 2026-11-07; T-11 e T-12 no recorte de 2FA por código e esqueci/redefinir senha, 2026-11-07)
 Current owner: Software Engineer
 
 ## Convenção Git (opcional)
@@ -31,3 +31,5 @@ Pre-Review Gate do front: `<governança>/scripts/run-quiet.sh pnpm gate` (~1,5 m
 Subir tudo (Docker): `docker compose --env-file versoes.env up -d --build --wait web` (~2,5 min do zero).
 Pre-Review Gate da API (Postgres no ar): `docker compose --env-file versoes.env run --rm --no-deps -T api composer gate` (~1 min; Pint, PHPStan 8, Pest).
 Teste focado da API: `docker compose --env-file versoes.env run --rm --no-deps -T api ./vendor/bin/pest tests/Feature/Identidade` (~15 s).
+Teste dos códigos: `docker compose --env-file versoes.env run --rm --no-deps -T api ./vendor/bin/pest tests/Feature/Avisos tests/Feature/Identidade` (~40 s).
+Código no dev: o worker `worker-codigos` sobe junto com a API, e os adapters falsos gravam a mensagem em `api/storage/app/private/codigos-dev.log`. Conta fictícia com 2FA: `demo2fa@oikora.test`, senha do seeder. Depois de mudar código do job: `docker compose --env-file versoes.env restart worker-codigos`.

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Identidade\Application;
 
+use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
 use App\Modules\Identidade\Domain\Identificador;
 use Illuminate\Contracts\Hashing\Hasher;
 
@@ -13,6 +14,7 @@ final class Entrar
         private readonly EventosAutenticacao $eventos,
         private readonly LimiteDeTentativas $limite,
         private readonly Hasher $senhas,
+        private readonly CodigosDeIdentidade $codigos,
     ) {}
 
     /**
@@ -23,8 +25,8 @@ final class Entrar
     public function executar(string $identificador, string $senha, string $ip): int
     {
         $normalizado = Identificador::normalizar($identificador);
-        $identificadorResumo = $this->resumir($normalizado);
-        $ipResumo = $this->resumir($ip);
+        $identificadorResumo = Resumo::de($normalizado);
+        $ipResumo = Resumo::de($ip);
 
         $espera = $this->limite->segundosDeBloqueio($identificadorResumo, $ipResumo);
         if ($espera > 0) {
@@ -51,12 +53,17 @@ final class Entrar
 
         $this->limite->liberarIdentificador($identificadorResumo);
 
-        // A senha conferiu, mas a sessão só abre depois do segundo fator (T-12).
+        // A senha conferiu, mas a sessão só abre depois do segundo fator.
         if ($conta->canalDoisFatores !== null) {
             $canal = $conta->canalDoisFatores;
             $this->eventos->registrar('auth.login.dois_fatores_pendente', $conta->id, $identificadorResumo, $ipResumo, $canal);
 
-            throw FalhaDeLogin::doisFatores($canal, $this->contas->destinoDoCodigo($conta->id, $canal));
+            // O TOTP não usa mensagem. Enquanto ele não existir, essa conta não abre desafio.
+            if ($canal !== 'totp') {
+                $this->codigos->emitir($conta->id, EmissaoDeCodigos::DOIS_FATORES, $canal);
+            }
+
+            throw FalhaDeLogin::doisFatores($conta->id, $identificadorResumo, $canal, $this->contas->destinoDoCodigo($conta->id, $canal));
         }
 
         $this->eventos->registrar('auth.login.sucesso', $conta->id, $identificadorResumo, $ipResumo);
@@ -74,10 +81,5 @@ final class Entrar
         }
 
         return $this->senhas->check($senha, $conta->hashSenha);
-    }
-
-    private function resumir(string $valor): string
-    {
-        return hash_hmac('sha256', $valor, (string) config('oikora.chave_resumo'));
     }
 }

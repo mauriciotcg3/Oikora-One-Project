@@ -1,11 +1,46 @@
 <?php
 
+use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 pest()->extend(TestCase::class)->in('Feature', 'Rls');
+
+const ROTA_LOGIN = '/api/v1/auth/login';
+const SENHA = 'senha-correta-123';
+
+/** @return list<object> */
+function eventos(): array
+{
+    return DB::connection('pgsql_dono')->table('eventos_autenticacao')->orderBy('id')->get()->all();
+}
+
+function entrarCom(string $identificador, string $senha = SENHA): TestResponse
+{
+    return test()->postJson(ROTA_LOGIN, ['identificador' => $identificador, 'senha' => $senha]);
+}
+
+function cookieDaSessao(TestResponse $resposta): string
+{
+    return $resposta->getCookie(config('session.cookie'), decrypt: false)->getValue();
+}
+
+/** Simula uma nova requisição do navegador: só o cookie identifica a pessoa. */
+function comSessao(string $cookie): void
+{
+    Auth::forgetGuards();
+    // `auth.driver` guarda a instância antiga do guard, e é por ela que a sessão grava o `user_id`.
+    app()->forgetInstance('auth.driver');
+    app('session')->forgetDrivers();
+    app()->forgetInstance('session.store');
+    test()->flushHeaders();
+    test()->withCredentials();
+    test()->withUnencryptedCookie(config('session.cookie'), $cookie);
+}
 
 /** Cria a organização pelo `oikora_dono`, fora da RLS, e devolve o id. */
 function criarOrganizacao(string $nome = 'Igreja Teste'): int
@@ -61,4 +96,16 @@ function noContexto(?int $organizacaoId, ?int $contaId, Closure $acao): mixed
 
         return $acao();
     });
+}
+
+/** Simula outro navegador: sem cookie, nada da sessão anterior é herdado. */
+function novoNavegador(): void
+{
+    comSessao('');
+}
+
+/** Emite um código pelo Contract público de Identidade e devolve o id em `codigos_verificacao`. */
+function emitirCodigo(int $contaId, string $finalidade, string $canal): int
+{
+    return app(CodigosDeIdentidade::class)->emitir($contaId, $finalidade, $canal);
 }

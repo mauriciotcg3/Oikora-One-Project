@@ -1,5 +1,5 @@
 # Dev local (OIK-ADR-0011 §4). Subir com: docker compose --env-file versoes.env up --build
-# MinIO e os workers entram quando a primeira task precisar deles (T-01 parcial na fatia do login).
+# MinIO e os demais workers entram quando a primeira task precisar deles (T-01 parcial na fatia do login).
 name: oikora-one
 
 x-api: &api
@@ -46,6 +46,17 @@ services:
 
   api:
     <<: *api
+    depends_on:
+      api-preparar:
+        condition: service_completed_successfully
+      worker-codigos:
+        condition: service_started
+
+  # Worker dedicado: um lote de avisos nunca atrasa um 2FA (OIK-ADR-0008 §3).
+  worker-codigos:
+    <<: *api
+    command: ["php", "artisan", "queue:work", "--queue=codigos", "--sleep=1"]
+    restart: unless-stopped
     depends_on:
       api-preparar:
         condition: service_completed_successfully

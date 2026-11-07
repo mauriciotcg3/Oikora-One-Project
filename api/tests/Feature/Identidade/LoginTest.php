@@ -4,38 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\Rules\Password;
-
-const ROTA_LOGIN = '/api/v1/auth/login';
-const SENHA = 'senha-correta-123';
-
-/** @return list<object> */
-function eventos(): array
-{
-    return DB::connection('pgsql_dono')->table('eventos_autenticacao')->orderBy('id')->get()->all();
-}
-
-function entrarCom(string $identificador, string $senha = SENHA): TestResponse
-{
-    return test()->postJson(ROTA_LOGIN, ['identificador' => $identificador, 'senha' => $senha]);
-}
-
-function cookieDaSessao(TestResponse $resposta): string
-{
-    return $resposta->getCookie(config('session.cookie'), decrypt: false)->getValue();
-}
-
-/** Simula uma nova requisição do navegador: só o cookie identifica a pessoa. */
-function comSessao(string $cookie): void
-{
-    Auth::forgetGuards();
-    app('session')->forgetDrivers();
-    app()->forgetInstance('session.store');
-    test()->flushHeaders();
-    test()->withCredentials();
-    test()->withUnencryptedCookie(config('session.cookie'), $cookie);
-}
 
 it('entra com e-mail ou celular e cria a sessão da conta', function (string $identificador): void {
     $conta = criarConta();
