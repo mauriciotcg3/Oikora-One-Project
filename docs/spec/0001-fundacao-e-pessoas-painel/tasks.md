@@ -84,7 +84,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Green (2026-11-07): os 7 casos da task passam (18 asserções); Pint e PHPStan passam, e as suítes existentes Feature + RLS passam com 136 testes (677 asserções). O `composer gate` ainda retorna 2 porque o `phpunit.xml` referencia a pasta basal ausente `tests/Unit`.
 
 ## T-05 — Contrato OpenAPI e pacote `api-contrato`
 - **Objetivo:** gerar o OpenAPI com Scramble, versioná-lo, gerar tipos e cliente em `packages/api-contrato` e incluir a verificação "gerado = versionado" + `oasdiff` no CI.
