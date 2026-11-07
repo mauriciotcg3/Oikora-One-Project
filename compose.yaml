@@ -1,0 +1,29 @@
+# Dev local (OIK-ADR-0011 §4). Por enquanto só o front, com a API simulada;
+# postgres, php-fpm, caddy, minio e os workers entram com o Laravel na T-01.
+name: oikora-one
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      # Só IPv4: sem o 127.0.0.1, o repasse do WSL ocupa [::1]:5173 e `localhost` fica sem resposta.
+      - "127.0.0.1:5173:5173"
+    environment:
+      OBSERVAR_POR_POLLING: "true"
+    volumes:
+      - ./web/src:/app/web/src
+      - ./web/public:/app/web/public
+      - ./web/painel.html:/app/web/painel.html
+      - ./web/vite.config.ts:/app/web/vite.config.ts
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:5173/painel/login').then((r) => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s

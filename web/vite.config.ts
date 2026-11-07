@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react'
-import type { Connect, Plugin } from 'vite'
+import { loadEnv, type Connect, type Plugin } from 'vite'
 import { defineConfig } from 'vitest/config'
 
 // Cada entrada é uma SPA (OIK-ADR-0006 §1): /painel e /painel/* servem painel.html.
@@ -16,9 +16,13 @@ function entradasSpa(): Plugin {
   }
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react(), entradasSpa()],
   appType: 'mpa',
+  server: {
+    // No Docker com pasta do Windows, o container não recebe os eventos de arquivo alterado.
+    watch: loadEnv(mode, '.', '').OBSERVAR_POR_POLLING === 'true' ? { usePolling: true, interval: 300 } : undefined,
+  },
   build: {
     rollupOptions: { input: { painel: 'painel.html' } },
   },
@@ -28,4 +32,4 @@ export default defineConfig({
     css: false,
     restoreMocks: true,
   },
-})
+}))
