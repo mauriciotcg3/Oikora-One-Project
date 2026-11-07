@@ -1,0 +1,13 @@
+{
+  "name": "oikora-one",
+  "private": true,
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=26.13.0 <27"
+  },
+  "scripts": {
+    "dev:painel": "pnpm --filter web dev",
+    "test:web": "pnpm --filter web test",
+    "gate": "pnpm --filter web gate"
+  }
+}
