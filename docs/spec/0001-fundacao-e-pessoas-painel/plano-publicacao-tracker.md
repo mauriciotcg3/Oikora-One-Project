@@ -2,15 +2,16 @@
 
 **Preparado em:** 2026-11-07
 **Escopo:** T-47 e T-48 da OIK-SPEC-0001
-**Estado:** bloqueado para escrita até reconciliar `docs/agents/project.md` e restaurar o acesso à governança central.
+**Estado:** reconciliação Git concluída; bloqueado para escrita até restaurar o acesso à governança central e executar a prévia do publicador.
 
-## Divergência que precisa ser resolvida primeiro
+## Reconciliação concluída
 
-- `origin/main` registra `Project ID: oikora-one` e `Tracker: off`.
-- A cópia local não rastreada registra `Project ID: oikora-one-project` e `Tracker: github:mauriciotcg3/Oikora-One-Project`.
+- O identificador canônico do projeto é `oikora-one`.
+- O tracker canônico está ligado em `github:mauriciotcg3/Oikora-One-Project`.
+- A branch `t-13-permissoes-ondas` foi reconciliada por rebase sobre `origin/main`, preservando o trabalho local e o trabalho do Mauricio.
 - O script esperado em `/home/thiagonascimento/Desktop/pessoal/.ai/scripts/issue.py` não está disponível nesta máquina.
 
-Nenhuma issue deve ser criada enquanto a fonte canônica do tracker estiver ambígua. A reconciliação não pode descartar nenhum dos dois arquivos: primeiro preservar o arquivo local em commit, depois integrar `origin/main` e resolver o conflito `add/add` conscientemente.
+Nenhuma issue deve ser criada enquanto o publicador da governança central não estiver disponível para validar o lote e apresentar a prévia sem `--confirm`.
 
 ## Lote proposto
 
@@ -23,7 +24,7 @@ O publicador deve ler o arquivo completo e permanecer idempotente: se as tasks a
 
 ## Sequência segura de publicação
 
-1. Reconciliar a branch com `origin/main` e decidir no `project.md` canônico se o tracker fica `off` ou `github:mauriciotcg3/Oikora-One-Project`.
+1. **Concluído:** reconciliar a branch com `origin/main` e registrar `github:mauriciotcg3/Oikora-One-Project` no `project.md` canônico.
 2. Restaurar/instalar a governança no caminho registrado e confirmar que `fw_project.py` e `issue.py` existem.
 3. Se o tracker ficar `off`, encerrar o plano sem publicação; `tasks.md` continua sendo a fonte de estado.
 4. Se o tracker ficar ligado, executar localmente `issue.py check-tasks docs/spec/0001-fundacao-e-pessoas-painel/tasks.md` e corrigir qualquer colisão de dependências/arquivos.

@@ -32,7 +32,7 @@ e as entregas foram decompostas em T-47 (backend) e T-48 (frontend).
 
 ## Onda 3 — núcleo backend
 
-**Estado:** aguardando fundação e reconciliação Git com o trabalho do Mauricio.
+**Estado:** aguardando fundação e publicação da T-47 no tracker.
 
 Entregas previstas:
 
