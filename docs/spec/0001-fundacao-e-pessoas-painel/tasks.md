@@ -928,6 +928,51 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 
 ---
 
+## Complemento da Onda 2 de permissões (ADR-0012)
+
+## T-47 — Solicitações e concessões temporárias de permissão (API)
+- **Objetivo:** implementar o ciclo de solicitar, cancelar, aprovar, recusar e revogar permissões temporárias, com duração máxima de 72 horas, aprovação exclusiva por administrador, anti-escalada, categorias sensíveis explícitas e validade integrada ao `Alcance`.
+- **Context Pack:** `context/T-47.md`
+- **Arquivos de entrada:** `plan.md` §3.3, §7, §11, §12; `contrato-permissoes.md`; T-07, T-13 e T-15 concluídas.
+- **Arquivos de saída:** `api/app/Modules/Autorizacao/{Application,Domain,Infrastructure,Presentation}/**`, migrations do módulo, `api/tests/{Feature,Integration}/Autorizacao/**`, `api/openapi.json`, `packages/api-contrato/**`, `docs/modules/autorizacao.md`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `api/tests/Feature/Autorizacao/SolicitacoesPermissaoTest.php`; `api/tests/Integration/Autorizacao/ConcessoesPermissaoRlsTest.php`
+- **Casos cobertos:**
+  1. Acesso ativo solicita uma permissão elegível, escopo, justificativa e duração entre 1 e 72 horas; governança, exportação e duração maior são recusadas.
+  2. Permissão sensível exige categoria explícita e permanece explícita na resposta e na auditoria.
+  3. Só administrador com `permissoes.solicitacoes.aprovar` e teto suficiente aprova; autoaprovação e escalada de permissão ou escopo são recusadas.
+  4. Duas decisões concorrentes não criam duas concessões: uma vence e a outra recebe 409 `solicitacao_permissao_alterada`.
+  5. Recusa exige justificativa; solicitante cancela somente pedido pendente; administrador revoga concessão vigente.
+  6. A concessão válida participa do `Alcance`; vencida ou revogada deixa de valer na requisição seguinte, sem job ou cache persistente.
+  7. RLS e FKs compostas isolam organizações nas quatro tabelas; cada transição grava auditoria na mesma transação e logs estruturados sem conteúdo sensível.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-31).
+- **Regra de negócio associada:** RN-24 — atualizar `docs/modules/autorizacao.md`.
+- **Status:** Pendente
+
+## T-48 — Solicitação e aprovação temporária de permissões (frontend)
+- **Objetivo:** criar as telas de minhas solicitações e da fila administrativa de decisão/revogação, refletindo o contrato do backend sem inferir autorização no cliente.
+- **Context Pack:** `context/T-48.md`
+- **Arquivos de entrada:** `plan.md` §8; `contrato-permissoes.md`; T-37, T-40 e T-47 concluídas.
+- **Arquivos de saída:** `web/src/features/Autorizacao/{api,model,types,ui}/**`, `web/src/features/Autorizacao/__tests__/{solicitacoesPermissao,aprovacaoPermissao}.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/features/Autorizacao/__tests__/{solicitacoesPermissao,aprovacaoPermissao}.test.tsx`
+- **Casos cobertos:**
+  1. O formulário envia permissões elegíveis, escopo, justificativa e duração; não oferece governança nem exportação.
+  2. Permissões sensíveis aparecem agrupadas e identificadas por categoria na solicitação e na revisão.
+  3. A fila de administrador mostra solicitante, permissões, escopo, duração e justificativa, sem permitir autoaprovação ou edição silenciosa do pedido.
+  4. Recusar exige justificativa; revogar exige confirmação; sucesso invalida a lista e as capacidades da sessão quando aplicável.
+  5. 403 e erros 422 são visíveis; 409 recarrega a solicitação e pede nova revisão sem repetir a mutation.
+  6. Acesso direto às rotas protegidas é representado como negado, e a troca de organização descarta os dados da organização anterior.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-31), tipos estritos e lint de fronteiras aprovados.
+- **Regra de negócio associada:** nenhuma nova.
+- **Status:** Pendente
+
+---
+
 ## Cobertura dos critérios de aceite da spec
 
 | CA | Tasks |
@@ -962,11 +1007,12 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 | CA-28 | T-06 |
 | CA-29 | T-02, T-05 |
 | CA-30 | T-25 |
+| CA-31 | T-47, T-48 |
 
 ## Notas de execução
 - Nenhuma tarefa começa a implementação sem o teste correspondente escrito, aprovado e confirmado como falho (Red) primeiro.
 - Implementar uma tarefa por vez, uma task por sessão (CTX-001). Revisar o diff antes de iniciar a próxima.
-- Ordem: Fase A → B → C → D. A T-46 (complemento da Fase B) roda depois da T-16 e antes da T-40. Dentro de cada fase, respeitar as dependências citadas em "Arquivos de entrada".
+- Ordem: Fase A → B → C → D. A T-46 (complemento da Fase B) roda depois da T-16 e antes da T-40. A T-47 roda depois de T-15; a T-48, depois de T-40 e T-47. Dentro de cada fase, respeitar as dependências citadas em "Arquivos de entrada".
 - Branch por task, curta, a partir da `main` (ADR-0010 §7), com o nome `t-NN-<slug>` (ex.: `t-03-rls-banco`; U-34).
 - Se surgir necessidade de decisão arquitetural não prevista no plano, PARAR e acionar a skill `adr-arquitetura` antes de continuar.
 - Ao concluir uma tarefa que envolve regra de negócio, acionar a skill `docs-modulo` para manter `docs/modules/<modulo>.md` atualizado.
