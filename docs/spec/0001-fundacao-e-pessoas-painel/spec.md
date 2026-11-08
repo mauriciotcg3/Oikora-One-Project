@@ -56,7 +56,7 @@ Entregar a base da plataforma e o cadastro de Pessoas operado pelo painel, para 
 - **E-03 Isolamento por organização.** `organizacao_id` com RLS habilitada e forçada, contexto por transação (`set_config(..., true)`), contexto ausente = erro, papéis de banco (dono, aplicação, plataforma), FKs compostas, chave `bigint` + UUID público e teste de catálogo da RLS — ADR-0002 §2–§9, §12; ADR-0011 §3.
 - **E-04 Organização e igrejas.** Provisionamento da organização por comando de plataforma — ADR-0002 §5 — com estado `ativa` ou `em_migracao` (ADR-0009 §5). Cadastro e manutenção das igrejas locais — P FR-001. Configuração da organização: nome, logo, cor primária (recusada sem contraste AA) e fuso — ADR-0006 §7, ADR-0008 §14. Regionais existem só no schema, sem tela — ADR-0002 §8, P §7.
 - **E-05 Identidade e acesso ao painel.** Conta global, login por e-mail ou celular + senha, verificação de contato, recuperação de senha — ADR-0003 §1, §4, §8. Convite ao painel com expiração e aceite com senha própria — P FR-002, FR-003, BR-010, ADR-0003 §5. Revogação imediata — P FR-004, ADR-0003 §11. 2FA — P FR-029, BR-016, ADR-0003 §7. Elevação do painel — ADR-0003 §9. Organização ativa guardada no servidor, com 409 quando diverge — ADR-0003 §12, ADR-0006 §10.
-- **E-06 Autorização e dados sensíveis.** Catálogo de permissões `recurso.acao`; papéis prontos Administrador e Secretaria, editáveis; criação de papéis — P FR-030, BR-018, ADR-0004 §1–§3. Alcance por requisição, filtro global por igreja, busca restrita na denominação, projeção de sensíveis e cifra de CPF/RG/saúde com `cpf_hash` — P BR-006, BR-007, ADR-0004 §4–§9, §13.
+- **E-06 Autorização e dados sensíveis.** Catálogo de permissões `recurso.acao`; papéis prontos Administrador e Secretaria, editáveis; criação de papéis — P FR-030, BR-018, ADR-0004 §1–§3. Alcance por requisição, filtro global por igreja, busca restrita na denominação, projeção de sensíveis e cifra de CPF/RG/saúde com `cpf_hash` — P BR-006, BR-007, ADR-0004 §4–§9, §13. Solicitações de permissão geram concessões explícitas de até 72 horas, aprovadas por administrador sem autoaprovação nem escalada; categorias sensíveis aparecem explicitamente na revisão — ADR-0012.
 - **E-07 Auditoria.** Catálogo de eventos, gravação na mesma transação, só inclusão, partição mensal e consulta pelo administrador — P FR-005, BR-013, ADR-0005 §1–§3, §5, §10.
 - **E-08 Avisos (sem push e sem automáticas).** Módulo Avisos com catálogo de tipos das categorias `codigo`, `convite` e `servico` — ADR-0008 §1, U-03. Também: caixa de saída transacional, filas `database` com worker dedicado a `codigos`, idempotência, middleware de job com contexto, agendador, caixa de avisos no painel, e-mail (Postmark), WhatsApp (Meta: número por organização ligado pelo administrador e número da plataforma só para códigos), SMS (Twilio, só reserva de código), preferências e descadastro, janela diurna, webhooks, uso e limite com valor em aberto, registros e retenção — P FR-036, ADR-0008 §2–§7, §9–§17, U-04.
 - **E-09 Cadastro de Pessoas.** Cadastro rápido com alerta de duplicidade — P FR-006, FR-007. Ficha por seções com completude — P FR-008. Vínculo e situação com motivo, avançando passo a passo — P FR-009, BR-005, BR-020. Matrícula — P FR-010, BR-004, U-07, U-18. Linha do tempo — P FR-011, ADR-0005 §1. Família e relacionamentos (tipos fixos), incluindo criança ligada a responsável — P FR-012, ASSUMPTION-005, U-24. Funções com período e tipo de membro — P FR-013. Listas de valores — U-09. Obrigatórios por vínculo — P BR-011, U-05, U-06. Foto da ficha — P §14.
@@ -108,6 +108,7 @@ Entregar a base da plataforma e o cadastro de Pessoas operado pelo painel, para 
 | RN-21 | Convites saem por e-mail e pelo WhatsApp da organização (nos dois, se houver os dois contatos), na hora, e são obrigatórios. Avisos de serviço vão para a caixa de avisos mais um canal externo, com reenvio pelo próximo canal em falha definitiva. Códigos vão pelo canal escolhido, com SMS de reserva. | P FR-036; ADR-0008 §12 |
 | RN-22 | Com a organização `em_migracao`, nenhum envio é criado: registra `envio.suprimido` com motivo `migracao`. | ADR-0009 §5, §10 |
 | RN-23 | Duplicidade: (nome completo E nascimento) OU CPF OU e-mail iguais na organização. No cadastro rápido, o detector também considera pessoas na lixeira e oferece recuperar a ficha. | P ASSUMPTION-003; AC-001; U-20 |
+| RN-24 | Uma permissão individual só nasce de solicitação aprovada, vale no máximo 72 horas e deixa de compor o alcance na requisição seguinte ao vencimento ou à revogação. Somente administrador da organização com as mesmas permissões e alcance igual ou superior aprova; autoaprovação, gestão de acessos/papéis/perfis e exportação são recusadas. Permissões sensíveis são permitidas com categoria explícita na revisão e auditoria. | ADR-0012; respostas do responsável do produto em 2026-11-07 |
 
 ## Casos de borda considerados
 
@@ -117,6 +118,8 @@ Entregar a base da plataforma e o cadastro de Pessoas operado pelo painel, para 
 - Acesso revogado depois de pedir uma exportação: o job não exporta — ADR-0004 §9.
 - Tentativa de remover o último Administrador, ou de tirar `papeis.gerir`/`acessos.gerir` dele: recusada, com `authz.last_admin_blocked` — ADR-0004 §3, ADR-0005 §5.
 - Conceder permissão ou escopo que o próprio usuário não tem: recusada, com `authz.escalation_blocked` — ADR-0004 §3.
+- Aprovar a própria solicitação, decidir uma solicitação já alterada ou aprovada e pedir permissão excluída do fluxo: recusado sem criar concessão — ADR-0012.
+- Concessão vencida ou revogada durante uma sessão: deixa de compor o alcance na requisição seguinte, sem cache persistente — ADR-0012.
 - Duplicado de outra igreja no cadastro rápido: a secretaria vê só nome, igreja e vínculo, e pode pedir transferência — P FLOW-001.
 - CPF igual a outro da organização: o `cpf_hash` é único na organização (ignorando a lixeira), então o cadastro é recusado e oferece abrir a ficha existente — ADR-0002 §7.
 - "É outra pessoa" no alerta de duplicidade (nome + nascimento ou e-mail): o cadastro segue — P FR-007.
@@ -175,6 +178,7 @@ Cada critério vira pelo menos um teste em `tasks.md`.
 - [ ] **CA-28** (ADR-0010 §1) Dados-sentinela (CPF, telefone, e-mail, token, código) nunca aparecem nos logs.
 - [ ] **CA-29** (ADR-0010 §4, §7) O CI bloqueia o PR quando o contrato OpenAPI gerado difere do versionado, quando o `oasdiff` aponta quebra na `/api/v1` ou quando o JS inicial do `painel` passa de 350 KB gzip.
 - [ ] **CA-30** (U-09) O administrador mantém as listas "como chegou", motivos, tipos de membro e funções da organização, e só valores ativos dessas listas são aceitos nos cadastros.
+- [ ] **CA-31** (ADR-0012) Um usuário solicita permissões por até 72 horas; um administrador com alcance suficiente aprova ou recusa sem alterar silenciosamente o pedido; aprovação concorrente é idempotente; categorias sensíveis ficam explícitas; e a concessão vencida ou revogada deixa de valer na requisição seguinte com auditoria completa.
 
 ## Restrições arquiteturais aplicáveis (ADRs)
 
@@ -190,6 +194,7 @@ Cada critério vira pelo menos um teste em `tasks.md`.
 | OIK-ADR-0009 | Estado `em_migracao` e supressão de avisos | Só o estado e a supressão (o resto na 0004). |
 | OIK-ADR-0010 | Pest com PG real, suíte RLS, matriz de autorização, Deptrac, contrato, Vitest/Playwright/axe, CI no Actions, `composer gate`/`pnpm gate`, instrumentação | E-02 e E-15. |
 | OIK-ADR-0011 | PG 17 com `pg_trgm`/`unaccent`, contexto por `set_config(..., true)`, sessão/cache/fila no PG, S3 privado com URL assinada, segredos fora do repositório | Ambiente local e convenções do código; a hospedagem fica na Spec de infraestrutura (U-12). |
+| OIK-ADR-0012 | Solicitação aprovada gera concessão temporária de até 72h, com anti-escalada, sem autoaprovação e com categorias sensíveis explícitas | Amplia E-06 e CA-31 sem criar permissão direta permanente no acesso. |
 | OIK-ADR-0007 | — | Fora (0003); a 0001 não quebra a `/api/v1` que o app vai usar (ADR-0001, consequências). |
 
 ## Pontos em aberto

@@ -90,10 +90,15 @@ Todas as tabelas abaixo, exceto as da lista fechada da §2, têm `organizacao_id
 | `papeis` | `nome`, `sistema` (`administrador`, `secretaria`, nulo) | ADR-0004 §2, §3; P BR-018 |
 | `papel_permissoes` | `papel_id`, `permissao` (valor do enum) | ADR-0004 §1, §2 |
 | `atribuicoes_papel` | `acesso_id`, `papel_id`, `escopo_tipo` (`organizacao`, `regional`, `igreja`), `escopo_id` | ADR-0004 §2 |
+| `solicitacoes_permissao` | `solicitante_acesso_id`, `estado` (`pendente`, `aprovada`, `recusada`, `cancelada`, `expirada`), `justificativa`, `duracao_horas` (1–72), `decidida_por_acesso_id`, `decidida_em`, `motivo_decisao`, `versao` | ADR-0012 §6–§8 |
+| `solicitacao_permissoes` | `solicitacao_id`, `permissao`, `escopo_tipo` (`organizacao`, `regional`, `igreja`), `escopo_id` | ADR-0012 §6, §7 |
+| `concessoes_permissao` | `solicitacao_id`, `acesso_id`, `inicia_em`, `expira_em`, `revogada_em`, `revogada_por_acesso_id`, `motivo_revogacao` | ADR-0012 §6–§8 |
+| `concessao_permissoes` | `concessao_id`, `permissao`, `escopo_tipo` (`organizacao`, `regional`, `igreja`), `escopo_id` | ADR-0012 §6, §7 |
 
 **Catálogo `Permissao` (enum PHP, ADR-0004 §1)** — lista fechada desta Spec:
 
 - **Organização e acesso:** `organizacao.configurar`, `igrejas.gerir`, `acessos.gerir`, `papeis.gerir`, `auditoria.ver`, `avisos.whatsapp.gerir`, `pessoas.configurar` (obrigatórios, listas de valores e modo de matrícula: U-06, U-09, U-18).
+- **Solicitações temporárias:** `permissoes.solicitacoes.aprovar`; só o administrador a recebe no provisionamento. Toda pessoa com acesso ativo pode solicitar permissões elegíveis, sem ganhar capacidade por isso.
 - **Pessoas:** `pessoas.ver`, `pessoas.criar`, `pessoas.editar` (ficha, vínculo, situação, funções, relacionamentos, linha do tempo manual), `pessoas.excluir` (lixeira e recuperar), `pessoas.exportar`, `pessoas.mesclar`, `pessoas.transferencias.solicitar`, `pessoas.transferencias.aprovar`.
 - **Sensíveis:** `pessoas.sensiveis.{saude,documentos,contatos,fe}.{ver,editar}`.
 
@@ -102,7 +107,7 @@ Todas as tabelas abaixo, exceto as da lista fechada da §2, têm `organizacao_id
 - **Administrador:** todas as permissões, escopo `organizacao`.
 - **Secretaria:** todas as `pessoas.*` exceto `pessoas.configurar`, mais sensíveis `documentos`, `contatos` e `fe` (`ver` e `editar`); `saude` só se o administrador marcar. Escopo atribuído por igreja.
 
-**Serviço `Alcance`** (ADR-0004 §4): calculado por requisição a partir das atribuições, como `permissao → conjunto de igreja_id` (organização e regional expandem). Sem cache entre requisições.
+**Serviço `Alcance`** (ADR-0004 §4; ADR-0012 §7): calculado por requisição a partir da união das atribuições de papel com concessões temporárias vigentes, como `permissao → conjunto de igreja_id` (organização e regional expandem). Concessões expiradas ou revogadas não participam; sem cache entre requisições. A aprovação valida teto de autoridade do aprovador e nega autoaprovação, permissões de governança (`papeis.gerir`, `acessos.gerir`, `perfis.gerir`) e exportação. Permissões sensíveis são elegíveis somente quando pedidas por categoria explícita.
 
 ### 3.4 Auditoria (E-07, operações desfazíveis)
 
@@ -211,6 +216,7 @@ O OpenAPI é gerado pelo Scramble e versionado em `api/openapi.json`; tipos e cl
 | Painel — elevação | `POST /painel/elevacao` |
 | Organização | `GET\|PUT /painel/organizacao` · `POST /painel/organizacao/logo` · `GET\|POST /painel/igrejas` · `PUT /painel/igrejas/{id}` |
 | Acessos e papéis | `GET /painel/acessos` · `POST /painel/convites` · `DELETE /painel/convites/{id}` · `DELETE /painel/acessos/{id}` · `POST\|DELETE /painel/acessos/{id}/atribuicoes[/{id}]` · `GET /painel/permissoes` · `GET\|POST /painel/papeis` · `PUT /painel/papeis/{id}` |
+| Solicitações de permissão | `GET\|POST /painel/solicitacoes-permissao` · `POST /painel/solicitacoes-permissao/{id}/cancelar` · `POST /painel/solicitacoes-permissao/{id}/aprovar` · `POST /painel/solicitacoes-permissao/{id}/recusar` · `POST /painel/concessoes-permissao/{id}/revogar` |
 | Auditoria | `GET /painel/auditoria` (filtros: período, evento, ator, alvo) |
 | Configuração de Pessoas | `GET\|PUT /painel/configuracao/obrigatorios` · `GET\|POST /painel/listas/{lista}` · `PUT /painel/listas/{lista}/{id}` |
 | Pessoas | `GET /painel/pessoas` (página 25/50/100, filtros U-17, ordenação) · `POST /painel/pessoas` · `GET /painel/pessoas/duplicidade` · `GET\|PATCH /painel/pessoas/{id}` (por seção) · `POST /painel/pessoas/{id}/vinculo` · `POST /painel/pessoas/{id}/situacao` · `GET\|POST /painel/pessoas/{id}/linha-do-tempo` · `POST\|DELETE /painel/pessoas/{id}/relacionamentos[/{id}]` · `POST\|PATCH /painel/pessoas/{id}/funcoes[/{id}]` · `POST /painel/pessoas/{id}/foto` · `POST /painel/pessoas/{id}/conversao` · `DELETE /painel/pessoas/{id}` |
@@ -229,7 +235,8 @@ O OpenAPI é gerado pelo Scramble e versionado em `api/openapi.json`; tipos e cl
   - 401, 419 (CSRF), 403 `elevacao_necessaria`, 409 `organizacao_trocada` (ADR-0006 §10);
   - `dois_fatores_necessario`, `dois_fatores_cadastro_necessario`, `convite_invalido`, `conta_bloqueada`, `muitas_tentativas`, `sem_permissao`;
   - `transicao_vinculo_invalida`, `matricula_obrigatoria`, `matricula_em_uso`, `matricula_automatica_indisponivel`, `cpf_em_uso`;
-  - `transferencia_pendente`, `ultimo_administrador`, `escalada_bloqueada`, `mesclagem_contas_conflitantes`, `operacao_expirada`.
+  - `transferencia_pendente`, `ultimo_administrador`, `escalada_bloqueada`, `mesclagem_contas_conflitantes`, `operacao_expirada`;
+  - `solicitacao_permissao_alterada` (409), `autoaprovacao_negada`, `permissao_nao_solicitavel`, `permissao_fora_do_teto` e `duracao_concessao_invalida`.
   Todo erro devolve `request_id` (ADR-0010 §9).
 
 ## 8. Frontend `web/` — entrada `painel` (ADR-0006)
@@ -245,7 +252,7 @@ O OpenAPI é gerado pelo Scramble e versionado em `api/openapi.json`; tipos e cl
 - **Features:**
   - `Identidade`: login, 2FA, cadastro de 2FA, elevação, aceite de convite, recuperação;
   - `Organizacao`: configuração, igrejas;
-  - `Autorizacao`: acessos, convites, papéis;
+  - `Autorizacao`: acessos, convites, papéis, minhas solicitações temporárias e fila de aprovação/revogação para administradores; permissões sensíveis aparecem por categoria explícita;
   - `Auditoria`: consulta;
   - `Pessoas`: lista com DataGrid MIT, cadastro rápido, ficha por seções, linha do tempo, relacionamentos, funções, duplicados e mesclagem, transferências, lixeira, novos convertidos, datas, exportações, configuração de obrigatórios e listas;
   - `Avisos`: caixa com contador a cada ~60 s com a aba visível, preferências, WhatsApp.
@@ -281,10 +288,10 @@ Não há dado existente: o repositório só tem documentação. Migrations criam
 | Pilar | Como este plano atende |
 |---|---|
 | Desempenho | Busca e duplicidade por `nome_busca` com trigram e `cpf_hash` indexados (ADR-0002 §10). Projeção que nem seleciona colunas não permitidas. Exportação em streaming na fila `pesadas`. Lista paginada no servidor. `size-limit` no painel. |
-| Simplicidade de manutenção | Seis módulos com camadas só quando necessárias (MOD-004). Uma Action por caso de uso para todos os canais. Catálogos (permissões, eventos, campos, avisos) como enums versionados. Uma tabela genérica de listas de valores. |
-| Boas práticas | RLS forçada + filtro de alcance + Policy (defesa em camadas). Auditoria na transação. Caixa de saída transacional. TDD com PostgreSQL real. Contrato OpenAPI verificado no CI. |
-| Escalabilidade | Banco compartilhado por `organizacao_id` e jobs distribuídos por organização (ADR-0002, ADR-0008). Contexto por transação, compatível com pooler futuro (ADR-0011 §3). Redis só por gatilho. |
-| Observabilidade / logs | `request_id` + `trace_id` em todo log, job e envio. Logs JSON com redação e testes de dados-sentinela. Eventos de auditoria e de segurança catalogados. O destino da telemetria fica na Spec de infraestrutura (U-12). |
+| Simplicidade de manutenção | Seis módulos com camadas só quando necessárias (MOD-004). Uma Action por caso de uso para todos os canais. Catálogos (permissões, eventos, campos, avisos) como enums versionados. Uma tabela genérica de listas de valores. Solicitações e concessões temporárias ficam no módulo `Autorizacao`, sem criar um segundo motor de políticas. |
+| Boas práticas | RLS forçada + filtro de alcance + Policy (defesa em camadas). Auditoria na transação. Caixa de saída transacional. Aprovação temporária com anti-escalada, sem autoaprovação, transição otimista por `versao` e expiração fail-closed. TDD com PostgreSQL real. Contrato OpenAPI verificado no CI. |
+| Escalabilidade | Banco compartilhado por `organizacao_id` e jobs distribuídos por organização (ADR-0002, ADR-0008). Contexto por transação, compatível com pooler futuro (ADR-0011 §3). Validade da concessão é verificada na leitura, sem depender de job para revogar autoridade. Redis só por gatilho. |
+| Observabilidade / logs | `request_id` + `trace_id` em todo log, job e envio. Logs JSON com redação e testes de dados-sentinela. Eventos de solicitação, decisão, uso, expiração e revogação de concessões entram no catálogo de auditoria sem registrar conteúdo sensível. O destino da telemetria fica na Spec de infraestrutura (U-12). |
 
 ## 12. Restrições de ADRs aplicadas
 
@@ -295,6 +302,7 @@ Não há dado existente: o repositório só tem documentação. Migrations criam
 - **OIK-ADR-0005:** §1–§3, §5–§8 (removedor sem o registro no S3), §10; §9 (consentimento) na 0002 (U-08); §4 só pelo provisionamento.
 - **OIK-ADR-0006:** entrada `painel`; a entrada `membro`, a casca `og:` e o tema por organização na área do membro ficam na 0002.
 - **OIK-ADR-0008:** tudo menos push (0003) e automáticas (U-03).
+- **OIK-ADR-0012:** concessões temporárias de até 72 horas; decisão exclusiva de administrador, sem autoaprovação; permissões sensíveis somente por categoria explícita; governança e exportação não são solicitáveis; anti-escalada, concorrência idempotente, auditoria e expiração fail-closed obrigatórias.
 - **OIK-ADR-0009:** só §5 (estado) e §10 (supressão).
 - **OIK-ADR-0010:** §1–§5, §7, §8, §9 (no código); o Maestro e o app ficam na 0003; painéis, alertas e retenção da telemetria na Spec de infraestrutura.
 - **OIK-ADR-0011:** §3 (PG, contexto, drivers `database`), §4 (dev local), §7 (convenções de arquivo), §12 (`/saude`); o resto na Spec de infraestrutura (U-12).
