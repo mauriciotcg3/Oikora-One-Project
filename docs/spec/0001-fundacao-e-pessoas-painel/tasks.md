@@ -182,7 +182,7 @@ Convenções: caminhos relativos à raiz do `Oikora-One-Project`. Testes de back
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-27).
 - **Regra de negócio associada:** RN-10 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Concluída em 2026-11-08
 
 ## T-10 — Contas, RLS de identidade e login
 - **Objetivo:** criar `contas` com a RLS de identidade e as funções estreitas, `acessos` (U-30), `eventos_autenticacao` (U-31), o login e logout com Fortify headless (e-mail ou celular + senha), a sessão de 30 dias, a política de senha e o limite de tentativas configurável.

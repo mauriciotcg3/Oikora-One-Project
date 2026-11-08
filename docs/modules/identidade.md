@@ -76,7 +76,6 @@ Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `para
 - ⚠️ A mensagem de erro da tela de TOTP fala em "Confira a mensagem", texto pensado para código por mensagem.
 - ⚠️ `POST /auth/senha/redefinir` não tem tela no web: o token chega, mas não há onde usá-lo pelo navegador.
 - ⚠️ O pedido de recuperação para conta existente faz mais escrita no banco do que para conta inexistente; a diferença de tempo é pequena, mas não é zero.
-- ⚠️ `acessos.pessoa_id` está sem FK até a T-09.
 - ⚠️ Atrás de proxy, o limite por IP vê o IP do proxy até a configuração de proxies confiáveis.
 - ⚠️ A T-10 previa 200 no login; o código responde 204, conforme o contrato do front.
 - ⚠️ Logout não grava evento em `eventos_autenticacao`.
@@ -84,6 +83,7 @@ Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `para
 ## Changelog
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-08 | Integridade referencial de `acessos.pessoa_id` ligada ao cadastro de pessoas. | OIK-SPEC-0001 T-09 |
 | 2026-11-07 | Criação inicial do documento, com o login por senha. | OIK-SPEC-0001 T-10 (fatia do login) |
 | 2026-11-07 | 2FA por código e recuperação de senha, com a sessão aberta só no `confirmar`. | OIK-SPEC-0001 T-12 (recorte) |
 | 2026-11-07 | TOTP, códigos de recuperação, regra das 24h, confirmação de senha, troca de senha e verificação de contato. | OIK-SPEC-0001 T-12 |

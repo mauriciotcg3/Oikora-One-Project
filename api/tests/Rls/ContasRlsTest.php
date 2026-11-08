@@ -2,14 +2,38 @@
 
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
+function criarPessoaParaAcesso(int $organizacaoId): int
+{
+    $igrejaId = (int) DB::connection('pgsql_dono')->table('igrejas')->insertGetId([
+        'uuid' => (string) Str::uuid(),
+        'organizacao_id' => $organizacaoId,
+        'nome' => 'Igreja do acesso',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    return (int) DB::connection('pgsql_dono')->table('pessoas')->insertGetId([
+        'uuid' => (string) Str::uuid(),
+        'organizacao_id' => $organizacaoId,
+        'igreja_id' => $igrejaId,
+        'nome' => 'Pessoa do acesso',
+        'nome_busca' => 'pessoa do acesso',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+}
 
 beforeEach(function (): void {
     $this->orgA = criarOrganizacao('A');
     $this->orgB = criarOrganizacao('B');
     $this->contaDeA = criarConta(['email' => 'a@exemplo.test', 'celular' => '+5511900000001']);
     $this->contaDeB = criarConta(['email' => 'b@exemplo.test', 'celular' => '+5511900000002']);
-    criarAcesso($this->orgA, $this->contaDeA, pessoaId: 1);
-    criarAcesso($this->orgB, $this->contaDeB, pessoaId: 1);
+    $this->pessoaDeA = criarPessoaParaAcesso($this->orgA);
+    $this->pessoaDeB = criarPessoaParaAcesso($this->orgB);
+    criarAcesso($this->orgA, $this->contaDeA, $this->pessoaDeA);
+    criarAcesso($this->orgB, $this->contaDeB, $this->pessoaDeB);
 });
 
 it('não mostra conta alguma sem contexto', function (): void {
@@ -24,7 +48,7 @@ it('mostra só as contas com acesso ativo na organização do contexto', functio
 
 it('esconde a conta cujo acesso foi revogado', function (): void {
     $revogada = criarConta(['email' => 'r@exemplo.test', 'celular' => '+5511900000003']);
-    criarAcesso($this->orgA, $revogada, pessoaId: 2, estado: 'revogado');
+    criarAcesso($this->orgA, $revogada, criarPessoaParaAcesso($this->orgA), estado: 'revogado');
 
     $ids = noContexto($this->orgA, null, fn () => DB::table('contas')->pluck('id')->all());
 
@@ -61,15 +85,15 @@ it('impede oikora_app de alterar ou excluir eventos_autenticacao', function (str
 ])->throws(QueryException::class, 'permission denied');
 
 it('recusa segundo acesso ativo da mesma conta na organização', function (): void {
-    criarAcesso($this->orgA, $this->contaDeA, pessoaId: 2);
+    criarAcesso($this->orgA, $this->contaDeA, criarPessoaParaAcesso($this->orgA));
 })->throws(QueryException::class, 'unique');
 
 it('recusa segundo acesso ativo da mesma pessoa na organização', function (): void {
-    criarAcesso($this->orgA, $this->contaDeB, pessoaId: 1);
+    criarAcesso($this->orgA, $this->contaDeB, $this->pessoaDeA);
 })->throws(QueryException::class, 'unique');
 
 it('permite novo acesso depois de revogar o anterior', function (): void {
     DB::connection('pgsql_dono')->table('acessos')->where('conta_id', $this->contaDeA)->update(['estado' => 'revogado']);
 
-    expect(criarAcesso($this->orgA, $this->contaDeA, pessoaId: 1))->toBeGreaterThan(0);
+    expect(criarAcesso($this->orgA, $this->contaDeA, $this->pessoaDeA))->toBeGreaterThan(0);
 });
