@@ -3,7 +3,7 @@
 **Status:** Aceito — confirmado pelo responsável do produto em 2026-11-07
 **Data:** 2026-11-07
 **Contexto do projeto:** Oikora One, autorização multi-organização com papéis, perfis e alcance por escopo
-**Identificação:** Produto `OIK-ADR-0012` · Governança `não atribuída durante a transição dos ADRs 0005–0014`
+**Identificação:** Produto `OIK-ADR-0012` · Governança `ADR-0034`
 **Fonte da verdade:** `oikora-one:docs/adr/0012-solicitacao-e-concessao-de-permissoes.md`
 
 ## Contexto

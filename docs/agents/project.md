@@ -7,21 +7,21 @@ compartilhado das tasks vive nas issues; este arquivo guarda só contexto estáv
 Project ID: oikora-one
 Tracker: github:mauriciotcg3/Oikora-One-Project
 Skills: backend, database, frontend
-Execution mode: per-task
+Execution mode: per-spec
 
 Product documentation: docs/product/0001-fundacao-e-pessoas.md (entrada: docs/analise/)
 ADRs: docs/adr/ (OIK)
 Spec: docs/spec/0001-fundacao-e-pessoas-painel/
 
 Current phase: DEVELOPMENT_IN_PROGRESS
-Development authorization: APPROVED (T-38, recorte do login, 2026-11-02; fatia do backend do login: T-01, T-03 e núcleo da T-10, 2026-11-07; T-11 no recorte de códigos e T-12 inteira, 2026-11-07)
+Development authorization: APPROVED (OIK-SPEC-0001 em ondas, 2026-11-08; aprovações anteriores incorporadas ao baseline)
 Current owner: Software Engineer
 
 ## Convenção Git (opcional)
 
-Branch principal/integração: main (trunk-based, OIK-ADR-0010; Fase-1 a aposentar)
-Padrão de branch: t-NN-<slug>, curta, a partir da main (OIK-SPEC-0001, U-34)
-Padrão de mensagem de commit: Conventional Commits com escopo e task, ex.: `feat(web): descrição (T-NN)`
+Branch principal/integração: main protegida por PR (OIK-ADR-0010)
+Branch da spec: `feat/spec-0001-fundacao-pessoas` (OIK-ADR-0013)
+Padrão de mensagem de commit: Conventional Commits com escopo e onda, ex.: `feat(pessoas): descrição (OIK-SPEC-0001 W3)`
 
 ## Pontos quentes
 
