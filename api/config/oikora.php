@@ -3,6 +3,20 @@
 return [
     'versao' => env('OIKORA_VERSAO', 'dev'),
 
+    // Segredos próprios dos campos sensíveis (OIK-ADR-0004 §8), nunca derivados da APP_KEY.
+    'cifra' => [
+        'campos' => [
+            'chave_atual' => env('OIKORA_CHAVE_CAMPOS'),
+            'chaves_anteriores' => array_values(array_filter(array_map(
+                'trim',
+                explode(',', (string) env('OIKORA_CHAVES_CAMPOS_ANTERIORES', '')),
+            ))),
+        ],
+        'cpf' => [
+            'chave_hmac' => env('OIKORA_CHAVE_HMAC_CPF'),
+        ],
+    ],
+
     // Chave do HMAC que resume identificador e IP em `eventos_autenticacao` e nos limites.
     'chave_resumo' => env('OIKORA_CHAVE_RESUMO', env('APP_KEY')),
 

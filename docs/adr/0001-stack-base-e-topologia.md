@@ -3,7 +3,7 @@
 **Status:** Aceito — após confirmação do usuário (2026-10-19)
 **Data:** 2026-10-19
 **Contexto do projeto:** Oikora One — plataforma da denominação (3 igrejas, ~520 membros) que substitui o inChurch módulo a módulo, com plano de atender outras igrejas.
-**Identificação:** Produto `OIK-ADR-0001` · Governança `ADR-0023`
+**Identificação:** Produto `OIK-ADR-0001` · Governança `ADR-0036`
 **Fonte da verdade:** `oikora-one:docs/adr/0001-stack-base-e-topologia.md`
 
 ## Contexto

@@ -23,3 +23,5 @@ substitua).
 | [OIK-ADR-0009](0009-migracao-do-inchurch.md) | Migração do inChurch — módulo Migração com área de preparação e virada em lote | Aceito |
 | [OIK-ADR-0010](0010-qualidade-ci-e-observabilidade.md) | Qualidade, CI e observabilidade — testes com PostgreSQL real, GitHub Actions e Grafana Cloud + Sentry | Aceito |
 | [OIK-ADR-0011](0011-hospedagem-ambientes-e-backups.md) | Hospedagem, ambientes e backups — AWS São Paulo com VM Lightsail, RDS PostgreSQL 17 e Cloudflare | Aceito |
+| [OIK-ADR-0012](0012-solicitacao-e-concessao-de-permissoes.md) | Solicitação e concessão temporária de permissões | Aceito |
+| [OIK-ADR-0013](0013-execucao-da-spec-em-ondas.md) | Execução da spec em ondas | Aceito |
