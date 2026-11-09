@@ -2,9 +2,9 @@
 
 namespace App\Shared\Tenancy\Jobs;
 
+use App\Shared\Tenancy\Contracts\OrganizacaoDisponivel;
 use Closure;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use RuntimeException;
 use Throwable;
 
@@ -21,7 +21,7 @@ final class ContextoOrganizacaoJob
 
         $organizacaoId = property_exists($job, 'organizacao_id') ? $job->organizacao_id : null;
 
-        if (! is_int($organizacaoId) || $organizacaoId <= 0 || ! $this->organizacaoDisponivel($organizacaoId)) {
+        if (! is_int($organizacaoId) || $organizacaoId <= 0 || ! app(OrganizacaoDisponivel::class)->verificar($organizacaoId)) {
             $this->falhar($job, new RuntimeException('tenant.context.missing'));
 
             return;
@@ -31,18 +31,6 @@ final class ContextoOrganizacaoJob
             DB::select("select set_config('app.organizacao_id', ?, true)", [(string) $organizacaoId]);
             $next($job);
         });
-    }
-
-    private function organizacaoDisponivel(int $organizacaoId): bool
-    {
-        $consulta = DB::table('organizacoes')->where('id', $organizacaoId);
-
-        // A T-08 cria o estado; até lá, existir é a única condição representável pelo schema.
-        if (Schema::hasColumn('organizacoes', 'estado')) {
-            $consulta->whereIn('estado', ['ativa', 'em_migracao']);
-        }
-
-        return $consulta->exists();
     }
 
     private function falhar(object $job, Throwable $falha): void

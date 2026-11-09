@@ -27,6 +27,7 @@ Padrão de mensagem de commit: Conventional Commits com escopo e onda, ex.: `fea
 
 - `package.json` e `pnpm-lock.yaml`
 - `compose.yaml`
+- `compose-dev.yaml`, `dev.env` e `dev`
 - `docs/spec/0001-fundacao-e-pessoas-painel/plan.md`
 
 ## Comandos do ambiente (CTX-011)
@@ -37,8 +38,12 @@ Pré-requisitos: Node 26.13.0 e pnpm 12.16.1. Instalar dependências: `pnpm inst
 Teste focado: `<governança>/scripts/run-quiet.sh pnpm --filter web exec vitest run src/features/Identidade` (~20 s)
 Suíte do módulo: `<governança>/scripts/run-quiet.sh pnpm test:web` (~50 s)
 Pre-Review Gate do front: `<governança>/scripts/run-quiet.sh pnpm gate` (~1,5 min).
-Subir tudo (Docker): `docker compose --env-file versoes.env up -d --build --wait web` (~2,5 min do zero).
-Pre-Review Gate da API (Postgres no ar): `docker compose --env-file versoes.env run --rm --no-deps -T api composer gate` (~1 min; Pint, PHPStan 8, Pest).
-Teste focado da API: `docker compose --env-file versoes.env run --rm --no-deps -T api ./vendor/bin/pest tests/Feature/Identidade` (~15 s).
-Teste dos códigos: `docker compose --env-file versoes.env run --rm --no-deps -T api ./vendor/bin/pest tests/Feature/Avisos tests/Feature/Identidade` (~40 s).
-Código no dev: o worker `worker-codigos` sobe junto com a API, e os adapters falsos gravam a mensagem em `api/storage/app/private/codigos-dev.log`. Conta fictícia com 2FA: `demo2fa@oikora.test`, senha do seeder. Depois de mudar código do job: `docker compose --env-file versoes.env restart worker-codigos`.
+Subir tudo (Docker): `./dev up -d --build --wait` (~5 min na primeira compilação do MinIO; ~1 min com cache).
+Estado dos serviços: `./dev ps --all` (esperado em dev, via `./dev`: nove serviços — sem `worker-pesadas`, cuja fila `pesadas` o `worker-geral` assume; `api-preparar` encerrado com código 0). Produção/CI (só `versoes.env`, `compose.yaml` puro): dez serviços, com `worker-codigos`, `worker-geral` e `worker-pesadas` separados (U-30).
+Smoke da API: `curl -fsS http://localhost:8080/api/v1/saude` (<1 s). Smoke do MinIO: `curl -fsS http://localhost:9000/minio/health/live` (<1 s).
+Pre-Review Gate da API (Postgres no ar): `./dev exec -T api composer gate` (~45 s; Pint, PHPStan 8, 189 testes).
+Teste focado da API: `./dev run --rm --no-deps -T api ./vendor/bin/pest tests/Feature/Identidade` (~15 s).
+Teste dos códigos: `./dev run --rm --no-deps -T api ./vendor/bin/pest tests/Feature/Avisos tests/Feature/Identidade` (~40 s).
+Testes focados da W1: `./dev exec -T api ./vendor/bin/pest tests/Unit/Autorizacao tests/Feature/Autorizacao tests/Feature/Auditoria tests/Rls/AuditoriaImutavelTest.php tests/Arquitetura/DeclaracoesDeSegurancaTest.php` (~5 s).
+Gate do frontend na imagem: `./dev run --rm --no-deps -T web pnpm --filter web gate` (~25 s; 10 testes e build).
+Código no dev: o worker `worker-codigos` sobe junto com a API, e os adapters falsos gravam a mensagem em `api/storage/app/private/codigos-dev.log`. Conta fictícia com 2FA: `demo2fa@oikora.test`, senha do seeder. Depois de mudar código do job: `./dev restart worker-codigos`.

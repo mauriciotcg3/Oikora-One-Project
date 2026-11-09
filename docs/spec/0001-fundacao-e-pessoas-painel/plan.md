@@ -277,7 +277,7 @@ O OpenAPI é gerado pelo Scramble e versionado em `api/openapi.json`; tipos e cl
 | MinIO no Compose (dev/CI) | S3 local com URL assinada | U-19; ADR-0011 §7 |
 | Fila, sessão e cache `database` (PG) | Sem Redis | ADR-0008 §3; ADR-0011 §3 |
 
-**Versões fixadas no bootstrap (U-15, 2026-11-07):** PHP 8.5.12, Laravel 13.40, PostgreSQL 17.11, Caddy 2.11.9 (`versoes.env`); Fortify 1.41, Sanctum 4.3, Pest 4.7, Larastan 3.14 (`api/composer.lock`).
+**Versões fixadas no bootstrap (U-15, atualizado em 2026-11-08):** PHP 8.5.12, Laravel 13.40, PostgreSQL 17.11, Caddy 2.11.9 e MinIO `RELEASE.2025-10-15T17-29-55Z` (`versoes.env`); Node 26.13.0 e pnpm 12.16.1 (`package.json`/`web/Dockerfile`); Fortify 1.41, Sanctum 4.3, Pest 4.7 e Larastan 3.14 (`api/composer.lock`).
 
 ## 10. Estratégia de migração
 

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Pessoas\Infrastructure\Console;
 
+use App\Modules\Organizacao\Contracts\ConsultaOrganizacoes;
 use App\Modules\Pessoas\Infrastructure\Pessoa;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -16,10 +17,15 @@ class RecifrarCamposPessoas extends Command
     /** @var string */
     protected $description = 'Recifra os campos sensíveis de Pessoas com a chave atual';
 
+    public function __construct(private readonly ConsultaOrganizacoes $organizacoes)
+    {
+        parent::__construct();
+    }
+
     public function handle(): int
     {
         $total = 0;
-        $organizacoes = DB::table('organizacoes')->orderBy('id')->pluck('id');
+        $organizacoes = $this->organizacoes->idsDisponiveis();
 
         foreach ($organizacoes as $organizacaoId) {
             $inicio = microtime(true);
