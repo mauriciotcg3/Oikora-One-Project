@@ -1,0 +1,17 @@
+# Ajuste de DEV sobre o compose.yaml (que mantém a separação de produção, OIK-ADR-0008 §3 / OIK-ADR-0011).
+# Uso: ./dev up --build  (== docker compose --env-file versoes.env --env-file dev.env up --build; dev.env define COMPOSE_FILE)
+#
+# Em produção (compose.yaml sozinho) há 3 workers de fila + scheduler:
+#   worker-codigos  -> codigos                      (2FA nunca espera um lote de avisos)
+#   worker-geral    -> avisos,webhooks,default
+#   worker-pesadas  -> pesadas                      (exportação/importação)
+# Em dev, para poupar memória (cada worker carrega o Laravel inteiro):
+#   worker-codigos  -> igual a produção (a API depende dele)
+#   worker-geral    -> assume também a fila `pesadas`, por último, para não atrasar os avisos
+#   worker-pesadas  -> desligado (profile `producao`); suba com --profile producao para testar a separação
+services:
+  worker-geral:
+    command: ["php", "artisan", "queue:work", "--queue=avisos,webhooks,default,pesadas", "--sleep=1"]
+
+  worker-pesadas:
+    profiles: ["producao"]

@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+# Atalho de dev: ./dev up --build  ==  docker compose --env-file versoes.env --env-file dev.env up --build
+cd "$(dirname "$0")" || exit 1
+exec docker compose --env-file versoes.env --env-file dev.env "$@"

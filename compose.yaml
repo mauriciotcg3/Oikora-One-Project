@@ -1,5 +1,4 @@
 # Dev local (OIK-ADR-0011 §4). Subir com: docker compose --env-file versoes.env up --build
-# MinIO e os demais workers entram quando a primeira task precisar deles (T-01 parcial na fatia do login).
 name: oikora-one
 
 x-api: &api
@@ -23,6 +22,27 @@ services:
       - ./infra/postgres/init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d oikora_teste"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    build:
+      context: ./infra/minio
+      args:
+        MINIO_VERSAO: ${MINIO_VERSAO:?use --env-file versoes.env}
+    image: oikora-one-minio:${MINIO_VERSAO:?use --env-file versoes.env}
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: oikora_dev
+      MINIO_ROOT_PASSWORD: oikora_dev_local_123
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio-dados:/data
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9000/minio/health/live"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -56,6 +76,30 @@ services:
   worker-codigos:
     <<: *api
     command: ["php", "artisan", "queue:work", "--queue=codigos", "--sleep=1"]
+    restart: unless-stopped
+    depends_on:
+      api-preparar:
+        condition: service_completed_successfully
+
+  worker-geral:
+    <<: *api
+    command: ["php", "artisan", "queue:work", "--queue=avisos,webhooks,default", "--sleep=1"]
+    restart: unless-stopped
+    depends_on:
+      api-preparar:
+        condition: service_completed_successfully
+
+  worker-pesadas:
+    <<: *api
+    command: ["php", "artisan", "queue:work", "--queue=pesadas", "--sleep=1"]
+    restart: unless-stopped
+    depends_on:
+      api-preparar:
+        condition: service_completed_successfully
+
+  scheduler:
+    <<: *api
+    command: ["php", "artisan", "schedule:work"]
     restart: unless-stopped
     depends_on:
       api-preparar:
@@ -103,4 +147,5 @@ services:
 
 volumes:
   postgres-dados:
+  minio-dados:
   api-vendor:
