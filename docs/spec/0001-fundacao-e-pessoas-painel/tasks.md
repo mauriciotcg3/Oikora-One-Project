@@ -47,7 +47,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** o teste deve FALHAR (Red). Só prosseguir para a implementação depois que o usuário aprovar o teste e confirmar essa falha.
 - **Critério de aceite final:** testes passando (Green); `docker compose up` sobe todos os serviços; versões registradas no `plan.md` §9 (U-15); comandos de teste registrados no `project.md` (CTX-011).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Parcial (fatia do login, 2026-11-07): Laravel, PostgreSQL, Caddy, `versoes.env` e `/saude` prontos. Falta MinIO, workers, `packages/api-contrato/` e o teste da raiz do painel.
+- **Status:** Concluída em 2026-11-08: workspace com `packages/api-contrato`, ambiente local com dez serviços (PostgreSQL, MinIO, preparação/API, Caddy, web, scheduler e três workers), `/saude` e raiz do painel validados.
 
 ## T-02 — CI no GitHub Actions e Pre-Review Gate
 - **Issue:** #2
@@ -184,7 +184,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-12, parte do registro).
 - **Regra de negócio associada:** RN-15 — atualizar `docs/modules/auditoria.md`.
-- **Status:** Pendente
+- **Status:** Concluída em 2026-11-08: auditoria transacional e imutável, catálogo de eventos/metadados, partições mensais, retenção e declaração arquitetural entregues.
 
 ## T-08 — Organização: schema de regionais e igrejas
 - **Issue:** #8
@@ -322,7 +322,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** RN-17 (catálogo) — atualizar `docs/modules/autorizacao.md`.
-- **Status:** Pendente
+- **Status:** Concluída em 2026-11-08: catálogo de 24 permissões, papéis e atribuições sob RLS, alcance sem cache, Policy e declaração arquitetural entregues.
 
 ## T-14 — Escopo de consulta de Pessoas, busca na denominação e projeção de sensíveis
 - **Issue:** #14
