@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Auditoria\AuditoriaServiceProvider;
 use App\Modules\Autorizacao\AutorizacaoServiceProvider;
 use App\Modules\Avisos\AvisosServiceProvider;
 use App\Modules\Identidade\IdentidadeServiceProvider;
@@ -15,6 +16,7 @@ return [
     CifraServiceProvider::class,
     OrganizacaoServiceProvider::class,
     AutorizacaoServiceProvider::class,
+    AuditoriaServiceProvider::class,
     IdentidadeServiceProvider::class,
     AvisosServiceProvider::class,
     PessoasServiceProvider::class,
