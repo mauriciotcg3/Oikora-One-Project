@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Autorizacao\AutorizacaoServiceProvider;
 use App\Modules\Avisos\AvisosServiceProvider;
 use App\Modules\Identidade\IdentidadeServiceProvider;
 use App\Modules\Organizacao\OrganizacaoServiceProvider;
@@ -13,6 +14,7 @@ return [
     TenancyServiceProvider::class,
     CifraServiceProvider::class,
     OrganizacaoServiceProvider::class,
+    AutorizacaoServiceProvider::class,
     IdentidadeServiceProvider::class,
     AvisosServiceProvider::class,
     PessoasServiceProvider::class,

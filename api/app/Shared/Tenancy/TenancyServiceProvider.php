@@ -22,10 +22,17 @@ class TenancyServiceProvider extends ServiceProvider
             return $coluna;
         });
 
-        Blueprint::macro('foreignComposta', function (string $coluna, string $tabela): ColumnDefinition {
+        Blueprint::macro('foreignComposta', function (
+            string $coluna,
+            string $tabela,
+            string $aoExcluir = 'no action',
+        ): ColumnDefinition {
             /** @var Blueprint $this */
             $definicao = $this->bigInteger($coluna);
-            $this->foreign(['organizacao_id', $coluna])->references(['organizacao_id', 'id'])->on($tabela);
+            $chave = $this->foreign(['organizacao_id', $coluna])->references(['organizacao_id', 'id'])->on($tabela);
+            if ($aoExcluir !== 'no action') {
+                $chave->onDelete($aoExcluir);
+            }
 
             return $definicao;
         });
