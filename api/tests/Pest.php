@@ -1,8 +1,14 @@
 <?php
 
+use App\Modules\Autorizacao\Contracts\AlcanceAtual;
+use App\Modules\Autorizacao\Domain\Permissao;
 use App\Modules\Avisos\Infrastructure\Canais\Postmark\PostmarkFalso;
 use App\Modules\Identidade\Application\ExigenciaDeDoisFatores;
 use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
+use App\Modules\Pessoas\Infrastructure\Pessoa;
+use App\Shared\Tenancy\Contracts\ResolvedorOrganizacaoAtiva;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -10,7 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
-pest()->extend(TestCase::class)->in('Feature', 'Rls');
+pest()->extend(TestCase::class)->in('Feature', 'Rls', 'Autorizacao', 'LogSeguro');
 
 const ROTA_LOGIN = '/api/v1/auth/login';
 const SENHA = 'senha-correta-123';
@@ -169,4 +175,177 @@ function entrarDepoisDeRecuperar(int $horas): void
     test()->postJson('/api/v1/auth/senha/redefinir', ['token' => $token, 'senha' => 'outra-senha-forte-456'])->assertNoContent();
     test()->travelBack();
     novoNavegador();
+}
+
+/** Desvia o canal `json` para um arquivo temporário, para o teste ler as linhas reais do log. */
+function capturarLog(): string
+{
+    $arquivo = tempnam(sys_get_temp_dir(), 'oik-log-');
+    config(['logging.default' => 'json', 'logging.channels.json.handler_with.stream' => $arquivo]);
+    app('log')->forgetChannel('json');
+    test()->arquivoDeLog = $arquivo;
+
+    return $arquivo;
+}
+
+function conteudoDoLog(): string
+{
+    return (string) file_get_contents(test()->arquivoDeLog);
+}
+
+/** @return list<array<string, mixed>> */
+function linhasDoLog(): array
+{
+    return collect(explode("\n", trim(conteudoDoLog())))
+        ->filter()
+        ->map(fn (string $linha): array => json_decode($linha, true, flags: JSON_THROW_ON_ERROR))
+        ->values()
+        ->all();
+}
+
+/** Até a T-16, a organização ativa do painel vem desta porta. */
+function usarOrganizacao(int $organizacaoId): void
+{
+    app()->instance(ResolvedorOrganizacaoAtiva::class, new class($organizacaoId) implements ResolvedorOrganizacaoAtiva
+    {
+        public function __construct(private readonly int $organizacaoId) {}
+
+        public function resolver(Request $request): int
+        {
+            return $this->organizacaoId;
+        }
+    });
+}
+
+/** Insere pelo `oikora_dono` (fora da RLS) e devolve o id. */
+function inserirComoDono(string $tabela, array $dados): int
+{
+    return (int) DB::connection('pgsql_dono')->table($tabela)->insertGetId([
+        'uuid' => (string) Str::uuid(),
+        'created_at' => now(),
+        'updated_at' => now(),
+        ...$dados,
+    ]);
+}
+
+function uuidDe(string $tabela, int $id): string
+{
+    return (string) DB::connection('pgsql_dono')->table($tabela)->where('id', $id)->value('uuid');
+}
+
+function criarRegional(int $organizacaoId, string $nome = 'Regional'): int
+{
+    return inserirComoDono('regionais', ['organizacao_id' => $organizacaoId, 'nome' => $nome]);
+}
+
+function criarIgreja(int $organizacaoId, string $nome = 'Igreja', ?int $regionalId = null): int
+{
+    return inserirComoDono('igrejas', ['organizacao_id' => $organizacaoId, 'regional_id' => $regionalId, 'nome' => $nome]);
+}
+
+function criarPessoa(int $organizacaoId, int $igrejaId, array $dados = []): int
+{
+    $nome = $dados['nome'] ?? 'Pessoa '.Str::random(6);
+
+    return inserirComoDono('pessoas', [
+        'organizacao_id' => $organizacaoId,
+        'igreja_id' => $igrejaId,
+        'nome' => $nome,
+        'nome_busca' => Str::lower(Str::ascii($nome)),
+        ...$dados,
+    ]);
+}
+
+/** @param  list<Permissao|string>  $permissoes */
+function criarPapel(int $organizacaoId, string $nome, array $permissoes, ?string $sistema = null): int
+{
+    $papelId = inserirComoDono('papeis', ['organizacao_id' => $organizacaoId, 'nome' => $nome, 'sistema' => $sistema]);
+    $valores = array_map(fn ($p): string => $p instanceof Permissao ? $p->value : $p, $permissoes);
+    DB::connection('pgsql_dono')->table('papel_permissoes')->insert(array_map(fn (string $p): array => [
+        'organizacao_id' => $organizacaoId, 'papel_id' => $papelId, 'permissao' => $p,
+    ], array_values(array_unique($valores))));
+
+    return $papelId;
+}
+
+function atribuirPapel(int $organizacaoId, int $acessoId, int $papelId, string $tipo = 'organizacao', ?int $escopoId = null): int
+{
+    return inserirComoDono('atribuicoes_papel', [
+        'organizacao_id' => $organizacaoId, 'acesso_id' => $acessoId, 'papel_id' => $papelId,
+        'escopo_tipo' => $tipo, 'escopo_id' => $escopoId,
+    ]);
+}
+
+/** @return list<string> */
+function todasAsPermissoes(): array
+{
+    return array_map(fn (Permissao $p): string => $p->value, Permissao::cases());
+}
+
+/**
+ * Cria conta, pessoa, acesso e papel com as permissões no escopo dado, entra e deixa a sessão pronta.
+ *
+ * @param  list<Permissao|string>  $permissoes
+ * @return array{conta: int, acesso: int, pessoa: int, papel: int, atribuicao: int, cookie: string}
+ */
+function entrarNoPainel(int $organizacaoId, int $igrejaId, array $permissoes, string $tipo = 'organizacao', ?int $escopoId = null, ?string $sistema = null): array
+{
+    static $sequencia = 0;
+    $sequencia++;
+    $email = "ator{$sequencia}@exemplo.test";
+    $contaId = criarContaVerificada(['email' => $email, 'celular' => '+55119'.str_pad((string) (80000000 + $sequencia), 8, '0', STR_PAD_LEFT)]);
+    $pessoaId = criarPessoa($organizacaoId, $igrejaId, ['nome' => "Ator {$sequencia}"]);
+    $acessoId = criarAcesso($organizacaoId, $contaId, $pessoaId);
+    $papelId = criarPapel($organizacaoId, $sistema === null ? "Papel do ator {$sequencia}" : ucfirst($sistema), $permissoes, $sistema);
+    $atribuicaoId = atribuirPapel($organizacaoId, $acessoId, $papelId, $tipo, $escopoId);
+
+    usarOrganizacao($organizacaoId);
+    novoNavegador();
+    $cookie = cookieDaSessao(entrarCom($email)->assertNoContent());
+    comSessao($cookie);
+
+    return ['conta' => $contaId, 'acesso' => $acessoId, 'pessoa' => $pessoaId, 'papel' => $papelId, 'atribuicao' => $atribuicaoId, 'cookie' => $cookie];
+}
+
+/** @return list<object> eventos de auditoria, com `metadados` decodificado */
+function auditoria(string $evento): array
+{
+    return DB::connection('pgsql_dono')->table('auditoria')->where('evento', $evento)->orderBy('id')->get()
+        ->map(function (object $linha): object {
+            $linha->metadados = json_decode($linha->metadados, true);
+
+            return $linha;
+        })->all();
+}
+
+/** Cria a Pessoa pelo model (cifra e `cpf_hash` de verdade), como rotina de sistema, e devolve o id. */
+function criarPessoaComFicha(int $organizacaoId, int $igrejaId, array $dados = []): int
+{
+    return noContexto($organizacaoId, null, fn (): int => app(AlcanceAtual::class)
+        ->comoSistema($organizacaoId, fn (): int => (int) Pessoa::query()->create([
+            'uuid' => (string) Str::uuid(),
+            'organizacao_id' => $organizacaoId,
+            'igreja_id' => $igrejaId,
+            'nome' => 'Pessoa '.Str::random(6),
+            ...$dados,
+        ])->getKey()));
+}
+
+function criarContato(int $organizacaoId, int $pessoaId, string $tipo, string $valor): int
+{
+    return inserirComoDono('pessoa_contatos', [
+        'organizacao_id' => $organizacaoId, 'pessoa_id' => $pessoaId, 'tipo' => $tipo, 'valor' => $valor,
+    ]);
+}
+
+/** Captura o SQL executado por `$acao`. @return list<string> */
+function sqlDe(Closure $acao): array
+{
+    $consultas = [];
+    DB::listen(function (QueryExecuted $consulta) use (&$consultas): void {
+        $consultas[] = $consulta->sql;
+    });
+    $acao();
+
+    return $consultas;
 }

@@ -22,6 +22,7 @@ enum EventoAuditoria: string
     case ConviteEmitido = 'acesso.convite_emitido';
     case AcessoConcedido = 'acesso.concedido';
     case AcessoRevogado = 'acesso.revogado';
+    case PapelCriado = 'autorizacao.papel_criado';
     case PapelAtualizado = 'autorizacao.papel_atualizado';
     case AtribuicaoConcedida = 'autorizacao.atribuicao_concedida';
     case AtribuicaoRevogada = 'autorizacao.atribuicao_revogada';
@@ -39,7 +40,12 @@ enum EventoAuditoria: string
             self::ExportacaoNegada => ['filtro', 'categorias', 'motivo_codigo'],
             self::PessoaMesclada, self::PessoaMesclagemDesfeita => ['pessoa_origem_id', 'pessoa_destino_id'],
             self::ImportacaoConcluida, self::ImportacaoDesfeita => ['importacao_id', 'contagem'],
-            self::TransferenciaRecusada, self::EscaladaBloqueada, self::UltimoAdministradorBloqueado => ['motivo_codigo'],
+            self::TransferenciaRecusada, self::UltimoAdministradorBloqueado => ['motivo_codigo'],
+            // Permissões e escopo não são dado pessoal (OIK-ADR-0005 §5): antes e depois ficam na auditoria.
+            self::PapelCriado => ['permissoes_depois'],
+            self::PapelAtualizado => ['permissoes_antes', 'permissoes_depois', 'nome_alterado'],
+            self::AtribuicaoConcedida, self::AtribuicaoRevogada => ['acesso_alvo_id', 'papel_id', 'permissoes', 'escopo_tipo', 'escopo_id'],
+            self::EscaladaBloqueada => ['motivo_codigo', 'permissoes', 'escopo_tipo', 'escopo_id'],
             default => [],
         };
     }

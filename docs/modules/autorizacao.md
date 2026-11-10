@@ -16,6 +16,8 @@ Define o catálogo fechado de permissões e calcula, a cada chamada, em quais ig
 | RN-03 | Atribuições acumulam alcance e são recalculadas sem cache a cada invocação. | `Alcance` e `AtribuicoesDePermissaoPostgres` | OIK-SPEC-0001 T-13 |
 | RN-04 | A Policy permite recurso de igreja somente quando a igreja está no alcance da permissão requerida. | `PoliticaDePermissao::autoriza` | OIK-SPEC-0001 T-13; OIK-ADR-0004 |
 | RN-05 | Toda Action deve declarar sua exigência por `#[RequerPermissao]`. | guard em `DeclaracoesDeSegurancaTest` | OIK-SPEC-0001 T-13 |
+| RN-17 | Papéis prontos e criados são editáveis com permissões do catálogo. Sempre existe ao menos um acesso ativo com o papel Administrador no escopo da organização, e ele não perde `papeis.gerir`/`acessos.gerir` (422 + `authz.last_admin_blocked`). Ninguém concede permissão ou escopo que não tem (403 + `authz.escalation_blocked`). | `EditarPapelAction`, `RemoverAtribuicaoAction`, `AntiEscalada` | OIK-SPEC-0001 T-15; OIK-ADR-0004 §3 |
+| RN-17.1 | Gestão de papéis e acessos exige a permissão no escopo da organização. Mudanças guardam na auditoria as permissões e o escopo antes e depois. | `Governanca`; Actions de papéis | OIK-SPEC-0001 T-15; OIK-ADR-0005 §5 |
 
 ## Interfaces / contratos expostos
 
@@ -53,3 +55,4 @@ Define o catálogo fechado de permissões e calcula, a cada chamada, em quais ig
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
 | 2026-11-08 | Criação do catálogo, persistência de papéis/atribuições, alcance, Policy e guard arquitetural. | OIK-SPEC-0001 T-13 |
+| 2026-11-10 | Gestão de papéis e atribuições com travas e auditoria; grupo de middleware `painel` (`ResolverAtor`) e Contract `AlcanceAtual` por requisição. | OIK-SPEC-0001 T-15 |

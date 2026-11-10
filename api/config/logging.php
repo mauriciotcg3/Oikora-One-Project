@@ -1,5 +1,6 @@
 <?php
 
+use App\Shared\Observabilidade\Log\FormatoJson;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -18,7 +19,8 @@ return [
     |
     */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    // JSON no stdout com redação é o padrão (OIK-ADR-0010 §9); o coletor lê a saída dos containers.
+    'default' => env('LOG_CHANNEL', 'json'),
 
     /*
     |--------------------------------------------------------------------------
@@ -51,6 +53,17 @@ return [
     */
 
     'channels' => [
+
+        // Uma linha JSON por registro, com correlação e redação (App\Shared\Observabilidade\Log).
+        'json' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_LEVEL', 'debug'),
+            'handler' => StreamHandler::class,
+            'handler_with' => [
+                'stream' => env('LOG_STREAM', 'php://stdout'),
+            ],
+            'formatter' => FormatoJson::class,
+        ],
 
         'stack' => [
             'driver' => 'stack',

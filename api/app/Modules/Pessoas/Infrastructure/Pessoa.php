@@ -2,6 +2,7 @@
 
 namespace App\Modules\Pessoas\Infrastructure;
 
+use App\Modules\Pessoas\Infrastructure\Escopos\PessoaEscopoAlcance;
 use App\Shared\Cifra\CampoSensivel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -16,6 +17,9 @@ use LogicException;
  * @property string|null $necessidades_especiais
  * @property string|null $tipo_sanguineo
  * @property string|null $cpf_hash
+ * @property int $igreja_id
+ * @property string $uuid
+ * @property string|null $vinculo
  */
 class Pessoa extends Model
 {
@@ -45,6 +49,8 @@ class Pessoa extends Model
 
     protected static function booted(): void
     {
+        static::addGlobalScope(new PessoaEscopoAlcance);
+
         static::saving(function (Pessoa $pessoa): void {
             $pessoa->nome_busca = Str::lower(Str::ascii($pessoa->nome));
 

@@ -14,9 +14,12 @@
         "laravel/fortify": "^1.41",
         "laravel/framework": "^13.17",
         "laravel/sanctum": "^4.3",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "open-telemetry/exporter-otlp": "^1",
+        "open-telemetry/sdk": "^1"
     },
     "require-dev": {
+        "deptrac/deptrac": "^4.7",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.14",
         "laravel/pail": "^1.2.5",
@@ -33,7 +36,10 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "exclude-from-classmap": [
+            "tests/Fixtures/"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -54,7 +60,8 @@
         "gate": [
             "pint --test",
             "phpstan analyse --no-progress --memory-limit=1G",
-            "pest"
+            "pest",
+            "deptrac analyse --no-progress"
         ]
     },
     "extra": {

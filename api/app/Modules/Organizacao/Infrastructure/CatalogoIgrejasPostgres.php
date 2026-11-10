@@ -28,6 +28,34 @@ final class CatalogoIgrejasPostgres implements CatalogoIgrejas
             ->exists();
     }
 
+    public function igrejaPorUuid(string $uuid): ?int
+    {
+        $id = Igreja::query()->where('uuid', $uuid)->value('id');
+
+        return $id === null ? null : (int) $id;
+    }
+
+    public function regionalPorUuid(string $uuid): ?int
+    {
+        $id = Regional::query()->where('uuid', $uuid)->value('id');
+
+        return $id === null ? null : (int) $id;
+    }
+
+    public function resumo(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $resumo = [];
+        foreach (Igreja::query()->whereKey($ids)->get(['id', 'uuid', 'nome']) as $igreja) {
+            $resumo[(int) $igreja->id] = ['uuid' => (string) $igreja->uuid, 'nome' => (string) $igreja->nome];
+        }
+
+        return $resumo;
+    }
+
     /** @param array<int, mixed> $ids
      * @return list<int>
      */

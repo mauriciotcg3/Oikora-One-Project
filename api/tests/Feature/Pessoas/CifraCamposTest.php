@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Autorizacao\Contracts\AlcanceAtual;
 use App\Modules\Pessoas\Infrastructure\Pessoa;
 use App\Shared\Cifra\CampoSensivelEncrypter;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -72,7 +73,7 @@ it('cifra documentos e saúde com chave separada da APP_KEY', function (): void 
         ->and($linha->cpf_hash)->toBe(hash_hmac('sha256', '12345678909', 'hmac-cpf-apenas-para-testes'))
         ->and($linha->nome_busca)->toBe('joao da silva');
 
-    $recarregada = noContexto($organizacaoId, null, fn (): Pessoa => Pessoa::query()->findOrFail($pessoa->getKey()));
+    $recarregada = noContexto($organizacaoId, null, fn (): Pessoa => app(AlcanceAtual::class)->comoSistema($organizacaoId, fn (): Pessoa => Pessoa::query()->findOrFail($pessoa->getKey())));
 
     expect($recarregada->cpf)->toBe('123.456.789-09')
         ->and($recarregada->rg)->toBe('12.345.678-9')
@@ -100,13 +101,13 @@ it('lê com a chave anterior e recifra com a chave atual', function (): void {
 
     configurarCifra(chaveDeTeste('b'), [$chaveAnterior]);
 
-    $legivel = noContexto($organizacaoId, null, fn (): Pessoa => Pessoa::query()->findOrFail($pessoa->getKey()));
+    $legivel = noContexto($organizacaoId, null, fn (): Pessoa => app(AlcanceAtual::class)->comoSistema($organizacaoId, fn (): Pessoa => Pessoa::query()->findOrFail($pessoa->getKey())));
     expect($legivel->cpf)->toBe('123.456.789-09');
 
     expect(Artisan::call('oikora:chaves:recifrar'))->toBe(0);
 
     $cpfAtual = DB::connection('pgsql_dono')->table('pessoas')->where('id', $pessoa->getKey())->value('cpf');
-    $recifrada = noContexto($organizacaoId, null, fn (): Pessoa => Pessoa::query()->findOrFail($pessoa->getKey()));
+    $recifrada = noContexto($organizacaoId, null, fn (): Pessoa => app(AlcanceAtual::class)->comoSistema($organizacaoId, fn (): Pessoa => Pessoa::query()->findOrFail($pessoa->getKey())));
 
     expect($cpfAtual)->not->toBe($cpfAnterior)
         ->and($recifrada->cpf)->toBe('123.456.789-09');

@@ -1,0 +1,174 @@
+# CI do PR (OIK-ADR-0010 §7): bloqueante, meta ≤ 10 min. Só roda as partes alteradas, com cache de
+# dependências e cancelamento de execuções antigas do mesmo PR. O `composer gate` e o `pnpm gate` locais
+# rodam os mesmos passos (§8); o CI é a autoridade.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  mudancas:
+    name: Partes alteradas
+    runs-on: ubuntu-latest
+    outputs:
+      api: ${{ steps.filtro.outputs.api }}
+      web: ${{ steps.filtro.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filtro
+        with:
+          filters: |
+            api:
+              - 'api/**'
+              - 'infra/postgres/**'
+              - 'versoes.env'
+              - '.github/workflows/ci.yml'
+            web:
+              - 'web/**'
+              - 'packages/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.github/workflows/ci.yml'
+
+  api:
+    name: API (Pint, PHPStan, Pest, Deptrac)
+    needs: mudancas
+    if: needs.mudancas.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        # Mesma linha do versoes.env (POSTGRES_VERSAO); o Dependabot acompanha.
+        image: postgres:17.11
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+    env:
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Versão do PHP (versoes.env)
+        id: versoes
+        working-directory: .
+        run: echo "php=$(grep '^PHP_VERSAO=' versoes.env | cut -d= -f2 | cut -d. -f1,2)" >> "$GITHUB_OUTPUT"
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ steps.versoes.outputs.php }}
+          extensions: pdo_pgsql, intl, pcntl
+          coverage: pcov
+          tools: composer:v2
+
+      - name: Cache do Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-${{ hashFiles('api/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Papéis e bancos do Postgres (como no compose)
+        working-directory: .
+        env:
+          PGPASSWORD: postgres
+        run: psql -h 127.0.0.1 -U postgres -v ON_ERROR_STOP=1 -f infra/postgres/init/01-papeis-e-bancos.sql
+
+      - name: Ambiente
+        run: cp .env.example .env && php artisan key:generate --no-interaction
+
+      - name: Pint
+        run: vendor/bin/pint --test
+
+      - name: PHPStan (nível 8, sem baseline)
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+      - name: Pest (unidade, feature, RLS, autorização, arquitetura, log seguro)
+        run: vendor/bin/pest --coverage-clover=coverage.xml
+
+      - name: Deptrac
+        run: vendor/bin/deptrac analyse --no-progress
+
+      - name: Cobertura ≥ 80% nas linhas alteradas
+        if: github.event_name == 'pull_request'
+        working-directory: .
+        run: pipx run diff-cover api/coverage.xml --compare-branch=origin/${{ github.base_ref }} --fail-under=80
+
+      - name: Auditoria de dependências (crítica bloqueia, alta avisa)
+        run: |
+          composer audit --locked --format=json > audit.json || true
+          criticas=$(jq '[.advisories // {} | .[] | .[] | select(.severity == "critical")] | length' audit.json)
+          altas=$(jq '[.advisories // {} | .[] | .[] | select(.severity == "high")] | length' audit.json)
+          if [ "$altas" -gt 0 ]; then echo "::warning::composer audit: $altas vulnerabilidade(s) alta(s)"; fi
+          if [ "$criticas" -gt 0 ]; then echo "::error::composer audit: $criticas vulnerabilidade(s) crítica(s)"; exit 1; fi
+
+  web:
+    name: Web (tsc, ESLint, Vitest, build, size-limit)
+    needs: mudancas
+    if: needs.mudancas.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26.13.0
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: tsc
+        run: pnpm --filter web typecheck
+      - name: ESLint
+        run: pnpm --filter web lint
+      - name: Vitest com cobertura
+        run: pnpm --filter web exec vitest run --coverage --coverage.reporter=lcov
+      - name: Build
+        run: pnpm --filter web exec vite build
+      - name: Orçamento de bundle (painel ≤ 350 KB gzip)
+        run: pnpm --filter web size
+
+      - name: Cobertura ≥ 80% nas linhas alteradas
+        if: github.event_name == 'pull_request'
+        run: pipx run diff-cover web/coverage/lcov.info --compare-branch=origin/${{ github.base_ref }} --fail-under=80
+
+      - name: Auditoria de dependências (crítica bloqueia, alta avisa)
+        run: |
+          pnpm audit --audit-level=high || echo "::warning::pnpm audit encontrou vulnerabilidade alta"
+          pnpm audit --audit-level=critical
+
+  segredos:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

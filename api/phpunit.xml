@@ -14,6 +14,15 @@
         <testsuite name="Rls">
             <directory>tests/Rls</directory>
         </testsuite>
+        <testsuite name="Autorizacao">
+            <directory>tests/Autorizacao</directory>
+        </testsuite>
+        <testsuite name="LogSeguro">
+            <directory>tests/LogSeguro</directory>
+        </testsuite>
+        <testsuite name="Arquitetura">
+            <directory>tests/Arquitetura</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>
@@ -40,5 +49,11 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="LOG_CHANNEL" value="json"/>
+        <env name="LOG_STREAM" value="php://memory"/>
+        <env name="OTEL_SDK_DISABLED" value="true"/>
+        <!-- Chaves fictícias, só da suíte (OIK-ADR-0004 §8); o CifraCamposTest troca as dele. -->
+        <env name="OIKORA_CHAVE_CAMPOS" value="base64:dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHQ="/>
+        <env name="OIKORA_CHAVE_HMAC_CPF" value="hmac-cpf-apenas-para-testes"/>
     </php>
 </phpunit>
