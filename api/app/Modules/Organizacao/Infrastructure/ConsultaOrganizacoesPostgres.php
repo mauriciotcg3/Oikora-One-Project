@@ -27,4 +27,9 @@ final class ConsultaOrganizacoesPostgres implements ConsultaOrganizacoes, Organi
 
         return $ids;
     }
+
+    public function emMigracao(int $organizacaoId): bool
+    {
+        return Organizacao::query()->whereKey($organizacaoId)->where('estado', 'em_migracao')->exists();
+    }
 }

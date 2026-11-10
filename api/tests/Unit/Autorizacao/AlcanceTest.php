@@ -34,6 +34,21 @@ it('expande organização e regional e soma atribuições de igreja', function (
         {
             return in_array($igrejaId, [1, 2, 3], true);
         }
+
+        public function igrejaPorUuid(string $uuid): ?int
+        {
+            return null;
+        }
+
+        public function regionalPorUuid(string $uuid): ?int
+        {
+            return null;
+        }
+
+        public function resumo(array $ids): array
+        {
+            return [];
+        }
     };
 
     $resultado = (new Alcance($atribuicoes, $igrejas))->calcular(1, 20);
@@ -71,6 +86,21 @@ it('autoriza dentro e nega fora do alcance para toda permissão catalogada', fun
         public function pertenceAOrganizacao(int $organizacaoId, int $igrejaId): bool
         {
             return in_array($igrejaId, [1, 2], true);
+        }
+
+        public function igrejaPorUuid(string $uuid): ?int
+        {
+            return null;
+        }
+
+        public function regionalPorUuid(string $uuid): ?int
+        {
+            return null;
+        }
+
+        public function resumo(array $ids): array
+        {
+            return [];
         }
     };
     $politica = new PoliticaDePermissao(new Alcance($atribuicoes, $igrejas));

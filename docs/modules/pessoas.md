@@ -14,6 +14,9 @@ O módulo Pessoas é dono do cadastro-base de pessoas, contatos e endereços de 
 | RN-10.3 | O nome de busca é gravado em minúsculas e sem acentos e possui índice trigram. | `Pessoa::booted`; índice `pessoas_nome_busca_trgm` | OIK-SPEC-0001 T-09; OIK-ADR-0002 §10 |
 | RN-10.4 | Cada campo configurável da ficha pertence a uma categoria e a uma seção; documentos, saúde, contatos/endereço e fé/conversão permanecem separados. | `CampoFicha::categoria`; `CampoFicha::secao` | OIK-SPEC-0001 T-09; RN-10; OIK-ADR-0004 §10 |
 | RN-10.5 | Pessoas, contatos e endereços pertencem a uma organização e são isolados pela RLS; referências entre essas tabelas usam organização e identificador. | migration `create_pessoas_tables` | OIK-SPEC-0001 T-09; OIK-ADR-0002 §4 e §6 |
+| RN-09 | Toda consulta de Pessoa passa pelo filtro global de alcance (`pessoas.ver` na igreja atual da pessoa); sem alcance no contexto, a consulta falha com `authz.context_missing`. Ficha fora do alcance: 403; inexistente: 404. | `PessoaEscopoAlcance`; `LerFicha` | OIK-SPEC-0001 T-14; OIK-ADR-0004 §5 |
+| RN-09.1 | A busca na denominação (nome, CPF exato, e-mail ou telefone) é a única consulta que sai do filtro e seleciona só `uuid`, `nome`, igreja e vínculo. | `BuscaDenominacaoPostgres`; guard `EscopoAlcanceTest` | OIK-SPEC-0001 T-14; OIK-ADR-0004 §6 |
+| RN-10 | Campos de saúde, documentos, contatos/endereço e fé/conversão só entram no SELECT e no JSON da ficha para quem tem `pessoas.sensiveis.<categoria>.ver` na igreja da pessoa; sem `contatos.ver`, contatos e endereços nem são lidos. | `LerFicha` | OIK-SPEC-0001 T-14; OIK-ADR-0004 §7 |
 
 ## Interfaces / contratos expostos
 Não há endpoint, Contract ou evento público nesta entrega. A interface operacional disponível é o comando `oikora:chaves:recifrar`, que regrava os campos sensíveis com a chave atual.
@@ -41,3 +44,4 @@ Não há endpoint, Contract ou evento público nesta entrega. A interface operac
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
 | 2026-11-08 | Criação inicial com schema, catálogo, HMAC, busca e rotação da cifra. | OIK-SPEC-0001 T-09 |
+| 2026-11-10 | Filtro global de alcance, busca na denominação, ficha com projeção de sensíveis (`GET /painel/pessoas/{id}`, `GET /painel/busca`); rotinas de sistema por `AlcanceAtual::comoSistema`. | OIK-SPEC-0001 T-14 |

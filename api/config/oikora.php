@@ -20,6 +20,13 @@ return [
     // Chave do HMAC que resume identificador e IP em `eventos_autenticacao` e nos limites.
     'chave_resumo' => env('OIKORA_CHAVE_RESUMO', env('APP_KEY')),
 
+    // OpenTelemetry (OIK-ADR-0010 §9): desligado por padrão; ligar com OTEL_SDK_DISABLED=false e o
+    // endpoint OTLP/HTTP do coletor (Grafana Alloy).
+    'otel' => [
+        'ligado' => ! filter_var(env('OTEL_SDK_DISABLED', true), FILTER_VALIDATE_BOOL),
+        'endpoint' => env('OTEL_EXPORTER_OTLP_ENDPOINT', 'http://alloy:4318'),
+    ],
+
     // Filas conhecidas (plan.md §1), mostradas em GET /api/v1/saude mesmo quando vazias.
     'filas' => ['codigos', 'avisos', 'webhooks', 'default', 'pesadas'],
 

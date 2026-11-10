@@ -8,9 +8,13 @@ use App\Modules\Identidade\Application\EmissaoDeCodigos;
 use App\Modules\Identidade\Application\EventosAutenticacao;
 use App\Modules\Identidade\Application\ExigenciaDeDoisFatores;
 use App\Modules\Identidade\Application\Totp;
+use App\Modules\Identidade\Contracts\AcessosDaOrganizacao;
 use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
+use App\Modules\Identidade\Contracts\ContatosDaConta;
+use App\Modules\Identidade\Infrastructure\AcessosDaOrganizacaoPostgres;
 use App\Modules\Identidade\Infrastructure\CodigosPostgres;
 use App\Modules\Identidade\Infrastructure\ContasPostgres;
+use App\Modules\Identidade\Infrastructure\ContatosDaContaPostgres;
 use App\Modules\Identidade\Infrastructure\EventosAutenticacaoPostgres;
 use App\Modules\Identidade\Infrastructure\ProvedorDeContas;
 use App\Modules\Identidade\Infrastructure\SemExigenciaDeDoisFatores;
@@ -35,6 +39,8 @@ class IdentidadeServiceProvider extends ServiceProvider
         Fortify::ignoreRoutes();
 
         $this->app->bind(Contas::class, ContasPostgres::class);
+        $this->app->bind(AcessosDaOrganizacao::class, AcessosDaOrganizacaoPostgres::class);
+        $this->app->bind(ContatosDaConta::class, ContatosDaContaPostgres::class);
         $this->app->bind(Codigos::class, CodigosPostgres::class);
         $this->app->bind(CodigosDeIdentidade::class, EmissaoDeCodigos::class);
         $this->app->bind(ExigenciaDeDoisFatores::class, SemExigenciaDeDoisFatores::class);

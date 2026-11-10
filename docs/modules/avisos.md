@@ -10,6 +10,9 @@ Entrega mensagens para fora do sistema. Hoje cuida só dos códigos de identidad
 | ID | Regra | Onde está implementada | Origem |
 |---|---|---|---|
 | RN-21 | Códigos vão pelo canal escolhido, com SMS de reserva. | `Application/EntregarCodigo.php` | OIK-ADR-0008 §11, §12 |
+| RN-21.1 | `Avisos::registrar` grava o aviso e um envio `pendente` por canal na transação do fato; o job sai só depois do commit e repetir com a mesma (tipo, referência, destinatário, chave) não duplica. Convite nasce em e-mail e WhatsApp. | `RegistrarAvisos`; `TipoAviso::canais` | OIK-SPEC-0001 T-17; OIK-ADR-0008 §2, §4 |
+| RN-21.2 | O job trava o envio e não chama o provedor de novo depois de `enviado`. Erro temporário: novas tentativas em 1 min, 5 min, 30 min e 2 h; na 5ª, ou em erro definitivo, `falhou_definitivo`. | `EntregarAviso`; `EnviarAviso` | OIK-SPEC-0001 T-17; OIK-ADR-0008 §3 |
+| RN-22 | Com a organização `em_migracao`, o aviso é gravado, nenhum envio é criado e o log registra `envio.suprimido` com motivo `migracao`. | `RegistrarAvisos` | OIK-SPEC-0001 T-17; OIK-ADR-0009 §10 |
 | — | O WhatsApp de código usa o número da plataforma e o template `authentication`. | `Application/EntregarCodigo.php` | OIK-ADR-0008 §10 |
 | — | O SMS só é usado quando o WhatsApp falha de vez ou esgota as tentativas, e só para +55. | `Application/EntregarCodigo.php` | OIK-ADR-0008 §3, §11 |
 | — | O SMS tem limite de 3 por hora e 10 por dia por número. | `Application/LimiteDeSms.php` | OIK-ADR-0008 §11 |
@@ -49,3 +52,4 @@ Cada canal implementa `CanalDeEmail`, `CanalDeWhatsApp` ou `CanalDeSms` e classi
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
 | 2026-11-07 | Criação do módulo, com a entrega de códigos e adapters falsos. | OIK-SPEC-0001 T-11 (recorte) |
+| 2026-11-10 | Caixa de saída transacional (`avisos`, `envios` particionada), catálogo `TipoAviso`, tentativas, supressão em migração e `envios:varrer`. | OIK-SPEC-0001 T-17 |

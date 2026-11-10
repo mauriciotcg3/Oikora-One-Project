@@ -56,6 +56,17 @@ enum CampoFicha: string
         };
     }
 
+    /** Onde o campo é guardado: contatos e endereço ficam nas tabelas filhas, lidas pela Pessoa. */
+    public function tabela(): string
+    {
+        return match ($this) {
+            self::Celular, self::Whatsapp, self::Telefone, self::Email => 'pessoa_contatos',
+            self::Cep, self::Logradouro, self::Numero, self::Complemento,
+            self::Bairro, self::Cidade, self::Estado, self::Pais => 'pessoa_enderecos',
+            default => 'pessoas',
+        };
+    }
+
     public function secao(): string
     {
         return match ($this) {

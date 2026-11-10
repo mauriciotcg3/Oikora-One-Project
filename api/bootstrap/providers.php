@@ -8,11 +8,13 @@ use App\Modules\Organizacao\OrganizacaoServiceProvider;
 use App\Modules\Pessoas\PessoasServiceProvider;
 use App\Providers\AppServiceProvider;
 use App\Shared\Cifra\CifraServiceProvider;
+use App\Shared\Observabilidade\ObservabilidadeServiceProvider;
 use App\Shared\Tenancy\TenancyServiceProvider;
 
 return [
     AppServiceProvider::class,
     TenancyServiceProvider::class,
+    ObservabilidadeServiceProvider::class,
     CifraServiceProvider::class,
     OrganizacaoServiceProvider::class,
     AutorizacaoServiceProvider::class,

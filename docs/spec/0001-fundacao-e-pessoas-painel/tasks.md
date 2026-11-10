@@ -68,7 +68,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; `composer gate` e `pnpm gate` passam localmente; um PR de teste executa o workflow (CA-29, parte do CI).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): `composer gate` = Pint → PHPStan 8 (sem baseline) → Pest → Deptrac (`deptrac.yaml`, camadas DEP-004/005) e guard de fronteira entre módulos (MOD-002); `pnpm gate` = tsc → ESLint → Vitest → build → size-limit (painel ≤ 350 KB gzip, hoje 245,91 KB); `ci.yml` com filtro por caminho, cache, cancelamento, cobertura ≥ 80% nas linhas alteradas (diff-cover), gitleaks e auditoria de dependências; `noturno.yml` (dependências; jornadas na T-45); Dependabot semanal. GateTest Green (o caso do size-limit pula no container da API, que só monta `api/`). Pendentes: passo de contrato (Scramble/oasdiff) entra com a T-05; Pest em paralelo exige banco por processo; validar o workflow num PR de teste.
 
 ## T-03 — Isolamento por organização no banco (RLS)
 - **Issue:** #3
@@ -157,7 +157,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-28).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): `X-Request-Id` aceito da borda ou gerado, `traceparent` W3C e `X-Cliente`; canal `json` no stdout como padrão, com redação por chave e por padrão (CPF, e-mail, telefone, código de 6 dígitos, token); job herda o `request_id` como `correlation_id`; SDK OpenTelemetry com exportação OTLP desligada por padrão (`OTEL_SDK_DISABLED`). 15 testes Green. Fora deste recorte: spans de Action/SQL/job e Sentry.
 
 ---
 
@@ -345,7 +345,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-03 para ficha e busca; CA-20).
 - **Regra de negócio associada:** RN-09, RN-10 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): `PessoaEscopoAlcance` global no model (sem alcance → `authz.context_missing`); `BuscaDenominacao` (porta) + `BuscaDenominacaoPostgres`, único que remove o filtro, com SELECT de `uuid`, `nome`, `igreja_id`, `vinculo` (nome, CPF exato por HMAC, e-mail e telefone); `LerFicha` projeta por categoria no SELECT e omite contatos/endereços sem `contatos.ver`; `GET /painel/pessoas/{id}` (403 fora do alcance, 404 inexistente) e `GET /painel/busca`. Rotinas de sistema usam `AlcanceAtual::comoSistema`. 22 testes Green.
 
 ## T-15 — Gestão de papéis e atribuições com travas
 - **Issue:** #15
@@ -368,7 +368,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-11).
 - **Regra de negócio associada:** RN-17 — atualizar `docs/modules/autorizacao.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): `GET /painel/permissoes`, `GET|POST /painel/papeis`, `PUT /painel/papeis/{id}`, `POST|DELETE /painel/acessos/{id}/atribuicoes[/{id}]`; trava do último Administrador (atribuição e governança do papel), anti-escalada por permissão e por escopo, auditoria com permissões e escopo antes/depois. Grupo de middleware `painel` (sessão, organização, ator) e Contract `AlcanceAtual`. 13 testes Green. A organização ativa ainda vem da porta `ResolvedorOrganizacaoAtiva` (T-16).
 
 ## T-16 — Organização ativa, `/me` e elevação do painel
 - **Issue:** #16
@@ -418,7 +418,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-25, CA-26); no `compose.yaml`, `worker-codigos` consome só `codigos`, `worker-geral` consome `avisos,webhooks,default` e `worker-pesadas` consome `pesadas` (U-30).
 - **Regra de negócio associada:** RN-21, RN-22 — atualizar `docs/modules/avisos.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): tabelas `avisos` (idempotência por organização, tipo, referência, destinatário e chave) e `envios` particionada por mês do aviso (único `aviso_id`+`canal`), com RLS; catálogo `TipoAviso`; Contract `Avisos::registrar` na transação do fato, job `EnviarAviso` na fila `avisos` com `afterCommit`, `FOR UPDATE SKIP LOCKED`, esperas 1 min/5 min/30 min/2 h e definitivo na 5ª; supressão `em_migracao` com `envio.suprimido`; `envios:varrer` e `avisos:criar-particoes` no agendador. Workers já seguem a U-30 desde a T-01. 9 testes Green. Destino de pessoa sem conta fica para T-18/T-22 (hoje falha como `sem_destino`).
 
 ## T-18 — Avisos: canais e-mail e WhatsApp, regras por categoria, janela e preferências
 - **Issue:** #18

@@ -25,6 +25,8 @@ final readonly class ContextoOrganizacao
             }
 
             DB::select("select set_config('app.organizacao_id', ?, true)", [(string) $organizacaoId]);
+            // Os middlewares seguintes (ator e alcance) leem daqui, sem resolver de novo.
+            $request->attributes->set('organizacao_id', $organizacaoId);
 
             if ($request->user() !== null) {
                 DB::select("select set_config('app.conta_id', ?, true)", [(string) $request->user()->getAuthIdentifier()]);
