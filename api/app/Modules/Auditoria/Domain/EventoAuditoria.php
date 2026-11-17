@@ -16,6 +16,9 @@ enum EventoAuditoria: string
     case TransferenciaRecusada = 'pessoa.transferencia_recusada';
     case ImportacaoConcluida = 'pessoa.importacao_concluida';
     case ImportacaoDesfeita = 'pessoa.importacao_desfeita';
+    case ListaValorCriado = 'pessoas.lista_valor_criado';
+    case ListaValorAtualizado = 'pessoas.lista_valor_atualizado';
+    case ObrigatoriosAtualizados = 'pessoas.obrigatorios_atualizados';
     case ExportacaoPedida = 'exportacao.pedida';
     case ExportacaoConcluida = 'exportacao.concluida';
     case ExportacaoNegada = 'exportacao.negada';
@@ -46,6 +49,10 @@ enum EventoAuditoria: string
             self::PapelAtualizado => ['permissoes_antes', 'permissoes_depois', 'nome_alterado'],
             self::AtribuicaoConcedida, self::AtribuicaoRevogada => ['acesso_alvo_id', 'papel_id', 'permissoes', 'escopo_tipo', 'escopo_id'],
             self::EscaladaBloqueada => ['motivo_codigo', 'permissoes', 'escopo_tipo', 'escopo_id'],
+            // Configuração da organização. O nome do item é texto livre: fica só `nome_alterado`.
+            self::ListaValorCriado => ['lista', 'ordem_depois'],
+            self::ListaValorAtualizado => ['lista', 'nome_alterado', 'ordem_antes', 'ordem_depois', 'ativo_antes', 'ativo_depois'],
+            self::ObrigatoriosAtualizados => ['vinculo', 'campos_antes', 'campos_depois'],
             default => [],
         };
     }

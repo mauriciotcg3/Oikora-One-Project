@@ -2,8 +2,12 @@
 
 namespace App\Modules\Pessoas;
 
+use App\Modules\Pessoas\Application\Configuracao\CamposObrigatorios;
+use App\Modules\Pessoas\Application\Configuracao\ListasDeValores;
 use App\Modules\Pessoas\Application\Consultas\BuscaDenominacao;
 use App\Modules\Pessoas\Application\Consultas\Fichas;
+use App\Modules\Pessoas\Infrastructure\Configuracao\CamposObrigatoriosPostgres;
+use App\Modules\Pessoas\Infrastructure\Configuracao\ListasDeValoresPostgres;
 use App\Modules\Pessoas\Infrastructure\Console\RecifrarCamposPessoas;
 use App\Modules\Pessoas\Infrastructure\Consultas\BuscaDenominacaoPostgres;
 use App\Modules\Pessoas\Infrastructure\Consultas\FichasEloquent;
@@ -16,6 +20,8 @@ class PessoasServiceProvider extends ServiceProvider
     {
         $this->app->bind(BuscaDenominacao::class, BuscaDenominacaoPostgres::class);
         $this->app->bind(Fichas::class, FichasEloquent::class);
+        $this->app->bind(ListasDeValores::class, ListasDeValoresPostgres::class);
+        $this->app->bind(CamposObrigatorios::class, CamposObrigatoriosPostgres::class);
     }
 
     public function boot(): void

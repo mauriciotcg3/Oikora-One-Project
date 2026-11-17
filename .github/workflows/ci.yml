@@ -36,6 +36,7 @@ jobs:
             web:
               - 'web/**'
               - 'packages/**'
+              - 'api/openapi.json'
               - 'package.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
@@ -112,6 +113,39 @@ jobs:
       - name: Deptrac
         run: vendor/bin/deptrac analyse --no-progress
 
+      # Contrato (OIK-ADR-0010 §4; CA-29): o gerado precisa ser igual ao versionado e não pode quebrar a /api/v1.
+      - name: Contrato OpenAPI gerado = versionado
+        run: |
+          php artisan scramble:export --no-interaction
+          git diff --exit-code -- openapi.json || { echo "::error::api/openapi.json desatualizado: rode 'php artisan scramble:export' e versione o arquivo."; exit 1; }
+
+      - name: oasdiff — quebra na /api/v1 em relação à base do PR
+        if: github.event_name == 'pull_request'
+        working-directory: .
+        run: |
+          if ! git cat-file -e "origin/${{ github.base_ref }}:api/openapi.json" 2>/dev/null; then
+            echo "::notice::A base ainda não tem api/openapi.json; o oasdiff passa a valer a partir dela."
+            exit 0
+          fi
+          mkdir -p .contrato && git show "origin/${{ github.base_ref }}:api/openapi.json" > .contrato/base.json
+          docker run --rm -v "$PWD:/w" -w /w tufin/oasdiff:v1.35.0 breaking .contrato/base.json api/openapi.json --fail-on ERR
+
+      # Segunda referência do ADR-0010 §4: o contrato da tag da versão mínima do app em uso (OIK-ADR-0007).
+      # Sem app publicado, a variável do repositório fica vazia e o passo só avisa.
+      - name: oasdiff — quebra em relação à versão mínima do app
+        if: github.event_name == 'pull_request'
+        working-directory: .
+        env:
+          TAG_APP_MINIMO: ${{ vars.CONTRATO_TAG_APP_MINIMO }}
+        run: |
+          if [ -z "$TAG_APP_MINIMO" ]; then
+            echo "::notice::CONTRATO_TAG_APP_MINIMO vazia: ainda não há app publicado."
+            exit 0
+          fi
+          git fetch --no-tags origin "refs/tags/$TAG_APP_MINIMO:refs/tags/$TAG_APP_MINIMO"
+          mkdir -p .contrato && git show "$TAG_APP_MINIMO:api/openapi.json" > .contrato/app-minimo.json
+          docker run --rm -v "$PWD:/w" -w /w tufin/oasdiff:v1.35.0 breaking .contrato/app-minimo.json api/openapi.json --fail-on ERR
+
       - name: Cobertura ≥ 80% nas linhas alteradas
         if: github.event_name == 'pull_request'
         working-directory: .
@@ -141,6 +175,9 @@ jobs:
           node-version: 26.13.0
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+
+      - name: Contrato tipado (tipos gerados = versionados, tsc e testes do cliente)
+        run: pnpm --filter @oikora/api-contrato gate
 
       - name: tsc
         run: pnpm --filter web typecheck

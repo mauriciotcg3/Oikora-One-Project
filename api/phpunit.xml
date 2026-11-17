@@ -23,6 +23,9 @@
         <testsuite name="Arquitetura">
             <directory>tests/Arquitetura</directory>
         </testsuite>
+        <testsuite name="Contrato">
+            <directory>tests/Contrato</directory>
+        </testsuite>
     </testsuites>
     <source>
         <include>

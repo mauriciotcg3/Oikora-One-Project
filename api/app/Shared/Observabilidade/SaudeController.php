@@ -9,6 +9,14 @@ use Throwable;
 /** GET /api/v1/saude: público e sem dado de organização ou pessoa (OIK-ADR-0011 §12). */
 class SaudeController
 {
+    /**
+     * Saúde da API.
+     *
+     * Estado do banco e espera, em segundos, do job mais antigo de cada fila. Responde 503 com
+     * `banco: indisponivel` quando o banco não responde.
+     *
+     * @response array{vivo: true, banco: 'ok'|'indisponivel', versao: string, filas: array<string, int>}
+     */
     public function __invoke(): JsonResponse
     {
         /** @var list<string> $nomes */

@@ -29,6 +29,7 @@ Cuida da conta global da pessoa e da entrada no sistema. Hoje faz o login por e-
 | — | Conta bloqueada recebe 403 `conta_bloqueada`, só depois de a senha conferir. | `Application/Entrar.php` | plan.md §7 |
 | — | A sessão dura 30 dias e é renovada com o uso. | `api/config/session.php` | OIK-ADR-0003 §9; U-30 |
 | — | Senha nova exige no mínimo 8 caracteres e não pode estar vazada. | `IdentidadeServiceProvider.php`, `Presentation/RecuperacaoSenhaController.php` | OIK-ADR-0003 §4; U-29 |
+| RN-12 | Ninguém define a senha de outra pessoa: a senha só muda pela própria sessão (`PUT /conta/senha`, com senha confirmada) ou pelo token de recuperação enviado ao identificador verificado da própria conta. Não há rota de painel que grave senha alheia. O convite de uso único (72h, revogável) entra na T-22. | `Presentation/ContaController.php`, `Application/RedefinirSenha.php` | OIK-ADR-0003 §5; RN-12 |
 | — | Uma conta tem no máximo um acesso ativo por organização, e uma Pessoa também. | índices únicos parciais de `acessos` | OIK-ADR-0003 §2 |
 
 ## Interfaces / contratos expostos
@@ -83,6 +84,7 @@ Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `para
 ## Changelog
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-13 | T-10 fechada: casos do login, limite, eventos, sessão, RLS de identidade e unicidade de `acessos` conferidos (27 testes); RN-12 registrada. | OIK-SPEC-0001 T-10 |
 | 2026-11-08 | Integridade referencial de `acessos.pessoa_id` ligada ao cadastro de pessoas. | OIK-SPEC-0001 T-09 |
 | 2026-11-07 | Criação inicial do documento, com o login por senha. | OIK-SPEC-0001 T-10 (fatia do login) |
 | 2026-11-07 | 2FA por código e recuperação de senha, com a sessão aberta só no `confirmar`. | OIK-SPEC-0001 T-12 (recorte) |

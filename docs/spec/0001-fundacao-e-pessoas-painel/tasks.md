@@ -135,7 +135,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; o CI falha quando o contrato diverge ou quando o `oasdiff` aponta quebra (CA-29).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em W3 (2026-11-13): Scramble 0.13.53 gera `api/openapi.json` (OpenAPI 3.1, só a `/api/v1`, servidor relativo `/api/v1` para não depender do `APP_URL`, sem `/docs/api` exposto); `/saude` com `@response` (o Scramble não infere `array_fill_keys`). Risco do `plan.md` §13 validado: `when()` num Resource vira propriedade opcional. `packages/api-contrato`: `esquema.ts` gerado por `openapi-typescript` 7.13.0 e `criarClienteApi()` sobre `openapi-fetch` 0.17.0, com `gate` (regera = versionado, `tsc`, Vitest). CI: no job `api`, "gerado = versionado" e `oasdiff` v1.35.0 contra a base do PR e contra a tag do app mínimo (variável `CONTRATO_TAG_APP_MINIMO`, vazia até existir app); no job `web`, o `gate` do pacote, e `api/openapi.json` entrou no filtro. Testes: `OpenApiTest` 4 Green; `cliente.test.ts` 2 Green. Pendente: o `oasdiff` só roda de verdade no primeiro PR (imagem não baixada localmente); o `shared/http` do front passa a usar o cliente na T-37.
 
 ## T-06 — Instrumentação no código e log seguro
 - **Issue:** #6
@@ -253,7 +253,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** RN-12 — atualizar `docs/modules/identidade.md`.
-- **Status:** Parcial (fatia do login, 2026-11-07): login, logout, sessão, limite, eventos e RLS de identidade Green. Login responde 204, conforme o contrato do front. `acessos.pessoa_id` sem FK até a T-09; política de senha sem rota até a T-12/T-22.
+- **Status:** Codificada em W3 (2026-11-13): os nove casos conferidos — `LoginTest` e `ContasRlsTest`, 27 testes Green. As pendências da fatia de 2026-11-07 foram fechadas no baseline: FK composta de `acessos.pessoa_id` (T-09) e política de senha (`Password::min(8)->uncompromised()`) nas rotas de troca e recuperação (T-12). RN-12 registrada em `docs/modules/identidade.md`. Login responde 204, conforme o contrato do front.
 
 ## T-11 — Envio de códigos de identidade (fila `codigos`)
 - **Issue:** #11
@@ -601,7 +601,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-30).
 - **Regra de negócio associada:** RN-06, RN-13 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W3 (2026-11-13): `listas_valores` (seis listas, nome único sem diferenciar maiúsculas, ordem, desativação sem exclusão) e `campos_obrigatorios` (por vínculo, só chaves de `CampoFicha`), sob RLS; FKs de `pessoas.tipo_membro_id` e `como_chegou_id`. Rotas `GET|POST /painel/listas/{lista}`, `PUT /painel/listas/{lista}/{id}`, `GET|PUT /painel/configuracao/obrigatorios`; manutenção com `pessoas.configurar` em escopo organização; leitura só de ativos para quem cria/edita pessoas. Auditoria `pessoas.lista_valor_criado|lista_valor_atualizado|obrigatorios_atualizados` (sem o nome, que é texto livre). Regra `ValorAtivoDaLista` pronta para a T-26. O teste de declarações de segurança passou a ver Actions em subpastas de `Application/`. 19 testes Green.
 
 ## T-26 — Cadastro rápido com alerta de duplicidade
 - **Issue:** #26

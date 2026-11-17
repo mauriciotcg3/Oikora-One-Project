@@ -1,6 +1,6 @@
 # Módulo: Pessoas
 
-**Última atualização:** 2026-11-08
+**Última atualização:** 2026-11-13
 **Arquivos principais:** `api/app/Modules/Pessoas/**`, `api/app/Shared/Cifra/**`, `api/config/oikora.php`
 
 ## Visão geral
@@ -17,9 +17,14 @@ O módulo Pessoas é dono do cadastro-base de pessoas, contatos e endereços de 
 | RN-09 | Toda consulta de Pessoa passa pelo filtro global de alcance (`pessoas.ver` na igreja atual da pessoa); sem alcance no contexto, a consulta falha com `authz.context_missing`. Ficha fora do alcance: 403; inexistente: 404. | `PessoaEscopoAlcance`; `LerFicha` | OIK-SPEC-0001 T-14; OIK-ADR-0004 §5 |
 | RN-09.1 | A busca na denominação (nome, CPF exato, e-mail ou telefone) é a única consulta que sai do filtro e seleciona só `uuid`, `nome`, igreja e vínculo. | `BuscaDenominacaoPostgres`; guard `EscopoAlcanceTest` | OIK-SPEC-0001 T-14; OIK-ADR-0004 §6 |
 | RN-10 | Campos de saúde, documentos, contatos/endereço e fé/conversão só entram no SELECT e no JSON da ficha para quem tem `pessoas.sensiveis.<categoria>.ver` na igreja da pessoa; sem `contatos.ver`, contatos e endereços nem são lidos. | `LerFicha` | OIK-SPEC-0001 T-14; OIK-ADR-0004 §7 |
+| RN-06 (mecanismo) | A organização mantém seis listas: `como_chegou`, `motivo_vinculo`, `motivo_inativacao`, `motivo_reativacao`, `tipo_membro` e `funcao`. Começam vazias; o nome é único na lista (sem diferenciar maiúsculas); itens não são excluídos, só desativados. Item desativado deixa de ser aceito em cadastro novo, mas continua mostrado onde já foi usado. | `ListasDeValores`; `CriarItemListaAction`; `EditarItemListaAction`; regra `ValorAtivoDaLista` | OIK-SPEC-0001 T-25; U-09; U-28; CA-30 |
+| RN-13 | Os obrigatórios são definidos por vínculo (`visitante`, `frequentador`, `membro`), só com chaves do catálogo de campos; começam vazios (ficha 100% completa). Não impedem o cadastro rápido: definem a completude. | `CamposObrigatorios`; `DefinirObrigatoriosAction` | OIK-SPEC-0001 T-25; U-05; U-06 |
+| RN-13.1 | Manter listas e obrigatórios exige `pessoas.configurar` com escopo organização; a leitura das listas também é liberada, só com itens ativos, a quem cria ou edita pessoas em alguma igreja. Toda mudança é auditada sem o nome do item (texto livre): `pessoas.lista_valor_criado`, `pessoas.lista_valor_atualizado` (com `nome_alterado`, ordem e ativo antes/depois) e `pessoas.obrigatorios_atualizados` (campos antes/depois). | `Configuracao`; `ListasController`; `ObrigatoriosController` | OIK-SPEC-0001 T-25; OIK-ADR-0004; OIK-ADR-0005 §5 |
 
 ## Interfaces / contratos expostos
-Não há endpoint, Contract ou evento público nesta entrega. A interface operacional disponível é o comando `oikora:chaves:recifrar`, que regrava os campos sensíveis com a chave atual.
+- **Painel (`/api/v1/painel`, grupo `painel`):** `GET /pessoas/{id}`, `GET /busca?q=`, `GET|POST /listas/{lista}`, `PUT /listas/{lista}/{id}`, `GET|PUT /configuracao/obrigatorios` (`{vinculo, campos[]}`, substitui o conjunto do vínculo). Erros: `authz.denied` (403), `item_inexistente` (404), `nome_em_uso` (422).
+- **Comando:** `oikora:chaves:recifrar`, que regrava os campos sensíveis com a chave atual.
+- Nenhum Contract público para outros módulos nesta entrega.
 
 ## Dependências
 - **Depende de:** infraestrutura compartilhada `Shared/Cifra`, contexto de organização de `Shared/Tenancy` e tabelas `organizacoes`, `igrejas` e `acessos` já aprovadas na Spec.
@@ -45,3 +50,4 @@ Não há endpoint, Contract ou evento público nesta entrega. A interface operac
 |---|---|---|
 | 2026-11-08 | Criação inicial com schema, catálogo, HMAC, busca e rotação da cifra. | OIK-SPEC-0001 T-09 |
 | 2026-11-10 | Filtro global de alcance, busca na denominação, ficha com projeção de sensíveis (`GET /painel/pessoas/{id}`, `GET /painel/busca`); rotinas de sistema por `AlcanceAtual::comoSistema`. | OIK-SPEC-0001 T-14 |
+| 2026-11-13 | Listas de valores e obrigatórios por vínculo (`listas_valores`, `campos_obrigatorios`, sob RLS), rotas de manutenção com `pessoas.configurar` e auditoria; FK de `pessoas.tipo_membro_id` e `como_chegou_id` para `listas_valores`. | OIK-SPEC-0001 T-25 |
