@@ -3,6 +3,7 @@
 namespace App\Modules\Autorizacao\Presentation;
 
 use App\Modules\Autorizacao\Application\AlcanceDaRequisicao;
+use App\Modules\Autorizacao\Application\AtribuicoesDePermissao;
 use App\Modules\Autorizacao\Contracts\Ator;
 use App\Modules\Identidade\Contracts\AcessosDaOrganizacao;
 use Closure;
@@ -19,6 +20,7 @@ final readonly class ResolverAtor
     public function __construct(
         private AcessosDaOrganizacao $acessos,
         private AlcanceDaRequisicao $alcance,
+        private AtribuicoesDePermissao $atribuicoes,
     ) {}
 
     public function handle(Request $request, Closure $next): Response
@@ -40,6 +42,11 @@ final readonly class ResolverAtor
         $this->alcance->definir(new Ator($organizacaoId, $contaId, $acessoId));
 
         try {
+            // Rotas do painel exigem ao menos uma atribuição de papel (OIK-ADR-0004 §13).
+            if (! $this->atribuicoes->temPapel($organizacaoId, $acessoId)) {
+                return new JsonResponse(['codigo' => 'sem_atribuicao'], Response::HTTP_FORBIDDEN);
+            }
+
             return $next($request);
         } finally {
             $this->alcance->limpar();

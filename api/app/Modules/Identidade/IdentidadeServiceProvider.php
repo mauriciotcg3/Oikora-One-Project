@@ -2,6 +2,7 @@
 
 namespace App\Modules\Identidade;
 
+use App\Modules\Identidade\Application\AcessosDaConta;
 use App\Modules\Identidade\Application\Codigos;
 use App\Modules\Identidade\Application\Contas;
 use App\Modules\Identidade\Application\EmissaoDeCodigos;
@@ -11,17 +12,24 @@ use App\Modules\Identidade\Application\Totp;
 use App\Modules\Identidade\Contracts\AcessosDaOrganizacao;
 use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
 use App\Modules\Identidade\Contracts\ContatosDaConta;
+use App\Modules\Identidade\Infrastructure\AcessosDaContaPostgres;
 use App\Modules\Identidade\Infrastructure\AcessosDaOrganizacaoPostgres;
 use App\Modules\Identidade\Infrastructure\CodigosPostgres;
 use App\Modules\Identidade\Infrastructure\ContasPostgres;
 use App\Modules\Identidade\Infrastructure\ContatosDaContaPostgres;
+use App\Modules\Identidade\Infrastructure\DoisFatoresPeloPapel;
 use App\Modules\Identidade\Infrastructure\EventosAutenticacaoPostgres;
 use App\Modules\Identidade\Infrastructure\ProvedorDeContas;
-use App\Modules\Identidade\Infrastructure\SemExigenciaDeDoisFatores;
+use App\Modules\Identidade\Infrastructure\ResolvedorOrganizacaoSessao;
 use App\Modules\Identidade\Infrastructure\TotpGoogle2fa;
 use App\Modules\Identidade\Presentation\AbrirSessao;
+use App\Modules\Identidade\Presentation\ElevacaoController;
+use App\Modules\Identidade\Presentation\ElevacaoPainel;
 use App\Modules\Identidade\Presentation\EntrarRequest;
+use App\Modules\Identidade\Presentation\MeController;
 use App\Modules\Identidade\Presentation\SemConteudo;
+use App\Shared\Tenancy\Contracts\ResolvedorOrganizacaoAtiva;
+use App\Shared\Tenancy\Http\ContextoOrganizacao;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -43,7 +51,9 @@ class IdentidadeServiceProvider extends ServiceProvider
         $this->app->bind(ContatosDaConta::class, ContatosDaContaPostgres::class);
         $this->app->bind(Codigos::class, CodigosPostgres::class);
         $this->app->bind(CodigosDeIdentidade::class, EmissaoDeCodigos::class);
-        $this->app->bind(ExigenciaDeDoisFatores::class, SemExigenciaDeDoisFatores::class);
+        $this->app->bind(ExigenciaDeDoisFatores::class, DoisFatoresPeloPapel::class);
+        $this->app->bind(AcessosDaConta::class, AcessosDaContaPostgres::class);
+        $this->app->bind(ResolvedorOrganizacaoAtiva::class, ResolvedorOrganizacaoSessao::class);
         $this->app->bind(Totp::class, TotpGoogle2fa::class);
         $this->app->bind(EventosAutenticacao::class, EventosAutenticacaoPostgres::class);
         $this->app->bind(LoginRequest::class, EntrarRequest::class);
@@ -63,5 +73,16 @@ class IdentidadeServiceProvider extends ServiceProvider
         // Grupo `web`: login e logout sempre têm sessão e CSRF, venha a requisição de onde vier.
         Route::middleware('web')->prefix('api/v1/auth')->group(__DIR__.'/Presentation/rotas.php');
         Route::middleware(['web', 'auth:web'])->prefix('api/v1/conta')->group(__DIR__.'/Presentation/rotas-conta.php');
+
+        // Organização ativa e `/me` (T-16): só sessão; a organização é revalidada a cada pedido.
+        Route::middleware(['web', 'auth:web'])->prefix('api/v1/me')->group(function (): void {
+            Route::get('/', [MeController::class, 'mostrar']);
+            Route::put('organizacao-ativa', [MeController::class, 'escolherOrganizacao']);
+        });
+
+        // A elevação fica fora do grupo `painel` (que a exige) e grava a auditoria na organização ativa.
+        Route::aliasMiddleware(ElevacaoPainel::ALIAS, ElevacaoPainel::class);
+        Route::middleware(['web', 'auth:web', ContextoOrganizacao::class])
+            ->post('api/v1/painel/elevacao', ElevacaoController::class);
     }
 }

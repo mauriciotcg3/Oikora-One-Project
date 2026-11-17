@@ -181,8 +181,10 @@ it('nega a gestão a quem não tem a permissão no escopo da organização', fun
 });
 
 it('nega o painel a conta sem acesso ativo na organização', function (): void {
+    // A organização fixa simula uma sessão antiga; a elevação abre no login pela entrada `painel`.
     usarOrganizacao($this->org);
-    logado();
+    criarContaVerificada();
+    comSessao(cookieDaSessao($this->postJson(ROTA_LOGIN, ['identificador' => 'maria@exemplo.test', 'senha' => SENHA, 'entrada' => 'painel'])->assertNoContent()));
 
     $this->getJson('/api/v1/painel/papeis')->assertForbidden()->assertJsonPath('codigo', 'acesso_inexistente');
 });

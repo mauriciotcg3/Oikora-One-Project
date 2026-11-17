@@ -154,16 +154,23 @@ function ativarDoisFatores(string $cookie): array
     return test()->postJson('/api/v1/conta/2fa', ['canal' => 'email'])->assertOk()->json('codigos_recuperacao');
 }
 
-/** Até a T-16 ligar o papel Administrador, a obrigação vem desta porta. */
-function exigirDoisFatores(): void
+/** Força a obrigação de 2FA sem criar papel Administrador (a regra real vem do papel, T-16). */
+function exigirDoisFatores(bool $obrigatorio = true): void
 {
-    app()->instance(ExigenciaDeDoisFatores::class, new class implements ExigenciaDeDoisFatores
+    app()->instance(ExigenciaDeDoisFatores::class, new class($obrigatorio) implements ExigenciaDeDoisFatores
     {
+        public function __construct(private readonly bool $obrigatorio) {}
+
         public function obrigatorio(int $contaId): bool
         {
-            return true;
+            return $this->obrigatorio;
         }
     });
+}
+
+function dispensarDoisFatores(): void
+{
+    exigirDoisFatores(false);
 }
 
 /** Redefine a senha por e-mail há `$horas` e deixa um navegador novo pronto para entrar. */
@@ -203,7 +210,7 @@ function linhasDoLog(): array
         ->all();
 }
 
-/** Até a T-16, a organização ativa do painel vem desta porta. */
+/** Fixa a organização ativa sem passar pela sessão (testes de RLS e de contexto). */
 function usarOrganizacao(int $organizacaoId): void
 {
     app()->instance(ResolvedorOrganizacaoAtiva::class, new class($organizacaoId) implements ResolvedorOrganizacaoAtiva
@@ -299,9 +306,10 @@ function entrarNoPainel(int $organizacaoId, int $igrejaId, array $permissoes, st
     $papelId = criarPapel($organizacaoId, $sistema === null ? "Papel do ator {$sequencia}" : ucfirst($sistema), $permissoes, $sistema);
     $atribuicaoId = atribuirPapel($organizacaoId, $acessoId, $papelId, $tipo, $escopoId);
 
-    usarOrganizacao($organizacaoId);
+    // Testes de autorização: o 2FA do Administrador (RN-16) tem testes próprios em ElevacaoPainelTest.
+    dispensarDoisFatores();
     novoNavegador();
-    $cookie = cookieDaSessao(entrarCom($email)->assertNoContent());
+    $cookie = cookieDaSessao(test()->postJson(ROTA_LOGIN, ['identificador' => $email, 'senha' => SENHA, 'entrada' => 'painel'])->assertNoContent());
     comSessao($cookie);
 
     return ['conta' => $contaId, 'acesso' => $acessoId, 'pessoa' => $pessoaId, 'papel' => $papelId, 'atribuicao' => $atribuicaoId, 'cookie' => $cookie];

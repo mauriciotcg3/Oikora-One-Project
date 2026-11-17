@@ -14,7 +14,7 @@ use Illuminate\Validation\ValidationException;
 
 final class DoisFatoresController
 {
-    public function confirmar(Request $request, ConfirmarDoisFatores $confirmar): Response|JsonResponse
+    public function confirmar(Request $request, ConfirmarDoisFatores $confirmar, ElevacaoNoLogin $elevacao): Response|JsonResponse
     {
         $desafio = DesafioPendente::ler($request);
         if ($desafio === null) {
@@ -36,6 +36,7 @@ final class DoisFatoresController
         DesafioPendente::fechar($request);
         Auth::guard('web')->loginUsingId($desafio->contaId);
         $request->session()->regenerate();
+        $elevacao->abrir($request, $desafio->contaId, $desafio->entrada, $recuperacao === null ? 'codigo' : 'recuperacao');
 
         return response()->noContent();
     }

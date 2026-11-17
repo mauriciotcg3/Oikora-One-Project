@@ -38,6 +38,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/pessoas/duplicidade": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["cadastroRapido.duplicidade"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/pessoas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["cadastroRapido.cadastrar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/conta/confirmar-senha": {
         parameters: {
             query?: never;
@@ -118,6 +150,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/elevacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["presentation.elevacao"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/painel/listas/{lista}": {
         parameters: {
             query?: never;
@@ -143,6 +191,40 @@ export interface paths {
         };
         get?: never;
         put: operations["listas.editar"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Conta, organização ativa, organizações com acesso, capacidades do alcance, elevação e 2FA */
+        get: operations["me.mostrar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me/organizacao-ativa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Troca a organização ativa. Só vale organização com acesso ativo da conta (OIK-ADR-0003 §12) */
+        put: operations["me.escolherOrganizacao"];
         post?: never;
         delete?: never;
         options?: never;
@@ -331,6 +413,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/solicitacoes-permissao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["solicitacoes.listar"];
+        put?: never;
+        post: operations["solicitacoes.criar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/solicitacoes-permissao/{solicitacao}/cancelar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["solicitacoes.cancelar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/solicitacoes-permissao/{solicitacao}/aprovar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["solicitacoes.aprovar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/solicitacoes-permissao/{solicitacao}/recusar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["solicitacoes.recusar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/concessoes-permissao/{concessao}/revogar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["solicitacoes.revogar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/conta/verificacao/{tipo}": {
         parameters: {
             query?: never;
@@ -474,6 +636,82 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "cadastroRapido.duplicidade": {
+        parameters: {
+            query?: {
+                nome?: string | null;
+                nascimento?: string | null;
+                cpf?: string | null;
+                email?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "cadastroRapido.cadastrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    nome: string;
+                    /** Format: uuid */
+                    igreja: string;
+                    vinculo: components["schemas"]["Vinculo"];
+                    celular?: string | null;
+                    /** Format: email */
+                    email?: string | null;
+                    /** Format: uuid */
+                    como_chegou?: string | null;
+                    /** Format: date */
+                    nascimento?: string | null;
+                    cpf?: string | null;
+                    nao_duplicadas?: string[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
         };
     };
     "conta.confirmarSenha": {
@@ -769,6 +1007,67 @@ export interface operations {
             };
         };
     };
+    "presentation.elevacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    senha: string;
+                    codigo?: string | null;
+                    codigo_recuperacao?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "dois_fatores_necessario";
+                        canal: string | null;
+                        destino: string | null;
+                    } | {
+                        /** @constant */
+                        codigo: "dois_fatores_cadastro_necessario";
+                        /** @constant */
+                        message: "Cadastre a verificação em duas etapas para entrar no painel.";
+                    } | {
+                        codigo: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "muitas_tentativas";
+                        /** @constant */
+                        message: "Muitas tentativas. Aguarde para tentar de novo.";
+                    };
+                };
+            };
+        };
+    };
     "listas.listar": {
         parameters: {
             query?: never;
@@ -858,6 +1157,99 @@ export interface operations {
                 };
                 content: {
                     "application/json": string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "me.mostrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Formato do bootstrap da sessão em `contrato-permissoes.md`: ids públicos (uuid) e `autorizacao`
+                         *     sempre presente — sem ela, o front trata como falha de contrato, nunca como acesso total.
+                         */
+                        data: {
+                            conta: ({
+                                id: string;
+                            } & {
+                                [key: string]: unknown;
+                            }) | null;
+                            organizacao_ativa: {
+                                id: string;
+                                nome: string;
+                            } | null;
+                            organizacoes: unknown[];
+                            autorizacao: {
+                                capacidades: {
+                                    permissao: string;
+                                    escopo_tipo: string;
+                                    escopo_ids: string[];
+                                }[];
+                            };
+                            elevacao: {
+                                ativa: boolean;
+                                expira_em: unknown;
+                            } | {
+                                ativa: boolean;
+                                expira_em: null;
+                            };
+                            dois_fatores: {
+                                canal: string | null;
+                                obrigatorio: boolean;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "me.escolherOrganizacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    organizacao: string;
+                };
+            };
+        };
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "organizacao_sem_acesso";
+                    };
                 };
             };
             422: components["responses"]["ValidationException"];
@@ -1320,6 +1712,209 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "solicitacoes.listar": {
+        parameters: {
+            query?: {
+                visao?: "proprias" | "aprovaveis";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                    } | string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "solicitacoes.criar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    permissoes: {
+                        chave: components["schemas"]["Permissao"];
+                        categoria_sensivel?: string | null;
+                        escopo_tipo: components["schemas"]["EscopoTipo"];
+                        /** Format: uuid */
+                        escopo_id?: string | null;
+                    }[];
+                    duracao_horas: number;
+                    justificativa: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            permissoes: unknown[];
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "solicitacoes.cancelar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                solicitacao: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            permissoes: unknown[];
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    } | string;
+                };
+            };
+        };
+    };
+    "solicitacoes.aprovar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                solicitacao: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    versao?: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            permissoes: unknown[];
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    } | string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "solicitacoes.recusar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                solicitacao: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    justificativa: string;
+                    versao?: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            permissoes: unknown[];
+                        } & {
+                            [key: string]: unknown;
+                        };
+                    } | string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "solicitacoes.revogar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                concessao: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    motivo?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
         };
     };
     "verificacaoContato.pedir": {

@@ -4,7 +4,7 @@
 **Arquivos principais:** `api/app/Modules/Avisos/**`, `api/config/oikora.php`, `compose.yaml` (serviço `worker-codigos`)
 
 ## Visão geral
-Entrega mensagens para fora do sistema. Hoje cuida só dos códigos de identidade: 2FA e recuperação de senha, pela fila dedicada `codigos`. Os três canais usam adapters falsos, sem provedor real. Avisos de serviço e convites ainda não existem.
+Entrega mensagens para fora do sistema. Hoje cuida só dos códigos de identidade: 2FA e recuperação de senha, pela fila dedicada `codigos`. Os códigos têm adapters reais (Postmark, Meta e Twilio), ligados por `OIKORA_CODIGOS_PROVEDORES=real`; com `falso` (padrão em dev e testes), nada sai para a rede. A caixa de saída de avisos já existe, mas os canais de aviso ainda são falsos (T-18).
 
 ## Regras de negócio ativas
 | ID | Regra | Onde está implementada | Origem |
@@ -18,6 +18,7 @@ Entrega mensagens para fora do sistema. Hoje cuida só dos códigos de identidad
 | — | O SMS tem limite de 3 por hora e 10 por dia por número. | `Application/LimiteDeSms.php` | OIK-ADR-0008 §11 |
 | — | Erro temporário tem até 2 tentativas em 2 minutos, com o mesmo código. E-mail esgotado vira `falhou_definitivo`. | `Application/Jobs/EnviarCodigo.php` | OIK-ADR-0008 §3 |
 | — | O payload do job leva só o id. Código e destino são lidos na hora, pelo Contract de Identidade. | `Application/Jobs/EnviarCodigo.php` | OIK-ADR-0008 §3 |
+| — | Cada adapter real classifica o erro do provedor: timeout, 429, 5xx e limites de taxa da Meta são temporários; número sem WhatsApp, e-mail inválido ou inativo, template rejeitado, credencial inválida e conta sem pagamento são definitivos. Credencial ausente é definitiva (`provedor_nao_configurado`), sem chamar a rede. | `Infrastructure/Canais/{Postmark,MetaWhatsApp,Twilio}/*Codigos.php` | OIK-SPEC-0001 T-11; OIK-ADR-0008 §3 |
 
 ## Interfaces / contratos expostos
 | Contract | Uso |
@@ -38,12 +39,13 @@ Cada canal implementa `CanalDeEmail`, `CanalDeWhatsApp` ou `CanalDeSms` e classi
 
 ## Observabilidade — o que o suporte deve saber
 - **Estado do envio:** fica em `codigos_verificacao` (`envio_estado`, `envio_id_externo`, `envio_erro`), porque códigos não gravam `avisos` nem `envios`.
-- **Eventos logados:** `avisos.codigo.envio`, com id, canal, estado e motivo, sem código nem destino. O `request_id` chega ao job pelo Context do Laravel.
-- **Erros comuns:** `numero_sem_whatsapp`, `limite_sms`, `sem_destino`, `erro_inesperado`.
+- **Eventos logados:** `avisos.codigo.envio`, com id, canal, estado e motivo, sem código nem destino. `avisos.provedor.chamada`, por chamada a provedor real: provedor, status HTTP, estado, motivo e duração em ms, sem destino, código ou token. O `request_id` chega ao job pelo Context do Laravel.
+- **Erros comuns:** `numero_sem_whatsapp`, `limite_sms`, `sem_destino`, `erro_inesperado`, `provedor_nao_configurado`, `credencial_invalida`, `timeout`, `<provedor>_indisponivel` e `<provedor>_<código>` para erro definitivo sem motivo próprio.
+- **Configuração:** `config/services.php` (`postmark`, `meta_whatsapp`, `twilio`), lida das variáveis `POSTMARK_*`, `META_*` e `TWILIO_*`; segredos só no ambiente.
 - **Métricas expostas:** nenhuma ainda (T-06).
 
 ## Pontos em aberto / riscos conhecidos
-- ⚠️ Os adapters são falsos: sem os reais, nenhum código sai de verdade. Antes de qualquer deploy, é preciso ligar os provedores.
+- ⚠️ Os adapters reais de código foram testados só com HTTP falso. Antes do deploy: credenciais em cada ambiente, template `authentication` aprovado na conta da plataforma e um envio de verificação por canal.
 - ⚠️ `CanalFalso` grava o código em claro em `storage/app/private/codigos-dev.log`, só com `APP_ENV=local`.
 - ⚠️ Avisos e Identidade dependem um do outro pelos Contracts: Identidade pede o envio, Avisos lê o código.
 - ⚠️ O limite de SMS por IP do OIK-ADR-0008 §11 falta: o job não conhece o IP de quem pediu.
@@ -53,3 +55,4 @@ Cada canal implementa `CanalDeEmail`, `CanalDeWhatsApp` ou `CanalDeSms` e classi
 |---|---|---|
 | 2026-11-07 | Criação do módulo, com a entrega de códigos e adapters falsos. | OIK-SPEC-0001 T-11 (recorte) |
 | 2026-11-10 | Caixa de saída transacional (`avisos`, `envios` particionada), catálogo `TipoAviso`, tentativas, supressão em migração e `envios:varrer`. | OIK-SPEC-0001 T-17 |
+| 2026-11-17 | Adapters reais de código (Postmark, Meta WhatsApp, Twilio) com classificação de erro e log por chamada; escolha por `oikora.codigos.provedores`. | OIK-SPEC-0001 T-11 |

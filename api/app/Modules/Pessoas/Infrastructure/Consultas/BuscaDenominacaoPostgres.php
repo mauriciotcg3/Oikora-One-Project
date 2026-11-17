@@ -5,6 +5,7 @@ namespace App\Modules\Pessoas\Infrastructure\Consultas;
 use App\Modules\Autorizacao\Contracts\AlcanceAtual;
 use App\Modules\Autorizacao\Contracts\ContextoDeAlcanceAusente;
 use App\Modules\Pessoas\Application\Consultas\BuscaDenominacao;
+use App\Modules\Pessoas\Application\Consultas\CriteriosDuplicidade;
 use App\Modules\Pessoas\Infrastructure\Escopos\PessoaEscopoAlcance;
 use App\Modules\Pessoas\Infrastructure\Pessoa;
 use Illuminate\Database\Eloquent\Builder;
@@ -60,6 +61,73 @@ final readonly class BuscaDenominacaoPostgres implements BuscaDenominacao
     public function existe(string $uuid): bool
     {
         return $this->semAlcance()->where('uuid', $uuid)->exists();
+    }
+
+    public function idPorUuid(string $uuid): ?int
+    {
+        $id = $this->semAlcance()->where('uuid', $uuid)->value('id');
+
+        return $id === null ? null : (int) $id;
+    }
+
+    public function cpfEmUso(string $cpf): bool
+    {
+        return $this->semAlcance()->where('cpf_hash', $this->hashDoCpf(preg_replace('/\D+/', '', $cpf) ?? ''))->exists();
+    }
+
+    public function duplicados(CriteriosDuplicidade $criterios, ?int $pessoaId = null, int $limite = 10): array
+    {
+        /** @var array<'nome_nascimento'|'cpf'|'email', array{0: literal-string, 1: list<string>}> $motivos */
+        $motivos = [];
+
+        if ($criterios->nome !== null && $criterios->nascimento !== null) {
+            // Mesma normalização do `saving` de Pessoa: minúsculo e sem acento.
+            $motivos['nome_nascimento'] = ['(nome_busca = ? and nascimento = ?)', [Str::lower(Str::ascii($criterios->nome)), $criterios->nascimento]];
+        }
+        if ($criterios->cpf !== null) {
+            $motivos['cpf'] = ['(cpf_hash is not null and cpf_hash = ?)', [$this->hashDoCpf(preg_replace('/\D+/', '', $criterios->cpf) ?? '')]];
+        }
+        if ($criterios->email !== null) {
+            $motivos['email'] = [
+                "exists (select 1 from pessoa_contatos c where c.organizacao_id = pessoas.organizacao_id and c.pessoa_id = pessoas.id and c.tipo = 'email' and lower(c.valor) = ?)",
+                [$criterios->email],
+            ];
+        }
+
+        if ($motivos === []) {
+            return [];
+        }
+
+        // Inclui a lixeira (U-20): o detector oferece recuperar a ficha.
+        $consulta = $this->semAlcance()->select(self::COLUNAS)->selectRaw('excluida_em is not null as na_lixeira');
+
+        foreach ($motivos as $nome => [$sql, $valores]) {
+            $consulta->selectRaw("{$sql} as motivo_{$nome}", $valores);
+        }
+
+        $consulta->where(function (Builder $filtro) use ($motivos): void {
+            foreach ($motivos as [$sql, $valores]) {
+                $filtro->orWhereRaw($sql, $valores);
+            }
+        });
+
+        if ($pessoaId !== null) {
+            $consulta->where('id', '<>', $pessoaId)->whereNotExists(fn ($par) => $par->selectRaw('1')->from('pares_nao_duplicados as par')
+                ->whereColumn('par.organizacao_id', 'pessoas.organizacao_id')
+                ->whereRaw('(par.pessoa_a_id = least(pessoas.id, ?) and par.pessoa_b_id = greatest(pessoas.id, ?))', [$pessoaId, $pessoaId]));
+        }
+
+        return array_values($consulta->orderBy('nome')->limit($limite)->get()->map(static fn (Pessoa $pessoa): array => [
+            'uuid' => (string) $pessoa->uuid,
+            'nome' => (string) $pessoa->nome,
+            'igreja_id' => (int) $pessoa->igreja_id,
+            'vinculo' => $pessoa->vinculo,
+            'na_lixeira' => (bool) $pessoa->getAttribute('na_lixeira'),
+            'motivos' => array_values(array_filter(
+                array_keys($motivos),
+                static fn (string $nome): bool => (bool) $pessoa->getAttribute('motivo_'.$nome),
+            )),
+        ])->all());
     }
 
     /** @return Builder<Pessoa> */

@@ -56,6 +56,16 @@ final class CatalogoIgrejasPostgres implements CatalogoIgrejas
         return $resumo;
     }
 
+    public function resumoRegionais(array $ids): array
+    {
+        $resumo = [];
+        foreach ($ids === [] ? [] : Regional::query()->whereKey($ids)->get(['id', 'uuid', 'nome']) as $regional) {
+            $resumo[(int) $regional->id] = ['uuid' => (string) $regional->uuid, 'nome' => (string) $regional->nome];
+        }
+
+        return $resumo;
+    }
+
     /** @param array<int, mixed> $ids
      * @return list<int>
      */

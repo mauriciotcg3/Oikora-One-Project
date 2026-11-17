@@ -25,6 +25,13 @@ interface Contas
 
     public function segundoFator(int $contaId): ?SegundoFator;
 
+    /**
+     * Dados da própria conta para `GET /me` (T-16).
+     *
+     * @return array{uuid: string, email: string|null, email_verificado: bool, celular: string|null, celular_verificado: bool}|null
+     */
+    public function perfil(int $contaId): ?array;
+
     /** Guarda o segredo ainda sem ativar: o TOTP só vale depois de conferir um código do aplicativo. */
     public function guardarSegredoTotp(int $contaId, string $segredoCifrado): void;
 

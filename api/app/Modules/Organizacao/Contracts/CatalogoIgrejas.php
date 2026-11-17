@@ -25,4 +25,12 @@ interface CatalogoIgrejas
      * @return array<int, array{uuid: string, nome: string}>
      */
     public function resumo(array $ids): array;
+
+    /**
+     * Identificador público e nome das regionais, para respostas que mostram o escopo.
+     *
+     * @param  list<int>  $ids
+     * @return array<int, array{uuid: string, nome: string}>
+     */
+    public function resumoRegionais(array $ids): array;
 }

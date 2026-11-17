@@ -51,10 +51,14 @@ function desafioDe(erro: ErroHttp): DesafioDoisFatores | undefined {
     : undefined
 }
 
+/**
+ * Login pela entrada `painel`, que já abre a elevação (U-32). Só um parâmetro: a função é usada direto
+ * como `mutationFn`, que recebe o contexto da mutation no segundo argumento.
+ */
 export async function entrar(credenciais: Credenciais): Promise<ResultadoLogin> {
   await renovarCsrf()
   try {
-    await requisitar<unknown>('POST', '/auth/login', credenciais)
+    await requisitar<unknown>('POST', '/auth/login', { ...credenciais, entrada: 'painel' })
     return { tipo: 'autenticado' }
   } catch (erro) {
     const desafio = erro instanceof ErroHttp && erro.status === 403 ? desafioDe(erro) : undefined

@@ -34,6 +34,13 @@ enum EventoAuditoria: string
     case AutorizacaoSuporteCriada = 'suporte.autorizacao_criada';
     case AutorizacaoSuporteRevogada = 'suporte.autorizacao_revogada';
     case AutorizacaoSuporteExpirada = 'suporte.autorizacao_expirada';
+    case Elevacao = 'auth.elevacao';
+    case PermissaoSolicitada = 'authz.permission_requested';
+    case SolicitacaoPermissaoCancelada = 'authz.permission_request_cancelled';
+    case SolicitacaoPermissaoAprovada = 'authz.permission_request_approved';
+    case SolicitacaoPermissaoRecusada = 'authz.permission_request_rejected';
+    case ConcessaoPermissaoRevogada = 'authz.permission_grant_revoked';
+    case ConcessaoPermissaoExpirada = 'authz.permission_grant_expired';
 
     /** @return list<string> */
     public function metadadosPermitidos(): array
@@ -53,6 +60,13 @@ enum EventoAuditoria: string
             self::ListaValorCriado => ['lista', 'ordem_depois'],
             self::ListaValorAtualizado => ['lista', 'nome_alterado', 'ordem_antes', 'ordem_depois', 'ativo_antes', 'ativo_depois'],
             self::ObrigatoriosAtualizados => ['vinculo', 'campos_antes', 'campos_depois'],
+            // Como a elevação abriu (`login` ou `dialogo`) e o segundo fator usado, sem código.
+            self::Elevacao => ['via', 'segundo_fator'],
+            // Solicitações temporárias (OIK-ADR-0012 §5, §8): permissões, escopos e categorias sensíveis
+            // explícitas. A justificativa é texto livre e fica só na própria solicitação.
+            self::PermissaoSolicitada, self::SolicitacaoPermissaoCancelada, self::SolicitacaoPermissaoRecusada,
+            self::SolicitacaoPermissaoAprovada => ['solicitante_acesso_id', 'permissoes', 'escopos', 'categorias_sensiveis', 'duracao_horas', 'concessao_id', 'expira_em'],
+            self::ConcessaoPermissaoRevogada, self::ConcessaoPermissaoExpirada => ['solicitacao_id', 'acesso_alvo_id', 'permissoes', 'escopos', 'categorias_sensiveis', 'expira_em'],
             default => [],
         };
     }

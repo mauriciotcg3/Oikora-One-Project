@@ -48,6 +48,14 @@ return [
         'desafio_minutos' => (int) env('OIKORA_DESAFIO_VALIDADE', 30),
         'sms_por_hora' => (int) env('OIKORA_SMS_POR_HORA', 3),
         'sms_por_dia' => (int) env('OIKORA_SMS_POR_DIA', 10),
+        // `falso` (dev e testes) grava em storage; `real` chama Postmark, Meta e Twilio (T-11).
+        'provedores' => env('OIKORA_CODIGOS_PROVEDORES', 'falso'),
+    ],
+
+    // Elevação do painel (OIK-ADR-0003 §9): expira com 2h sem uso ou 12h no total.
+    'painel' => [
+        'elevacao_ociosa_minutos' => (int) env('OIKORA_ELEVACAO_OCIOSA_MINUTOS', 120),
+        'elevacao_total_horas' => (int) env('OIKORA_ELEVACAO_TOTAL_HORAS', 12),
     ],
 
     // Regra das 24h do OIK-ADR-0003 §7.

@@ -17,6 +17,11 @@ it('expande organização e regional e soma atribuições de igreja', function (
                 ['permissao' => Permissao::PessoasEditar->value, 'escopo_tipo' => 'igreja', 'escopo_id' => 3],
             ];
         }
+
+        public function temPapel(int $organizacaoId, int $acessoId): bool
+        {
+            return true;
+        }
     };
     $igrejas = new class implements CatalogoIgrejas
     {
@@ -49,6 +54,11 @@ it('expande organização e regional e soma atribuições de igreja', function (
         {
             return [];
         }
+
+        public function resumoRegionais(array $ids): array
+        {
+            return [];
+        }
     };
 
     $resultado = (new Alcance($atribuicoes, $igrejas))->calcular(1, 20);
@@ -69,6 +79,11 @@ it('autoriza dentro e nega fora do alcance para toda permissão catalogada', fun
                 'escopo_tipo' => 'igreja',
                 'escopo_id' => 2,
             ]];
+        }
+
+        public function temPapel(int $organizacaoId, int $acessoId): bool
+        {
+            return true;
         }
     };
     $igrejas = new class implements CatalogoIgrejas
@@ -99,6 +114,11 @@ it('autoriza dentro e nega fora do alcance para toda permissão catalogada', fun
         }
 
         public function resumo(array $ids): array
+        {
+            return [];
+        }
+
+        public function resumoRegionais(array $ids): array
         {
             return [];
         }

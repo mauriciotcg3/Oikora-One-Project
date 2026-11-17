@@ -14,4 +14,18 @@ interface BuscaDenominacao
 
     /** A pessoa existe na organização, dentro ou fora do alcance de quem pergunta. */
     public function existe(string $uuid): bool;
+
+    /** Id interno da pessoa da organização, dentro ou fora do alcance (para gravar pares, T-26). */
+    public function idPorUuid(string $uuid): ?int;
+
+    /** O CPF já pertence a alguém da organização, inclusive na lixeira (RN-01). */
+    public function cpfEmUso(string $cpf): bool;
+
+    /**
+     * Possíveis duplicados (RN-23; U-20), inclusive na lixeira, sem os pares marcados como "é outra pessoa"
+     * com `$pessoaId`. Só projeção restrita e os motivos (booleanos calculados no banco).
+     *
+     * @return list<array{uuid: string, nome: string, igreja_id: int, vinculo: string|null, na_lixeira: bool, motivos: list<string>}>
+     */
+    public function duplicados(CriteriosDuplicidade $criterios, ?int $pessoaId = null, int $limite = 10): array;
 }

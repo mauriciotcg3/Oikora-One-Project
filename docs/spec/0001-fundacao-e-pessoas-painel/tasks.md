@@ -276,7 +276,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; nenhuma chamada de rede real (`preventStrayRequests`).
 - **Regra de negócio associada:** RN-21 (códigos) — atualizar `docs/modules/avisos.md`.
-- **Status:** Parcial (recorte de códigos, 2026-11-07): fila `codigos`, Contract, reserva por SMS, limites e estado do envio Green, com adapters falsos. Faltam os adapters reais de Postmark, Meta e Twilio.
+- **Status:** Codificada em W4 (2026-11-17): sobre o recorte de 2026-11-07 (fila `codigos`, Contract, reserva por SMS, limites e estado do envio), entram os adapters reais `PostmarkCodigos` (`POST /email`), `MetaWhatsAppCodigos` (Cloud API, template `authentication` com o código no corpo e no botão) e `TwilioCodigos` (Messages, por serviço ou remetente), sobre a base `CanalHttp` (timeout 10 s, conexão 3 s, classificação temporário/definitivo, log `avisos.provedor.chamada` sem dado pessoal). Escolha por `OIKORA_CODIGOS_PROVEDORES` (`falso` por padrão). `CanaisDeCodigoReaisTest` 19 Green com `Http::fake` e `preventStrayRequests`; Avisos 37 Green. Pendente fora do código: credenciais por ambiente e template aprovado na conta da plataforma.
 
 ## T-12 — Verificação de contato, 2FA e recuperação de senha
 - **Issue:** #12
@@ -394,7 +394,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-10; CA-09, parte do efeito).
 - **Regra de negócio associada:** RN-16 — atualizar `docs/modules/identidade.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W4 (2026-11-17): `ResolvedorOrganizacaoSessao` (organização na sessão, revalidada a cada pedido pela via estreita `identidade_acessos_ativos_da_conta`; um acesso → automática; revogado → 403 `acesso_revogado`); `GET /me` (conta, organização ativa, organizações, capacidades do alcance, elevação, 2FA) e `PUT /me/organizacao-ativa`; `POST /painel/elevacao` (senha + 2FA quando a conta o tem; Administrador sem 2FA → `dois_fatores_cadastro_necessario`; regenera a sessão); middleware `ElevacaoPainel` (2h sem uso, 12h total) no grupo `painel` pelo alias `elevacao.painel`; `ResolverAtor` exige ao menos uma atribuição (`sem_atribuicao`); login com `entrada: painel` já eleva, também depois do 2FA (U-32); `auth.elevacao` na auditoria e em `eventos_autenticacao` (U-31). RN-16 real: `DoisFatoresPeloPapel` pelo Contract `PapeisDaConta` de Autorização (função `autorizacao_conta_tem_papel_sistema`). `OrganizacaoAtivaTest` 6 e `ElevacaoPainelTest` 9 Green; helper `entrarNoPainel` entra pela entrada `painel`.
 
 ## T-17 — Avisos: caixa de saída transacional e idempotência
 - **Issue:** #17
@@ -624,7 +624,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-01, CA-13).
 - **Regra de negócio associada:** RN-01, RN-23 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W4 (2026-11-17): `GET /painel/pessoas/duplicidade` (nome + nascimento normalizados, CPF por HMAC ou e-mail; inclui a lixeira com ação `recuperar`; fora do alcance só nome, igreja e vínculo) em `BuscaDenominacaoPostgres::duplicados`, a única classe que sai do filtro; `POST /painel/pessoas` com `CadastrarPessoaAction` (`pessoas.criar` na igreja, `cpf_em_uso` 422 inclusive na lixeira, evento `entrada` com "como chegou" como motivo, pares de `nao_duplicadas`, auditoria `pessoa.criada` só com nomes de campo). Migrations `eventos_linha_do_tempo` e `pares_nao_duplicados` sob RLS. `CadastroRapidoTest` 7 e `DuplicidadeTest` 5 Green. O arquivo da Action ficou `Actions/CadastrarPessoaAction.php`, para entrar no guard de declarações de segurança.
 
 ## T-27 — Ficha por seções, completude e foto
 - **Issue:** #27
@@ -878,7 +878,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; `pnpm gate` verde, com `size-limit` dentro de 350 KB.
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em W4 (2026-11-17): `shared/http` com `enviarComSessao` (credentials, `X-XSRF-TOKEN`, `X-Organizacao-Esperada` = uuid da organização do `/me`, `X-Cliente`, `traceparent` W3C novo por pedido; 419 renova e repete; 401, 403 `elevacao_necessaria` e 409 `organizacao_trocada` delegados à entrada por `configurarSessao`), `requisitar` e `criarClienteTipado()` sobre `@oikora/api-contrato` (dependência `workspace:*`); `shared/forms` (`aplicarErros422`, `ResumoErros`); `shared/observabilidade` (trace); `app/painel` com `FronteiraDeErro` (mostra e registra o `trace_id`), `SessaoPainel` (diálogo de elevação da feature Identidade, login com `voltar` só para `/painel/`, `BroadcastChannel` entre abas); login envia `entrada: painel`; fronteiras no ESLint por `no-restricted-imports`. A API passou a conferir `X-Organizacao-Esperada` pelo uuid. 23 testes; `pnpm gate` verde, 265,74 KB de 350 KB. Pendente: SDK OpenTelemetry com exportador, que espera o coletor do OIK-ADR-0010 (hoje só a propagação `traceparent`); tema com o logo da organização, que depende da configuração da organização (T-24).
 
 ## T-38 — Telas de identidade: login, 2FA, elevação, convite e recuperação
 - **Issue:** #38
@@ -1108,7 +1108,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-31).
 - **Regra de negócio associada:** RN-24 — atualizar `docs/modules/autorizacao.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W4 (2026-11-17): quatro tabelas da ADR-0012 sob RLS, com FKs compostas e checks (duração ≤ 72 h, permissão solicitável, uma concessão por pedido); `Permissao::solicitavel()` e `categoriaSensivel()`; Actions `SolicitarPermissao`, `CancelarSolicitacao`, `AprovarSolicitacao`, `RecusarSolicitacao` e `RevogarConcessao` (decisão só por administrador com `permissoes.solicitacoes.aprovar`, sem autoaprovação, teto pelo `AntiEscalada`, linha travada com `FOR UPDATE` e `versao`); concessão vigente somada em `AtribuicoesDePermissao::doAcesso` (vale pelo relógio do banco, sem job nem cache); `ResolverAtor` exige papel (`temPapel`), não concessão; `#[RequerPermissao(null)]` para o que basta acesso ativo; auditoria `authz.permission_*` e log técnico sem justificativa. `/me` alinhado ao `contrato-permissoes.md` (`data`, ids públicos, `autorizacao.capacidades` com `escopo_tipo` e `escopo_ids`, incluindo concessões); `CatalogoIgrejas::resumoRegionais`. `SolicitacoesPermissaoTest` 7 e `ConcessoesPermissaoRlsTest` 3 Green. Pendente: evento `authz.permission_grant_expired` e expiração de pedidos pendentes (rotina agendada); código `sem_permissao` do contrato × `authz.denied` das rotas.
 
 ## T-48 — Solicitação e aprovação temporária de permissões (frontend)
 - **Issue:** #48

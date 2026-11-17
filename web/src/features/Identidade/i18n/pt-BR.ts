@@ -69,6 +69,22 @@ export const identidadePtBR = {
     codigoIncorreto: 'Código incorreto. Confira a mensagem e digite de novo.',
     codigoRecuperacaoInvalido: 'Esse código não confere ou já foi usado.',
   },
+  elevacao: {
+    titulo: 'Confirme que é você',
+    texto: 'Por segurança, digite sua senha para continuar no painel. O que você preencheu continua na tela.',
+    textoCodigo: 'Digite também o código que enviamos para {{destino}}.',
+    senha: 'Senha',
+    codigo: 'Código',
+    confirmar: 'Continuar',
+    cancelar: 'Cancelar',
+    cadastroNecessario: 'Seu papel exige verificação em duas etapas. Cadastre-a na sua conta para entrar no painel.',
+    erro: {
+      senha: 'Senha incorreta.',
+      codigo: 'Código incorreto. Confira a mensagem e digite de novo.',
+      muitas_tentativas: 'Muitas tentativas. Aguarde um pouco e tente de novo.',
+      falha: 'Não foi possível confirmar agora. Tente de novo.',
+    },
+  },
   validacao: {
     identificadorVazio: 'Digite seu e-mail ou celular.',
     celularIncompleto: 'O celular precisa do DDD e do número.',

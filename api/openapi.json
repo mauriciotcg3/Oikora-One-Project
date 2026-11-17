@@ -67,6 +67,198 @@
                 }
             }
         },
+        "/painel/pessoas/duplicidade": {
+            "get": {
+                "operationId": "cadastroRapido.duplicidade",
+                "tags": [
+                    "CadastroRapido"
+                ],
+                "parameters": [
+                    {
+                        "name": "nome",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 160
+                        }
+                    },
+                    {
+                        "name": "nascimento",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "cpf",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 20
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 160
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas": {
+            "post": {
+                "operationId": "cadastroRapido.cadastrar",
+                "tags": [
+                    "CadastroRapido"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "maxLength": 160
+                                    },
+                                    "igreja": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "vinculo": {
+                                        "$ref": "#/components/schemas/Vinculo"
+                                    },
+                                    "celular": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 30
+                                    },
+                                    "email": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "email",
+                                        "maxLength": 160
+                                    },
+                                    "como_chegou": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "nascimento": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "date"
+                                    },
+                                    "cpf": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 20
+                                    },
+                                    "nao_duplicadas": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "maxItems": 20
+                                    }
+                                },
+                                "required": [
+                                    "nome",
+                                    "igreja",
+                                    "vinculo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/conta/confirmar-senha": {
             "post": {
                 "operationId": "conta.confirmarSenha",
@@ -586,6 +778,146 @@
                 }
             }
         },
+        "/painel/elevacao": {
+            "post": {
+                "operationId": "presentation.elevacao",
+                "tags": [
+                    "Elevacao"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "senha": {
+                                        "type": "string",
+                                        "maxLength": 200
+                                    },
+                                    "codigo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "codigo_recuperacao": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 20
+                                    }
+                                },
+                                "required": [
+                                    "senha"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "429": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "muitas_tentativas"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Muitas tentativas. Aguarde para tentar de novo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "codigo": {
+                                                    "type": "string",
+                                                    "const": "dois_fatores_necessario"
+                                                },
+                                                "canal": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "destino": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "codigo",
+                                                "canal",
+                                                "destino"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "codigo": {
+                                                    "type": "string",
+                                                    "const": "dois_fatores_cadastro_necessario"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "const": "Cadastre a verifica\u00e7\u00e3o em duas etapas para entrar no painel."
+                                                }
+                                            },
+                                            "required": [
+                                                "codigo",
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "codigo": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "codigo"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
         "/painel/listas/{lista}": {
             "get": {
                 "operationId": "listas.listar",
@@ -759,6 +1091,227 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/me": {
+            "get": {
+                "operationId": "me.mostrar",
+                "summary": "Conta, organiza\u00e7\u00e3o ativa, organiza\u00e7\u00f5es com acesso, capacidades do alcance, eleva\u00e7\u00e3o e 2FA",
+                "tags": [
+                    "Me"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "description": "Formato do bootstrap da sess\u00e3o em `contrato-permissoes.md`: ids p\u00fablicos (uuid) e `autorizacao`\nsempre presente \u2014 sem ela, o front trata como falha de contrato, nunca como acesso total.",
+                                            "properties": {
+                                                "conta": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id"
+                                                    ],
+                                                    "additionalProperties": {}
+                                                },
+                                                "organizacao_ativa": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "nome": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "nome"
+                                                    ]
+                                                },
+                                                "organizacoes": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                },
+                                                "autorizacao": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "capacidades": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "permissao": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "escopo_tipo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "escopo_ids": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "permissao",
+                                                                    "escopo_tipo",
+                                                                    "escopo_ids"
+                                                                ]
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "capacidades"
+                                                    ]
+                                                },
+                                                "elevacao": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "ativa": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "expira_em": {}
+                                                            },
+                                                            "required": [
+                                                                "ativa",
+                                                                "expira_em"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "ativa": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "expira_em": {
+                                                                    "type": "null"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "ativa",
+                                                                "expira_em"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "dois_fatores": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "canal": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "obrigatorio": {
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "canal",
+                                                        "obrigatorio"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "conta",
+                                                "organizacao_ativa",
+                                                "organizacoes",
+                                                "autorizacao",
+                                                "elevacao",
+                                                "dois_fatores"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/me/organizacao-ativa": {
+            "put": {
+                "operationId": "me.escolherOrganizacao",
+                "summary": "Troca a organiza\u00e7\u00e3o ativa. S\u00f3 vale organiza\u00e7\u00e3o com acesso ativo da conta (OIK-ADR-0003 \u00a712)",
+                "tags": [
+                    "Me"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "organizacao": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "organizacao"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "organizacao_sem_acesso"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -1583,6 +2136,428 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/painel/solicitacoes-permissao": {
+            "get": {
+                "operationId": "solicitacoes.listar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "visao",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "proprias",
+                                "aprovaveis"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "solicitacoes.criar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "permissoes": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "chave": {
+                                                    "$ref": "#/components/schemas/Permissao"
+                                                },
+                                                "categoria_sensivel": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "maxLength": 20
+                                                },
+                                                "escopo_tipo": {
+                                                    "$ref": "#/components/schemas/EscopoTipo"
+                                                },
+                                                "escopo_id": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "uuid"
+                                                }
+                                            },
+                                            "required": [
+                                                "chave",
+                                                "escopo_tipo"
+                                            ]
+                                        },
+                                        "minItems": 1,
+                                        "maxItems": 20
+                                    },
+                                    "duracao_horas": {
+                                        "type": "integer"
+                                    },
+                                    "justificativa": {
+                                        "type": "string",
+                                        "maxLength": 1000
+                                    }
+                                },
+                                "required": [
+                                    "permissoes",
+                                    "duracao_horas",
+                                    "justificativa"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "permissoes": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "permissoes"
+                                            ],
+                                            "additionalProperties": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/solicitacoes-permissao/{solicitacao}/cancelar": {
+            "post": {
+                "operationId": "solicitacoes.cancelar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "solicitacao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "permissoes": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "permissoes"
+                                                    ],
+                                                    "additionalProperties": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/solicitacoes-permissao/{solicitacao}/aprovar": {
+            "post": {
+                "operationId": "solicitacoes.aprovar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "solicitacao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "versao": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "permissoes": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "permissoes"
+                                                    ],
+                                                    "additionalProperties": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/solicitacoes-permissao/{solicitacao}/recusar": {
+            "post": {
+                "operationId": "solicitacoes.recusar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "solicitacao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "justificativa": {
+                                        "type": "string",
+                                        "maxLength": 1000
+                                    },
+                                    "versao": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                },
+                                "required": [
+                                    "justificativa"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "permissoes": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "permissoes"
+                                                    ],
+                                                    "additionalProperties": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/concessoes-permissao/{concessao}/revogar": {
+            "post": {
+                "operationId": "solicitacoes.revogar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "concessao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "motivo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 1000
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }

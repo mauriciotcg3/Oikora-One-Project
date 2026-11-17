@@ -20,6 +20,7 @@
     "@fontsource/poppins": "^5.3.0",
     "@hookform/resolvers": "^7.0.1",
     "@mui/material": "^7.3.11",
+    "@oikora/api-contrato": "workspace:*",
     "@tanstack/react-query": "^5.105.1",
     "@tanstack/react-router": "^1.170.46",
     "i18next": "^26.6.0",
