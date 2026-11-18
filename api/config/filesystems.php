@@ -47,6 +47,18 @@ return [
             'report' => false,
         ],
 
+        // Arquivos privados das organizações em dev e testes: servido pelo Laravel só com URL assinada
+        // (leitura e envio). Em produção, `OIKORA_ARQUIVOS_DISCO=s3` aponta para o bucket privado.
+        'arquivos' => [
+            'driver' => 'local',
+            'root' => storage_path('app/arquivos'),
+            'serve' => true,
+            'url' => '/api/v1/arquivos',
+            'visibility' => 'private',
+            'throw' => true,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

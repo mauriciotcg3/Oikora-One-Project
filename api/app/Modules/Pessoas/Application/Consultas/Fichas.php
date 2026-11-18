@@ -21,4 +21,13 @@ interface Fichas
 
     /** @return list<array<string, string|null>> */
     public function enderecos(int $id): array;
+
+    /**
+     * Quais dos campos estão preenchidos, sem ler os valores (nem decifrar sensíveis): serve à
+     * completude, que vale sobre a ficha inteira, qualquer que seja a projeção de quem vê.
+     *
+     * @param  list<string>  $campos  chaves de `CampoFicha`
+     * @return list<string>
+     */
+    public function preenchidos(int $id, array $campos): array;
 }

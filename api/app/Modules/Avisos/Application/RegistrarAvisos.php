@@ -2,27 +2,28 @@
 
 namespace App\Modules\Avisos\Application;
 
-use App\Modules\Avisos\Application\Jobs\EnviarAviso;
 use App\Modules\Avisos\Contracts\Avisos;
 use App\Modules\Avisos\Contracts\Referencia;
-use App\Modules\Avisos\Domain\EstadoEnvio;
 use App\Modules\Avisos\Domain\TipoAviso;
 use App\Modules\Organizacao\Contracts\ConsultaOrganizacoes;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Context;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
 
 /**
- * Caixa de saída (OIK-ADR-0008 §2, §4; RN-21, RN-22; CA-25, CA-26). Aviso e envios entram na transação
- * do fato; o job é despachado com `afterCommit`, então nenhum provedor é chamado antes do commit e um
- * rollback não deixa nada. Se o processo cair entre o commit e o despacho, o `envios:varrer` recupera.
+ * Caixa de saída (OIK-ADR-0008 §2, §4, §12; RN-21, RN-22; CA-25, CA-26). Aviso e envios entram na
+ * transação do fato; o job é despachado com `afterCommit`, então nenhum provedor é chamado antes do
+ * commit e um rollback não deixa nada. Os canais seguem a regra da categoria (CaixaDeSaida). Se o
+ * processo cair entre o commit e o despacho, o `envios:varrer` recupera.
  */
 final readonly class RegistrarAvisos implements Avisos
 {
-    public function __construct(private ConsultaOrganizacoes $organizacoes) {}
+    public function __construct(
+        private ConsultaOrganizacoes $organizacoes,
+        private CaixaDeSaida $caixa,
+    ) {}
 
     public function registrar(TipoAviso $tipo, array $destinatarios, Referencia $referencia, string $chave = ''): void
     {
@@ -57,14 +58,8 @@ final readonly class RegistrarAvisos implements Avisos
                 continue;
             }
 
-            foreach ($tipo->canais() as $canal) {
-                $envio = DB::selectOne(
-                    'insert into envios (organizacao_id, aviso_id, aviso_criado_em, canal, estado, enfileirado_em, request_id)
-                     values (?, ?, ?, ?, ?, ?, ?) returning id',
-                    [$organizacaoId, $aviso->id, $aviso->created_at, $canal, EstadoEnvio::Pendente->value, $agora, Context::get('request_id')],
-                );
-
-                EnviarAviso::dispatch((int) $envio->id, $organizacaoId)->afterCommit();
+            foreach ($this->caixa->canaisIniciais($organizacaoId, $tipo, $destinatario->contaId, $destinatario->pessoaId) as $canal) {
+                $this->caixa->criarEnvio($organizacaoId, (int) $aviso->id, (string) $aviso->created_at, $tipo, $canal);
             }
         }
     }

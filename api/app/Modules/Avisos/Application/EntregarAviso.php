@@ -3,15 +3,20 @@
 namespace App\Modules\Avisos\Application;
 
 use App\Modules\Avisos\Domain\EstadoEnvio;
+use App\Modules\Avisos\Domain\JanelaDiurna;
 use App\Modules\Avisos\Domain\TipoAviso;
+use App\Modules\Organizacao\Contracts\ConsultaOrganizacoes;
+use App\Modules\Organizacao\Contracts\PerfilDeEnvio;
+use App\Modules\Pessoas\Contracts\ContatosDaPessoa;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use stdClass;
 use Throwable;
 
 /**
- * Uma tentativa de envio (OIK-ADR-0008 §3, §4). Roda dentro da transação do job (contexto RLS): trava o
- * envio com `FOR UPDATE SKIP LOCKED`, confere o estado e só então chama o provedor. Devolve a espera em
+ * Uma tentativa de envio (OIK-ADR-0008 §3, §4, §12, §14). Roda dentro da transação do job (contexto
+ * RLS): trava o envio com `FOR UPDATE SKIP LOCKED`, confere o estado e a janela diurna e só então chama
+ * o provedor. Falha definitiva de aviso de serviço passa para o próximo canal. Devolve a espera em
  * segundos para a próxima tentativa, ou null quando não há o que tentar de novo.
  */
 final readonly class EntregarAviso
@@ -24,12 +29,18 @@ final readonly class EntregarAviso
     public function __construct(
         private CanaisDeAviso $canais,
         private DestinosDeAviso $destinos,
+        private ConsultaOrganizacoes $organizacoes,
+        private NumerosWhatsApp $numeros,
+        private ReenviarPeloProximoCanal $reenvio,
+        private LinksDeDescadastro $links,
+        private ContatosDaPessoa $contatos,
     ) {}
 
     public function executar(int $envioId): ?int
     {
         $envio = DB::selectOne(
-            'select e.id, e.canal, e.estado, e.tentativas, a.tipo, a.conta_id, a.pessoa_id, a.destino, a.uuid as aviso_uuid
+            'select e.id, e.aviso_id, e.canal, e.estado, e.tentativas, a.organizacao_id, a.tipo, a.conta_id, a.pessoa_id,
+                    a.destino, a.uuid as aviso_uuid
                from envios e join avisos a on a.id = e.aviso_id
               where e.id = ?
               for update of e skip locked',
@@ -45,15 +56,31 @@ final readonly class EntregarAviso
             return null;
         }
 
+        $tipo = TipoAviso::from($envio->tipo);
         $canal = (string) $envio->canal;
-        $endereco = $this->destinos->endereco(
-            $envio->conta_id === null ? null : (int) $envio->conta_id,
-            $envio->pessoa_id === null ? null : (int) $envio->pessoa_id,
-            $canal,
-        );
+        $organizacaoId = (int) $envio->organizacao_id;
+        $perfil = $this->organizacoes->perfilDeEnvio($organizacaoId);
+
+        // A janela vale também para nova tentativa e reenvio: fora dela, volta a esperar as 8h.
+        $proximo = $tipo->esperaJanelaDiurna() ? JanelaDiurna::proximoEnvio(now()->toImmutable(), $perfil->fuso) : null;
+        if ($proximo !== null) {
+            $this->atualizar($envioId, ['estado' => EstadoEnvio::Agendado->value, 'agendado_para' => $proximo, 'enfileirado_em' => null]);
+
+            return null;
+        }
+
+        if ($canal === 'whatsapp' && $this->numeros->daOrganizacao($organizacaoId) === null) {
+            $this->falharDefinitivo($envio, 'sem_numero_whatsapp');
+
+            return null;
+        }
+
+        $contaId = $envio->conta_id === null ? null : (int) $envio->conta_id;
+        $pessoaId = $envio->pessoa_id === null ? null : (int) $envio->pessoa_id;
+        $endereco = $this->destinos->endereco($contaId, $pessoaId, $canal, ! $tipo->obrigatorio());
 
         if ($endereco === null) {
-            $this->falharDefinitivo($envioId, 'sem_destino');
+            $this->falharDefinitivo($envio, 'sem_destino');
 
             return null;
         }
@@ -71,19 +98,23 @@ final readonly class EntregarAviso
 
         try {
             $idExterno = $adapter->enviarAviso(new MensagemDeAviso(
-                tipo: TipoAviso::from($envio->tipo),
+                tipo: $tipo,
                 canal: $canal,
                 destino: $endereco,
                 link: $envio->destino === null ? null : (string) $envio->destino,
                 chaveDeIdempotencia: $envio->aviso_uuid.':'.$canal,
+                organizacaoId: $organizacaoId,
+                nomeOrganizacao: $perfil->nome,
+                responderPara: $perfil->responderPara,
+                linkDescadastro: $this->linkDescadastro($tipo, $canal, $contaId, $pessoaId, $perfil),
             ));
         } catch (FalhaDefinitivaDeEnvio $falha) {
-            $this->falharDefinitivo($envioId, $falha->getMessage());
+            $this->falharDefinitivo($envio, $falha->getMessage());
 
             return null;
         } catch (Throwable $falha) {
             // Temporária, ou erro não classificado: nunca grava a mensagem crua, que pode ter dado pessoal.
-            return $this->falharTemporario($envioId, $tentativa, $falha instanceof FalhaTemporariaDeEnvio ? $falha->getMessage() : 'erro_inesperado');
+            return $this->falharTemporario($envio, $tentativa, $falha instanceof FalhaTemporariaDeEnvio ? $falha->getMessage() : 'erro_inesperado');
         }
 
         $this->atualizar($envioId, [
@@ -97,28 +128,42 @@ final readonly class EntregarAviso
         return null;
     }
 
-    private function falharTemporario(int $envioId, int $tentativa, string $motivo): ?int
+    /** E-mail não obrigatório para pessoa sem conta leva o descadastro em um clique (RFC 8058). */
+    private function linkDescadastro(TipoAviso $tipo, string $canal, ?int $contaId, ?int $pessoaId, PerfilDeEnvio $perfil): ?string
+    {
+        if ($tipo->obrigatorio() || $canal !== 'email' || $contaId !== null || $pessoaId === null) {
+            return null;
+        }
+
+        $pessoaUuid = $this->contatos->uuid($pessoaId);
+
+        return $pessoaUuid === null ? null : $this->links->paraPessoa($perfil->uuid, $pessoaUuid, 'email');
+    }
+
+    private function falharTemporario(stdClass $envio, int $tentativa, string $motivo): ?int
     {
         if ($tentativa >= self::MAXIMO_DE_TENTATIVAS) {
-            $this->falharDefinitivo($envioId, 'tentativas_esgotadas');
+            $this->falharDefinitivo($envio, 'tentativas_esgotadas');
 
             return null;
         }
 
-        $this->atualizar($envioId, ['estado' => EstadoEnvio::FalhouTemporario->value, 'erro_codigo' => $motivo]);
+        $this->atualizar((int) $envio->id, ['estado' => EstadoEnvio::FalhouTemporario->value, 'erro_codigo' => $motivo]);
         Log::warning('envio.falhou_temporario', ['motivo' => $motivo, 'tentativa' => $tentativa]);
 
         return self::ESPERAS[$tentativa - 1];
     }
 
-    private function falharDefinitivo(int $envioId, string $motivo): void
+    private function falharDefinitivo(stdClass $envio, string $motivo): void
     {
-        $this->atualizar($envioId, [
+        $this->atualizar((int) $envio->id, [
             'estado' => EstadoEnvio::FalhouDefinitivo->value,
             'erro_codigo' => $motivo,
             'falhou_em' => now(),
         ]);
         Log::warning('envio.falhou_definitivo', ['motivo' => $motivo]);
+
+        $this->reenvio->reenviar((int) $envio->aviso_id, $motivo);
     }
 
     /** @param  array<string, mixed>  $campos */

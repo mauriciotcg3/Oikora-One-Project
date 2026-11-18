@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/painel/auditoria": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["auditoria.listar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/login": {
         parameters: {
             query?: never;
@@ -118,6 +134,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/descadastro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["avisos.descadastro"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/2fa/confirmar": {
         parameters: {
             query?: never;
@@ -160,6 +192,70 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["presentation.elevacao"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["pessoas.mostrar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["ficha.editar"];
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}/foto": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ficha.foto"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/igrejas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["igrejas.listar"];
+        put?: never;
+        post: operations["igrejas.criar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/igrejas/{igreja}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["igrejas.editar"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -248,6 +344,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/organizacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["organizacao.mostrar"];
+        put: operations["organizacao.atualizar"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/organizacao/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["organizacao.logo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/painel/permissoes": {
         parameters: {
             query?: never;
@@ -323,22 +451,6 @@ export interface paths {
         put?: never;
         post?: never;
         delete: operations["papeis.removerAtribuicao"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/painel/pessoas/{pessoa}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["pessoas.mostrar"];
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -525,6 +637,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/pessoas/{pessoa}/vinculo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["vinculo.vinculo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}/situacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["vinculo.situacao"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -539,6 +683,11 @@ export interface components {
          * @enum {string}
          */
         EscopoTipo: "organizacao" | "regional" | "igreja";
+        /**
+         * EventoAuditoria
+         * @enum {string}
+         */
+        EventoAuditoria: "pessoa.criada" | "pessoa.atualizada" | "pessoa.excluida" | "pessoa.recuperada" | "pessoa.purgada" | "pessoa.mesclada" | "pessoa.mesclagem_desfeita" | "pessoa.transferencia_solicitada" | "pessoa.transferencia_aprovada" | "pessoa.transferencia_recusada" | "pessoa.importacao_concluida" | "pessoa.importacao_desfeita" | "pessoas.lista_valor_criado" | "pessoas.lista_valor_atualizado" | "pessoas.obrigatorios_atualizados" | "exportacao.pedida" | "exportacao.concluida" | "exportacao.negada" | "acesso.convite_emitido" | "acesso.concedido" | "acesso.revogado" | "autorizacao.papel_criado" | "autorizacao.papel_atualizado" | "autorizacao.atribuicao_concedida" | "autorizacao.atribuicao_revogada" | "authz.escalation_blocked" | "authz.last_admin_blocked" | "suporte.autorizacao_criada" | "suporte.autorizacao_revogada" | "suporte.autorizacao_expirada" | "auth.elevacao" | "authz.permission_requested" | "authz.permission_request_cancelled" | "authz.permission_request_approved" | "authz.permission_request_rejected" | "authz.permission_grant_revoked" | "authz.permission_grant_expired" | "organizacao.configurada" | "organizacao.igreja_criada" | "organizacao.igreja_atualizada";
         /** LoginRequest */
         LoginRequest: {
             identificador: string;
@@ -546,13 +695,24 @@ export interface components {
             remember?: string;
         };
         /**
+         * ModoMatricula
+         * @enum {string}
+         */
+        ModoMatricula: "manual" | "automatica";
+        /**
          * Permissao
          * @enum {string}
          */
         Permissao: "organizacao.configurar" | "igrejas.gerir" | "acessos.gerir" | "papeis.gerir" | "auditoria.ver" | "avisos.whatsapp.gerir" | "pessoas.configurar" | "permissoes.solicitacoes.aprovar" | "pessoas.ver" | "pessoas.criar" | "pessoas.editar" | "pessoas.excluir" | "pessoas.exportar" | "pessoas.mesclar" | "pessoas.transferencias.solicitar" | "pessoas.transferencias.aprovar" | "pessoas.sensiveis.saude.ver" | "pessoas.sensiveis.saude.editar" | "pessoas.sensiveis.documentos.ver" | "pessoas.sensiveis.documentos.editar" | "pessoas.sensiveis.contatos.ver" | "pessoas.sensiveis.contatos.editar" | "pessoas.sensiveis.fe.ver" | "pessoas.sensiveis.fe.editar";
         /**
+         * Situacao
+         * @description Situação da pessoa (RN-06, RN-07): sem valor gravado, está ativa. A inativação não muda o vínculo.
+         * @enum {string}
+         */
+        Situacao: "ativa" | "inativa";
+        /**
          * Vinculo
-         * @description Vínculos da pessoa com a igreja (RN-03). Só `membro` tem matrícula.
+         * @description Vínculos da pessoa com a igreja (RN-03) e a máquina de estados (RN-07; plan.md §6): só avança Visitante → Frequentador → Membro, sem pular e sem voltar. Quem deixa de participar é inativado (Situacao), e a reativação volta ao mesmo vínculo. Só `membro` tem matrícula.
          * @enum {string}
          */
         Vinculo: "visitante" | "frequentador" | "membro";
@@ -594,6 +754,53 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    "auditoria.listar": {
+        parameters: {
+            query?: {
+                de?: string;
+                ate?: string;
+                evento?: components["schemas"]["EventoAuditoria"];
+                ator?: string;
+                alvo_tipo?: string;
+                alvo?: string;
+                pagina?: number;
+                por_pagina?: "25" | "50" | "100";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                        meta: {
+                            pagina: number;
+                            por_pagina: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "authenticatedSession.store": {
         parameters: {
             query?: never;
@@ -873,6 +1080,24 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "avisos.descadastro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     "doisFatores.confirmar": {
         parameters: {
             query?: never;
@@ -1066,6 +1291,266 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "pessoas.mostrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            uuid: string;
+                            igreja: {
+                                uuid: string;
+                                nome: string;
+                            } | null;
+                            vinculo: string | null;
+                            situacao: string | null;
+                            campos: unknown[];
+                            foto_url: string | null;
+                            completude: {
+                                percentual: number;
+                                obrigatorios: string[];
+                                faltando: string[];
+                            } | null;
+                            contatos: {
+                                uuid: string;
+                                tipo: string;
+                                valor: string;
+                                e_whatsapp: boolean;
+                                principal: boolean;
+                            }[] | null;
+                            enderecos: {
+                                [key: string]: string | null;
+                            }[] | null;
+                        };
+                        meta: {
+                            acoes: string[];
+                            categorias: unknown[];
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "pessoa_inexistente";
+                    };
+                };
+            };
+        };
+    };
+    "ficha.editar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    secao: "pessoais" | "documentos" | "contatos" | "endereco" | "saude" | "eclesiasticos" | "adicionais";
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            uuid: string;
+                            igreja: {
+                                uuid: string;
+                                nome: string;
+                            } | null;
+                            vinculo: string | null;
+                            situacao: string | null;
+                            campos: unknown[];
+                            foto_url: string | null;
+                            completude: {
+                                percentual: number;
+                                obrigatorios: string[];
+                                faltando: string[];
+                            } | null;
+                            contatos: {
+                                uuid: string;
+                                tipo: string;
+                                valor: string;
+                                e_whatsapp: boolean;
+                                principal: boolean;
+                            }[] | null;
+                            enderecos: {
+                                [key: string]: string | null;
+                            }[] | null;
+                        };
+                        meta: {
+                            acoes: string[];
+                            categorias: unknown[];
+                        };
+                    } | string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "ficha.foto": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    tipo_conteudo: "image/png" | "image/jpeg" | "image/webp";
+                    tamanho: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            url: string;
+                            /** @constant */
+                            metodo: "PUT";
+                            cabecalhos: string;
+                            caminho: string;
+                            expira_em: string;
+                        };
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "igrejas.listar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                    };
+                };
+            };
+        };
+    };
+    "igrejas.criar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    nome: string;
+                    /** Format: uuid */
+                    regional?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "igrejas.editar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                igreja: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    nome?: string;
+                    /** Format: uuid */
+                    regional?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
         };
     };
     "listas.listar": {
@@ -1318,6 +1803,98 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "organizacao.mostrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            uuid: string;
+                            nome: string;
+                            fuso: string;
+                            cor_primaria: string;
+                            modo_matricula: string;
+                            limite_whatsapp_mensal: string;
+                            email_contato: string;
+                            logo: string;
+                            logo_url: string | null;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    "organizacao.atualizar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    nome?: string;
+                    fuso?: string;
+                    cor_primaria?: string | null;
+                    modo_matricula?: components["schemas"]["ModoMatricula"];
+                    limite_whatsapp_mensal?: number | null;
+                    /** Format: email */
+                    email_contato?: string | null;
+                    logo?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "organizacao.logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    tipo_conteudo: "image/png" | "image/jpeg" | "image/webp";
+                    tamanho: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "papeis.permissoes": {
         parameters: {
             query?: never;
@@ -1517,74 +2094,6 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
-            };
-        };
-    };
-    "pessoas.mostrar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                pessoa: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            uuid: string;
-                            igreja: {
-                                uuid: string;
-                                nome: string;
-                            } | null;
-                            vinculo: unknown;
-                            situacao: unknown;
-                            campos: unknown[];
-                            contatos: {
-                                uuid: string;
-                                tipo: string;
-                                valor: string;
-                                e_whatsapp: boolean;
-                                principal: boolean;
-                            }[] | null;
-                            enderecos: {
-                                [key: string]: string | null;
-                            }[] | null;
-                        };
-                        meta: {
-                            acoes: string[];
-                            categorias: unknown[];
-                        };
-                    };
-                };
-            };
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        codigo: "authz.denied";
-                    };
-                };
-            };
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        codigo: "pessoa_inexistente";
-                    };
-                };
             };
         };
     };
@@ -1990,6 +2499,129 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "vinculo.vinculo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    vinculo: components["schemas"]["Vinculo"];
+                    /** Format: uuid */
+                    motivo: string;
+                    matricula?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            uuid: string;
+                            igreja: {
+                                uuid: string;
+                                nome: string;
+                            } | null;
+                            vinculo: string | null;
+                            situacao: string | null;
+                            campos: unknown[];
+                            foto_url: string | null;
+                            completude: {
+                                percentual: number;
+                                obrigatorios: string[];
+                                faltando: string[];
+                            } | null;
+                            contatos: {
+                                uuid: string;
+                                tipo: string;
+                                valor: string;
+                                e_whatsapp: boolean;
+                                principal: boolean;
+                            }[] | null;
+                            enderecos: {
+                                [key: string]: string | null;
+                            }[] | null;
+                        };
+                        meta: {
+                            acoes: string[];
+                            categorias: unknown[];
+                        };
+                    } | string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "vinculo.situacao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    situacao: components["schemas"]["Situacao"];
+                    /** Format: uuid */
+                    motivo: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            uuid: string;
+                            igreja: {
+                                uuid: string;
+                                nome: string;
+                            } | null;
+                            vinculo: string | null;
+                            situacao: string | null;
+                            campos: unknown[];
+                            foto_url: string | null;
+                            completude: {
+                                percentual: number;
+                                obrigatorios: string[];
+                                faltando: string[];
+                            } | null;
+                            contatos: {
+                                uuid: string;
+                                tipo: string;
+                                valor: string;
+                                e_whatsapp: boolean;
+                                principal: boolean;
+                            }[] | null;
+                            enderecos: {
+                                [key: string]: string | null;
+                            }[] | null;
+                        };
+                        meta: {
+                            acoes: string[];
+                            categorias: unknown[];
+                        };
+                    } | string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
         };
     };
 }

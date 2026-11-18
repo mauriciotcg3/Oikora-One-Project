@@ -4,17 +4,25 @@ namespace App\Modules\Avisos\Infrastructure;
 
 use App\Modules\Avisos\Application\DestinosDeAviso;
 use App\Modules\Identidade\Contracts\ContatosDaConta;
+use App\Modules\Pessoas\Contracts\ContatosDaPessoa;
 
 /**
- * Destino pela conta (Contract de Identidade). Pessoa sem conta (contato da ficha) entra com o canal
- * de convite da T-22 e as regras de canal da T-18; até lá, sem endereço o envio falha como definitivo.
+ * Destino pela conta (Contract de Identidade) ou, para pessoa sem conta, pelo contato da ficha (Contract
+ * de Pessoas, onde também fica o descadastro). O celular da conta é o WhatsApp dela.
  */
 final readonly class DestinosPelaConta implements DestinosDeAviso
 {
-    public function __construct(private ContatosDaConta $contatos) {}
+    public function __construct(
+        private ContatosDaConta $contas,
+        private ContatosDaPessoa $pessoas,
+    ) {}
 
-    public function endereco(?int $contaId, ?int $pessoaId, string $canal): ?string
+    public function endereco(?int $contaId, ?int $pessoaId, string $canal, bool $respeitarDescadastro = false): ?string
     {
-        return $contaId === null ? null : $this->contatos->endereco($contaId, $canal);
+        if ($contaId !== null) {
+            return $this->contas->endereco($contaId, $canal);
+        }
+
+        return $pessoaId === null ? null : $this->pessoas->endereco($pessoaId, $canal, $respeitarDescadastro);
     }
 }

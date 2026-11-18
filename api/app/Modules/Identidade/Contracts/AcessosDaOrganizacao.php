@@ -19,4 +19,13 @@ interface AcessosDaOrganizacao
      * @return list<int> só os que estão ativos
      */
     public function ativos(array $ids): array;
+
+    /**
+     * Identificador público de cada acesso da organização em contexto, para respostas (ex.: ator da
+     * auditoria). Acesso revogado continua com o mesmo uuid.
+     *
+     * @param  list<int>  $ids
+     * @return array<int, string>
+     */
+    public function uuids(array $ids): array;
 }

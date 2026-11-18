@@ -2,6 +2,8 @@
 
 use App\Modules\Autorizacao\Contracts\AlcanceAtual;
 use App\Modules\Autorizacao\Domain\Permissao;
+use App\Modules\Avisos\Application\NumerosWhatsApp;
+use App\Modules\Avisos\Application\NumeroWhatsApp;
 use App\Modules\Avisos\Infrastructure\Canais\Postmark\PostmarkFalso;
 use App\Modules\Identidade\Application\ExigenciaDeDoisFatores;
 use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
@@ -356,4 +358,21 @@ function sqlDe(Closure $acao): array
     $acao();
 
     return $consultas;
+}
+
+/** Dá número de WhatsApp ativo às organizações (a T-21 ligará `whatsapp_numeros`). */
+function ligarNumeroWhatsApp(int ...$organizacoes): void
+{
+    app()->instance(NumerosWhatsApp::class, new class($organizacoes) implements NumerosWhatsApp
+    {
+        /** @param  list<int>  $organizacoes */
+        public function __construct(private readonly array $organizacoes) {}
+
+        public function daOrganizacao(int $organizacaoId): ?NumeroWhatsApp
+        {
+            return in_array($organizacaoId, $this->organizacoes, true)
+                ? new NumeroWhatsApp('pn-org-'.$organizacaoId, 'token-org-'.$organizacaoId)
+                : null;
+        }
+    });
 }

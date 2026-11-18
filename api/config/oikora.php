@@ -52,6 +52,18 @@ return [
         'provedores' => env('OIKORA_CODIGOS_PROVEDORES', 'falso'),
     ],
 
+    // Avisos (OIK-ADR-0008 §9, §10, T-18): `falso` em dev e testes; `real` usa Postmark e o número de
+    // WhatsApp da organização.
+    'avisos' => [
+        'provedores' => env('OIKORA_AVISOS_PROVEDORES', 'falso'),
+    ],
+
+    // Arquivos privados (OIK-ADR-0011 §7): logo, fotos e anexos só por URL assinada de curta duração.
+    'arquivos' => [
+        'disco' => env('OIKORA_ARQUIVOS_DISCO', 'arquivos'),
+        'validade_minutos' => (int) env('OIKORA_ARQUIVOS_VALIDADE_MINUTOS', 5),
+    ],
+
     // Elevação do painel (OIK-ADR-0003 §9): expira com 2h sem uso ou 12h no total.
     'painel' => [
         'elevacao_ociosa_minutos' => (int) env('OIKORA_ELEVACAO_OCIOSA_MINUTOS', 120),

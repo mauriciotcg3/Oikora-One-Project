@@ -19,6 +19,8 @@ return [
         // Códigos de identidade (T-11): token do servidor e remetente verificado.
         'token' => env('POSTMARK_SERVER_TOKEN'),
         'remetente' => env('POSTMARK_REMETENTE'),
+        // Avisos (T-18): endereço da plataforma que assina "Nome da Igreja via Oikora".
+        'remetente_avisos' => env('POSTMARK_REMETENTE_AVISOS'),
         'stream' => env('POSTMARK_STREAM', 'outbound'),
     ],
 

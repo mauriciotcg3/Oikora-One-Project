@@ -3,6 +3,7 @@
 namespace App\Modules\Pessoas\Infrastructure\Consultas;
 
 use App\Modules\Pessoas\Application\Consultas\Fichas;
+use App\Modules\Pessoas\Domain\CampoFicha;
 use App\Modules\Pessoas\Infrastructure\Pessoa;
 use App\Modules\Pessoas\Infrastructure\PessoaContato;
 use App\Modules\Pessoas\Infrastructure\PessoaEndereco;
@@ -50,6 +51,51 @@ final class FichasEloquent implements Fichas
                 'principal' => (bool) $contato->getAttribute('principal'),
             ])
             ->all());
+    }
+
+    public function preenchidos(int $id, array $campos): array
+    {
+        $porTabela = ['pessoas' => [], 'pessoa_contatos' => [], 'pessoa_enderecos' => []];
+        foreach ($campos as $chave) {
+            $campo = CampoFicha::tryFrom($chave);
+            if ($campo !== null) {
+                $porTabela[$campo->tabela()][] = $campo;
+            }
+        }
+
+        $preenchidos = [];
+
+        // Colunas vêm só do catálogo (enum), nunca da requisição.
+        if ($porTabela['pessoas'] !== []) {
+            $selecao = implode(', ', array_map(
+                static fn (CampoFicha $campo): string => "({$campo->value} is not null and {$campo->value}::text <> '') as {$campo->value}",
+                $porTabela['pessoas'],
+            ));
+            $linha = Pessoa::query()->selectRaw($selecao)->whereKey($id)->first()?->getAttributes() ?? [];
+            foreach ($porTabela['pessoas'] as $campo) {
+                if (($linha[$campo->value] ?? false) === true) {
+                    $preenchidos[] = $campo->value;
+                }
+            }
+        }
+
+        foreach ($porTabela['pessoa_contatos'] as $campo) {
+            $consulta = PessoaContato::query()->where('pessoa_id', $id);
+            $existe = $campo === CampoFicha::Whatsapp
+                ? $consulta->where('tipo', 'celular')->where('e_whatsapp', true)->exists()
+                : $consulta->where('tipo', $campo->value)->exists();
+            if ($existe) {
+                $preenchidos[] = $campo->value;
+            }
+        }
+
+        foreach ($porTabela['pessoa_enderecos'] as $campo) {
+            if (PessoaEndereco::query()->where('pessoa_id', $id)->whereNotNull($campo->value)->where($campo->value, '<>', '')->exists()) {
+                $preenchidos[] = $campo->value;
+            }
+        }
+
+        return $preenchidos;
     }
 
     public function enderecos(int $id): array

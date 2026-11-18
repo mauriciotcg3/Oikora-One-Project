@@ -70,9 +70,20 @@ final readonly class BuscaDenominacaoPostgres implements BuscaDenominacao
         return $id === null ? null : (int) $id;
     }
 
-    public function cpfEmUso(string $cpf): bool
+    public function cpfEmUso(string $cpf, ?int $exceto = null): bool
     {
-        return $this->semAlcance()->where('cpf_hash', $this->hashDoCpf(preg_replace('/\D+/', '', $cpf) ?? ''))->exists();
+        return $this->semAlcance()
+            ->where('cpf_hash', $this->hashDoCpf(preg_replace('/\D+/', '', $cpf) ?? ''))
+            ->when($exceto !== null, static fn ($consulta) => $consulta->whereKeyNot($exceto))
+            ->exists();
+    }
+
+    public function matriculaEmUso(string $matricula, ?int $exceto = null): bool
+    {
+        return $this->semAlcance()
+            ->whereRaw('lower(matricula) = lower(?)', [trim($matricula)])
+            ->when($exceto !== null, static fn ($consulta) => $consulta->whereKeyNot($exceto))
+            ->exists();
     }
 
     public function duplicados(CriteriosDuplicidade $criterios, ?int $pessoaId = null, int $limite = 10): array

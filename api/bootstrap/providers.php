@@ -7,6 +7,7 @@ use App\Modules\Identidade\IdentidadeServiceProvider;
 use App\Modules\Organizacao\OrganizacaoServiceProvider;
 use App\Modules\Pessoas\PessoasServiceProvider;
 use App\Providers\AppServiceProvider;
+use App\Shared\Arquivos\ArquivosServiceProvider;
 use App\Shared\Cifra\CifraServiceProvider;
 use App\Shared\Observabilidade\ObservabilidadeServiceProvider;
 use App\Shared\Tenancy\TenancyServiceProvider;
@@ -16,6 +17,7 @@ return [
     TenancyServiceProvider::class,
     ObservabilidadeServiceProvider::class,
     CifraServiceProvider::class,
+    ArquivosServiceProvider::class,
     OrganizacaoServiceProvider::class,
     AutorizacaoServiceProvider::class,
     AuditoriaServiceProvider::class,

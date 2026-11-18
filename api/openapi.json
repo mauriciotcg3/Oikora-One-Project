@@ -11,6 +11,148 @@
         }
     ],
     "paths": {
+        "/painel/auditoria": {
+            "get": {
+                "operationId": "auditoria.listar",
+                "tags": [
+                    "Auditoria"
+                ],
+                "parameters": [
+                    {
+                        "name": "de",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "ate",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "evento",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/EventoAuditoria"
+                        }
+                    },
+                    {
+                        "name": "ator",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "alvo_tipo",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]{0,79}$"
+                        }
+                    },
+                    {
+                        "name": "alvo",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 80
+                        }
+                    },
+                    {
+                        "name": "pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000
+                        }
+                    },
+                    {
+                        "name": "por_pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                "25",
+                                "50",
+                                "100"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "por_pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            },
+                                            "required": [
+                                                "pagina",
+                                                "por_pagina",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/auth/login": {
             "post": {
                 "operationId": "authenticatedSession.store",
@@ -540,6 +682,19 @@
                 }
             }
         },
+        "/descadastro": {
+            "post": {
+                "operationId": "avisos.descadastro",
+                "tags": [
+                    "Descadastro"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
         "/auth/2fa/confirmar": {
             "post": {
                 "operationId": "doisFatores.confirmar",
@@ -914,6 +1069,697 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}": {
+            "patch": {
+                "operationId": "ficha.editar",
+                "tags": [
+                    "Ficha"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "secao": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pessoais",
+                                            "documentos",
+                                            "contatos",
+                                            "endereco",
+                                            "saude",
+                                            "eclesiasticos",
+                                            "adicionais"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "secao"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "uuid": {
+                                                            "type": "string"
+                                                        },
+                                                        "igreja": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "uuid": {
+                                                                    "type": "string"
+                                                                },
+                                                                "nome": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "uuid",
+                                                                "nome"
+                                                            ]
+                                                        },
+                                                        "vinculo": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "situacao": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "campos": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        },
+                                                        "foto_url": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "completude": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "percentual": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "obrigatorios": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "faltando": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "percentual",
+                                                                "obrigatorios",
+                                                                "faltando"
+                                                            ]
+                                                        },
+                                                        "contatos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uuid": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "tipo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "valor": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "e_whatsapp": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "principal": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "uuid",
+                                                                    "tipo",
+                                                                    "valor",
+                                                                    "e_whatsapp",
+                                                                    "principal"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "enderecos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "uuid",
+                                                        "igreja",
+                                                        "vinculo",
+                                                        "situacao",
+                                                        "campos",
+                                                        "foto_url",
+                                                        "completude",
+                                                        "contatos",
+                                                        "enderecos"
+                                                    ]
+                                                },
+                                                "meta": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "acoes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "categorias": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "acoes",
+                                                        "categorias"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "data",
+                                                "meta"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "pessoas.mostrar",
+                "tags": [
+                    "Pessoas"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "igreja": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "uuid": {
+                                                            "type": "string"
+                                                        },
+                                                        "nome": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "uuid",
+                                                        "nome"
+                                                    ]
+                                                },
+                                                "vinculo": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "situacao": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "campos": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                },
+                                                "foto_url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "completude": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "percentual": {
+                                                            "type": "integer"
+                                                        },
+                                                        "obrigatorios": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "faltando": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "percentual",
+                                                        "obrigatorios",
+                                                        "faltando"
+                                                    ]
+                                                },
+                                                "contatos": {
+                                                    "type": [
+                                                        "array",
+                                                        "null"
+                                                    ],
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "uuid": {
+                                                                "type": "string"
+                                                            },
+                                                            "tipo": {
+                                                                "type": "string"
+                                                            },
+                                                            "valor": {
+                                                                "type": "string"
+                                                            },
+                                                            "e_whatsapp": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "principal": {
+                                                                "type": "boolean"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "uuid",
+                                                            "tipo",
+                                                            "valor",
+                                                            "e_whatsapp",
+                                                            "principal"
+                                                        ]
+                                                    }
+                                                },
+                                                "enderecos": {
+                                                    "type": [
+                                                        "array",
+                                                        "null"
+                                                    ],
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "igreja",
+                                                "vinculo",
+                                                "situacao",
+                                                "campos",
+                                                "foto_url",
+                                                "completude",
+                                                "contatos",
+                                                "enderecos"
+                                            ]
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "acoes": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "categorias": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "acoes",
+                                                "categorias"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "pessoa_inexistente"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/foto": {
+            "post": {
+                "operationId": "ficha.foto",
+                "tags": [
+                    "Ficha"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tipo_conteudo": {
+                                        "type": "string",
+                                        "enum": [
+                                            "image/png",
+                                            "image/jpeg",
+                                            "image/webp"
+                                        ]
+                                    },
+                                    "tamanho": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 5242880
+                                    }
+                                },
+                                "required": [
+                                    "tipo_conteudo",
+                                    "tamanho"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "url": {
+                                                    "type": "string"
+                                                },
+                                                "metodo": {
+                                                    "type": "string",
+                                                    "const": "PUT"
+                                                },
+                                                "cabecalhos": {
+                                                    "type": "string"
+                                                },
+                                                "caminho": {
+                                                    "type": "string"
+                                                },
+                                                "expira_em": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "url",
+                                                "metodo",
+                                                "cabecalhos",
+                                                "caminho",
+                                                "expira_em"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/igrejas": {
+            "get": {
+                "operationId": "igrejas.listar",
+                "tags": [
+                    "Igrejas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "igrejas.criar",
+                "tags": [
+                    "Igrejas"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 120
+                                    },
+                                    "regional": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "nome"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/igrejas/{igreja}": {
+            "put": {
+                "operationId": "igrejas.editar",
+                "tags": [
+                    "Igrejas"
+                ],
+                "parameters": [
+                    {
+                        "name": "igreja",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 120
+                                    },
+                                    "regional": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     }
                 }
             }
@@ -1429,6 +2275,202 @@
                 }
             }
         },
+        "/painel/organizacao": {
+            "get": {
+                "operationId": "organizacao.mostrar",
+                "tags": [
+                    "Organizacao"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "nome": {
+                                                    "type": "string"
+                                                },
+                                                "fuso": {
+                                                    "type": "string"
+                                                },
+                                                "cor_primaria": {
+                                                    "type": "string"
+                                                },
+                                                "modo_matricula": {
+                                                    "type": "string"
+                                                },
+                                                "limite_whatsapp_mensal": {
+                                                    "type": "string"
+                                                },
+                                                "email_contato": {
+                                                    "type": "string"
+                                                },
+                                                "logo": {
+                                                    "type": "string"
+                                                },
+                                                "logo_url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "nome",
+                                                "fuso",
+                                                "cor_primaria",
+                                                "modo_matricula",
+                                                "limite_whatsapp_mensal",
+                                                "email_contato",
+                                                "logo",
+                                                "logo_url"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "organizacao.atualizar",
+                "tags": [
+                    "Organizacao"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 120
+                                    },
+                                    "fuso": {
+                                        "type": "string"
+                                    },
+                                    "cor_primaria": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "pattern": "^#[0-9A-Fa-f]{6}$"
+                                    },
+                                    "modo_matricula": {
+                                        "$ref": "#/components/schemas/ModoMatricula"
+                                    },
+                                    "limite_whatsapp_mensal": {
+                                        "type": [
+                                            "integer",
+                                            "null"
+                                        ],
+                                        "minimum": 0,
+                                        "maximum": 10000000
+                                    },
+                                    "email_contato": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "email",
+                                        "maxLength": 254
+                                    },
+                                    "logo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/organizacao/logo": {
+            "post": {
+                "operationId": "organizacao.logo",
+                "tags": [
+                    "Organizacao"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tipo_conteudo": {
+                                        "type": "string",
+                                        "enum": [
+                                            "image/png",
+                                            "image/jpeg",
+                                            "image/webp"
+                                        ]
+                                    },
+                                    "tamanho": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 1048576
+                                    }
+                                },
+                                "required": [
+                                    "tipo_conteudo",
+                                    "tamanho"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/painel/permissoes": {
             "get": {
                 "operationId": "papeis.permissoes",
@@ -1743,188 +2785,6 @@
                     },
                     "204": {
                         "description": "No content"
-                    }
-                }
-            }
-        },
-        "/painel/pessoas/{pessoa}": {
-            "get": {
-                "operationId": "pessoas.mostrar",
-                "tags": [
-                    "Pessoas"
-                ],
-                "parameters": [
-                    {
-                        "name": "pessoa",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "uuid": {
-                                                    "type": "string"
-                                                },
-                                                "igreja": {
-                                                    "type": [
-                                                        "object",
-                                                        "null"
-                                                    ],
-                                                    "properties": {
-                                                        "uuid": {
-                                                            "type": "string"
-                                                        },
-                                                        "nome": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "uuid",
-                                                        "nome"
-                                                    ]
-                                                },
-                                                "vinculo": {},
-                                                "situacao": {},
-                                                "campos": {
-                                                    "type": "array",
-                                                    "items": {}
-                                                },
-                                                "contatos": {
-                                                    "type": [
-                                                        "array",
-                                                        "null"
-                                                    ],
-                                                    "items": {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "uuid": {
-                                                                "type": "string"
-                                                            },
-                                                            "tipo": {
-                                                                "type": "string"
-                                                            },
-                                                            "valor": {
-                                                                "type": "string"
-                                                            },
-                                                            "e_whatsapp": {
-                                                                "type": "boolean"
-                                                            },
-                                                            "principal": {
-                                                                "type": "boolean"
-                                                            }
-                                                        },
-                                                        "required": [
-                                                            "uuid",
-                                                            "tipo",
-                                                            "valor",
-                                                            "e_whatsapp",
-                                                            "principal"
-                                                        ]
-                                                    }
-                                                },
-                                                "enderecos": {
-                                                    "type": [
-                                                        "array",
-                                                        "null"
-                                                    ],
-                                                    "items": {
-                                                        "type": "object",
-                                                        "additionalProperties": {
-                                                            "type": [
-                                                                "string",
-                                                                "null"
-                                                            ]
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                            "required": [
-                                                "uuid",
-                                                "igreja",
-                                                "vinculo",
-                                                "situacao",
-                                                "campos",
-                                                "contatos",
-                                                "enderecos"
-                                            ]
-                                        },
-                                        "meta": {
-                                            "type": "object",
-                                            "properties": {
-                                                "acoes": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "categorias": {
-                                                    "type": "array",
-                                                    "items": {}
-                                                }
-                                            },
-                                            "required": [
-                                                "acoes",
-                                                "categorias"
-                                            ]
-                                        }
-                                    },
-                                    "required": [
-                                        "data",
-                                        "meta"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "codigo": {
-                                            "type": "string",
-                                            "const": "pessoa_inexistente"
-                                        }
-                                    },
-                                    "required": [
-                                        "codigo"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "codigo": {
-                                            "type": "string",
-                                            "const": "authz.denied"
-                                        }
-                                    },
-                                    "required": [
-                                        "codigo"
-                                    ]
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -2682,6 +3542,459 @@
                     }
                 }
             }
+        },
+        "/painel/pessoas/{pessoa}/vinculo": {
+            "post": {
+                "operationId": "vinculo.vinculo",
+                "tags": [
+                    "Vinculo"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "vinculo": {
+                                        "$ref": "#/components/schemas/Vinculo"
+                                    },
+                                    "motivo": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "matricula": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 40
+                                    }
+                                },
+                                "required": [
+                                    "vinculo",
+                                    "motivo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "uuid": {
+                                                            "type": "string"
+                                                        },
+                                                        "igreja": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "uuid": {
+                                                                    "type": "string"
+                                                                },
+                                                                "nome": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "uuid",
+                                                                "nome"
+                                                            ]
+                                                        },
+                                                        "vinculo": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "situacao": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "campos": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        },
+                                                        "foto_url": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "completude": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "percentual": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "obrigatorios": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "faltando": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "percentual",
+                                                                "obrigatorios",
+                                                                "faltando"
+                                                            ]
+                                                        },
+                                                        "contatos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uuid": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "tipo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "valor": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "e_whatsapp": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "principal": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "uuid",
+                                                                    "tipo",
+                                                                    "valor",
+                                                                    "e_whatsapp",
+                                                                    "principal"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "enderecos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "uuid",
+                                                        "igreja",
+                                                        "vinculo",
+                                                        "situacao",
+                                                        "campos",
+                                                        "foto_url",
+                                                        "completude",
+                                                        "contatos",
+                                                        "enderecos"
+                                                    ]
+                                                },
+                                                "meta": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "acoes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "categorias": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "acoes",
+                                                        "categorias"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "data",
+                                                "meta"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/situacao": {
+            "post": {
+                "operationId": "vinculo.situacao",
+                "tags": [
+                    "Vinculo"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "situacao": {
+                                        "$ref": "#/components/schemas/Situacao"
+                                    },
+                                    "motivo": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "situacao",
+                                    "motivo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "uuid": {
+                                                            "type": "string"
+                                                        },
+                                                        "igreja": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "uuid": {
+                                                                    "type": "string"
+                                                                },
+                                                                "nome": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "uuid",
+                                                                "nome"
+                                                            ]
+                                                        },
+                                                        "vinculo": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "situacao": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "campos": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        },
+                                                        "foto_url": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "completude": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "percentual": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "obrigatorios": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "faltando": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "percentual",
+                                                                "obrigatorios",
+                                                                "faltando"
+                                                            ]
+                                                        },
+                                                        "contatos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uuid": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "tipo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "valor": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "e_whatsapp": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "principal": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "uuid",
+                                                                    "tipo",
+                                                                    "valor",
+                                                                    "e_whatsapp",
+                                                                    "principal"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "enderecos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "uuid",
+                                                        "igreja",
+                                                        "vinculo",
+                                                        "situacao",
+                                                        "campos",
+                                                        "foto_url",
+                                                        "completude",
+                                                        "contatos",
+                                                        "enderecos"
+                                                    ]
+                                                },
+                                                "meta": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "acoes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "categorias": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "acoes",
+                                                        "categorias"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "data",
+                                                "meta"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -2737,6 +4050,52 @@
                 ],
                 "title": "EscopoTipo"
             },
+            "EventoAuditoria": {
+                "type": "string",
+                "enum": [
+                    "pessoa.criada",
+                    "pessoa.atualizada",
+                    "pessoa.excluida",
+                    "pessoa.recuperada",
+                    "pessoa.purgada",
+                    "pessoa.mesclada",
+                    "pessoa.mesclagem_desfeita",
+                    "pessoa.transferencia_solicitada",
+                    "pessoa.transferencia_aprovada",
+                    "pessoa.transferencia_recusada",
+                    "pessoa.importacao_concluida",
+                    "pessoa.importacao_desfeita",
+                    "pessoas.lista_valor_criado",
+                    "pessoas.lista_valor_atualizado",
+                    "pessoas.obrigatorios_atualizados",
+                    "exportacao.pedida",
+                    "exportacao.concluida",
+                    "exportacao.negada",
+                    "acesso.convite_emitido",
+                    "acesso.concedido",
+                    "acesso.revogado",
+                    "autorizacao.papel_criado",
+                    "autorizacao.papel_atualizado",
+                    "autorizacao.atribuicao_concedida",
+                    "autorizacao.atribuicao_revogada",
+                    "authz.escalation_blocked",
+                    "authz.last_admin_blocked",
+                    "suporte.autorizacao_criada",
+                    "suporte.autorizacao_revogada",
+                    "suporte.autorizacao_expirada",
+                    "auth.elevacao",
+                    "authz.permission_requested",
+                    "authz.permission_request_cancelled",
+                    "authz.permission_request_approved",
+                    "authz.permission_request_rejected",
+                    "authz.permission_grant_revoked",
+                    "authz.permission_grant_expired",
+                    "organizacao.configurada",
+                    "organizacao.igreja_criada",
+                    "organizacao.igreja_atualizada"
+                ],
+                "title": "EventoAuditoria"
+            },
             "LoginRequest": {
                 "type": "object",
                 "properties": {
@@ -2755,6 +4114,14 @@
                     "password"
                 ],
                 "title": "LoginRequest"
+            },
+            "ModoMatricula": {
+                "type": "string",
+                "enum": [
+                    "manual",
+                    "automatica"
+                ],
+                "title": "ModoMatricula"
             },
             "Permissao": {
                 "type": "string",
@@ -2786,9 +4153,18 @@
                 ],
                 "title": "Permissao"
             },
+            "Situacao": {
+                "type": "string",
+                "description": "Situa\u00e7\u00e3o da pessoa (RN-06, RN-07): sem valor gravado, est\u00e1 ativa. A inativa\u00e7\u00e3o n\u00e3o muda o v\u00ednculo.\n",
+                "enum": [
+                    "ativa",
+                    "inativa"
+                ],
+                "title": "Situacao"
+            },
             "Vinculo": {
                 "type": "string",
-                "description": "V\u00ednculos da pessoa com a igreja (RN-03). S\u00f3 `membro` tem matr\u00edcula.\n",
+                "description": "V\u00ednculos da pessoa com a igreja (RN-03) e a m\u00e1quina de estados (RN-07; plan.md \u00a76): s\u00f3 avan\u00e7a Visitante \u2192 Frequentador \u2192 Membro, sem pular e sem voltar. Quem deixa de participar \u00e9 inativado (Situacao), e a reativa\u00e7\u00e3o volta ao mesmo v\u00ednculo. S\u00f3 `membro` tem matr\u00edcula.\n",
                 "enum": [
                     "visitante",
                     "frequentador",

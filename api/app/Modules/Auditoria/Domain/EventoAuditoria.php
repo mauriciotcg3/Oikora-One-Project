@@ -41,6 +41,9 @@ enum EventoAuditoria: string
     case SolicitacaoPermissaoRecusada = 'authz.permission_request_rejected';
     case ConcessaoPermissaoRevogada = 'authz.permission_grant_revoked';
     case ConcessaoPermissaoExpirada = 'authz.permission_grant_expired';
+    case OrganizacaoConfigurada = 'organizacao.configurada';
+    case IgrejaCriada = 'organizacao.igreja_criada';
+    case IgrejaAtualizada = 'organizacao.igreja_atualizada';
 
     /** @return list<string> */
     public function metadadosPermitidos(): array
@@ -67,6 +70,10 @@ enum EventoAuditoria: string
             self::PermissaoSolicitada, self::SolicitacaoPermissaoCancelada, self::SolicitacaoPermissaoRecusada,
             self::SolicitacaoPermissaoAprovada => ['solicitante_acesso_id', 'permissoes', 'escopos', 'categorias_sensiveis', 'duracao_horas', 'concessao_id', 'expira_em'],
             self::ConcessaoPermissaoRevogada, self::ConcessaoPermissaoExpirada => ['solicitacao_id', 'acesso_alvo_id', 'permissoes', 'escopos', 'categorias_sensiveis', 'expira_em'],
+            // Configuração da organização e igrejas: os campos alterados vão em `campos`; nome e contato
+            // são texto livre e ficam fora. O modo de matrícula, codificado, entra antes e depois.
+            self::OrganizacaoConfigurada => ['modo_matricula_antes', 'modo_matricula_depois'],
+            self::IgrejaCriada, self::IgrejaAtualizada => ['regional_id'],
             default => [],
         };
     }

@@ -29,22 +29,7 @@ final class PessoasController
             return new JsonResponse(['codigo' => 'pessoa_inexistente'], Response::HTTP_NOT_FOUND);
         }
 
-        $dados = [
-            'uuid' => $ficha->uuid,
-            'igreja' => $ficha->igreja,
-            'vinculo' => $ficha->vinculo,
-            'situacao' => $ficha->situacao,
-            'campos' => $ficha->campos,
-        ];
-        if ($ficha->contatos !== null) {
-            $dados['contatos'] = $ficha->contatos;
-            $dados['enderecos'] = $ficha->enderecos;
-        }
-
-        return new JsonResponse([
-            'data' => $dados,
-            'meta' => ['acoes' => $ficha->acoes, 'categorias' => $ficha->categorias],
-        ]);
+        return FichaResposta::de($ficha);
     }
 
     public function buscar(Request $request, AlcanceAtual $alcance, BuscaDenominacao $busca, CatalogoIgrejas $igrejas): JsonResponse

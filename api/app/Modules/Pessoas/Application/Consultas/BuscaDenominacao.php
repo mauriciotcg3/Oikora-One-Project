@@ -18,8 +18,11 @@ interface BuscaDenominacao
     /** Id interno da pessoa da organização, dentro ou fora do alcance (para gravar pares, T-26). */
     public function idPorUuid(string $uuid): ?int;
 
-    /** O CPF já pertence a alguém da organização, inclusive na lixeira (RN-01). */
-    public function cpfEmUso(string $cpf): bool;
+    /** O CPF já pertence a alguém da organização, inclusive na lixeira (RN-01), fora `$exceto`. */
+    public function cpfEmUso(string $cpf, ?int $exceto = null): bool;
+
+    /** A matrícula já pertence a alguém da organização, inclusive na lixeira (RN-07), fora `$exceto`. */
+    public function matriculaEmUso(string $matricula, ?int $exceto = null): bool;
 
     /**
      * Possíveis duplicados (RN-23; U-20), inclusive na lixeira, sem os pares marcados como "é outra pessoa"

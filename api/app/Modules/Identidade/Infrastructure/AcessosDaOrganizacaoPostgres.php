@@ -22,6 +22,20 @@ final class AcessosDaOrganizacaoPostgres implements AcessosDaOrganizacao
         return $acesso === null ? null : ['id' => (int) $acesso->id, 'ativo' => $acesso->estado === 'ativo'];
     }
 
+    public function uuids(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $uuids = [];
+        foreach (DB::table('acessos')->whereIn('id', $ids)->get(['id', 'uuid']) as $acesso) {
+            $uuids[(int) $acesso->id] = (string) $acesso->uuid;
+        }
+
+        return $uuids;
+    }
+
     public function ativos(array $ids): array
     {
         if ($ids === []) {

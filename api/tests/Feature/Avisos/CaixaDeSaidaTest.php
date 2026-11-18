@@ -19,6 +19,8 @@ beforeEach(function (): void {
     $igreja = criarIgreja($this->org);
     $this->conta = criarContaVerificada(['email' => 'convidada@exemplo.test', 'celular' => '+5511912340000']);
     criarAcesso($this->org, $this->conta, criarPessoa($this->org, $igreja));
+    // Convite sai pelo WhatsApp só com número ativo da organização (T-18).
+    ligarNumeroWhatsApp($this->org);
     $this->email = app(PostmarkFalso::class);
     $this->whatsapp = app(MetaWhatsAppFalso::class);
 });

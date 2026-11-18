@@ -13,18 +13,7 @@ final class PostmarkCodigos extends CanalHttp implements CanalDeEmail
 {
     private const URL = 'https://api.postmarkapp.com/email';
 
-    /** ErrorCode do Postmark que não se resolvem com nova tentativa. */
-    private const DEFINITIVOS = [
-        10 => 'credencial_invalida',
-        300 => 'email_invalido',
-        406 => 'destinatario_inativo',
-        412 => 'conta_restrita',
-    ];
-
-    public function provedor(): string
-    {
-        return 'postmark';
-    }
+    use ErrosDoPostmark;
 
     public function enviar(MensagemDeCodigo $mensagem): string
     {
@@ -44,16 +33,5 @@ final class PostmarkCodigos extends CanalHttp implements CanalDeEmail
             ]));
 
         return (string) $resposta->json('MessageID');
-    }
-
-    protected function classificar(Response $resposta): array
-    {
-        if ($this->statusTemporario($resposta)) {
-            return ['postmark_indisponivel', true];
-        }
-
-        $codigo = (int) $resposta->json('ErrorCode');
-
-        return [self::DEFINITIVOS[$codigo] ?? 'postmark_'.$codigo, false];
     }
 }

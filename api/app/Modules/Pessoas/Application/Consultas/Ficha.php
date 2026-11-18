@@ -2,7 +2,9 @@
 
 namespace App\Modules\Pessoas\Application\Consultas;
 
-/** Ficha já projetada: só o que quem consulta pode ver. */
+use App\Modules\Pessoas\Domain\Completude;
+
+/** Ficha já projetada: só o que quem consulta pode ver, mais a completude e a foto por URL assinada. */
 final readonly class Ficha
 {
     /**
@@ -23,5 +25,7 @@ final readonly class Ficha
         public ?array $enderecos,
         public array $categorias,
         public array $acoes,
+        public ?Completude $completude = null,
+        public ?string $fotoUrl = null,
     ) {}
 }

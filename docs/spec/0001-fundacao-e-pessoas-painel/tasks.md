@@ -441,7 +441,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** RN-21 — atualizar `docs/modules/avisos.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `CaixaDeSaida` aplica as regras por categoria (convite em todos os canais com contato; serviço por um canal, preferido ou WhatsApp da organização, senão e-mail), `JanelaDiurna` (8h–21h no fuso da organização; fora dela o envio nasce `agendado` e o `envios:varrer` o solta), `ReenviarPeloProximoCanal` (falha definitiva ou WhatsApp sem entrega em 30 min), `preferencias_aviso` com `PreferenciasDeAviso` (tipo obrigatório não se desliga; serviço só troca o canal), `Descadastrar` (link assinado `POST /api/v1/descadastro`, RFC 8058, e "SAIR"), Contract `ContatosDaPessoa` (Pessoas) e `PerfilDeEnvio` (Organização, com `email_contato`). Adapters reais `PostmarkAvisos` ("Nome via Oikora", responder-para, Blade sem dado da ficha, `List-Unsubscribe` em tipo não obrigatório) e `MetaWhatsAppAvisos` (número da organização) atrás de `OIKORA_AVISOS_PROVEDORES`. `RegrasCanalTest` 11 e `DescadastroTest` 9 Green. Pendente: `whatsapp_numeros` real (T-21; até lá `NumerosWhatsAppIndisponiveis`), webhook que chama o "SAIR" e confirma entrega (T-19), templates aprovados na Meta.
 
 ## T-19 — Avisos: webhooks de status
 - **Issue:** #19
@@ -575,7 +575,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `GET|PUT /painel/organizacao` (nome, fuso IANA, cor com contraste AA contra o texto branco do tema, `email_contato`, limite de WhatsApp e logo pelo caminho emitido; modo de matrícula exige `pessoas.configurar`, U-18), `POST /painel/organizacao/logo` (PNG, JPEG ou WebP até 1 MB; URL assinada de `PUT`, 5 min), leitura do logo por URL assinada; `GET|POST /painel/igrejas` e `PUT /painel/igrejas/{id}` com `igrejas.gerir` no escopo organização, sem rota de exclusão. Porta `Shared\Arquivos\ArquivosPrivados` sobre o disco `arquivos` (local com `serve` em dev e testes; S3 em produção). Auditoria `organizacao.configurada` e `organizacao.igreja_criada|igreja_atualizada` só com nomes de campo. `IgrejasTest` 6 e `ConfiguracaoOrganizacaoTest` 8 Green. Pendente: driver S3/MinIO (`league/flysystem-aws-s3-v3` e variáveis do bucket) para produção.
 
 ---
 
@@ -646,7 +646,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-14).
 - **Regra de negócio associada:** RN-10, RN-13 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `PATCH /painel/pessoas/{id}` com `secao` (`pessoais`, `documentos`, `contatos`, `endereco`, `saude`, `eclesiasticos`, `adicionais`) e os campos dela; `EditarFichaAction` exige `pessoas.editar` na igreja da pessoa e, em seção sensível, o `…editar` da categoria (sem ele, 422 por campo `sem_permissao_categoria`); CPF em uso por outra pessoa (inclusive na lixeira) → 422 `cpf_em_uso`; contatos substituídos em E.164 e minúsculas, um principal por tipo, "é WhatsApp" só em celular, sem perder descadastro de contato mantido; auditoria `pessoa.atualizada` só com nomes dos campos que mudaram (comparação decifrada). `Domain/Completude` (piso, lista vazia = 100%) sobre os obrigatórios do vínculo, conferida sem ler valores; a ficha devolve `completude` e `foto_url` (URL assinada). `POST /painel/pessoas/{id}/foto` (PNG, JPEG ou WebP até 5 MB) e foto aceita só no prefixo da pessoa. A Action ficou `Actions/EditarFichaAction.php`. `FichaTest` 8 e `CompletudeTest` 3 Green.
 
 ## T-28 — Vínculo, situação e matrícula
 - **Issue:** #28
@@ -669,7 +669,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-06, CA-15, CA-16).
 - **Regra de negócio associada:** RN-03, RN-05, RN-06, RN-07 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `Domain/Vinculo::avancarPara` (só um passo à frente; `TransicaoVinculoInvalida` com a mensagem e o próximo vínculo) e `Domain/Situacao` (sem valor = ativa; listas de motivo próprias, U-28). `POST /painel/pessoas/{id}/vinculo` (`AlterarVinculoAction`: motivo ativo de `motivo_vinculo`, pessoa inativa recusada, Membro no modo manual exige matrícula livre na organização inclusive na lixeira — `matricula_obrigatoria`, `matricula_em_uso` —, modo `automatica` → `matricula_automatica_indisponivel`, mudar o vínculo desliga `novo_convertido`) e `POST /painel/pessoas/{id}/situacao` (`AlterarSituacaoAction`: inativar e reativar com motivo, vínculo e matrícula mantidos). Eventos `vinculo_alterado` e `situacao_alterada` na linha do tempo (motivo e de/para), auditoria `pessoa.atualizada` só com nomes de campo; recusa de regra em 422 com `codigo` e `mensagem`. `VinculoTest` 7 e `VinculoSituacaoTest` 7 Green.
 
 ## T-29 — Linha do tempo manual, relacionamentos, funções e tipo de membro
 - **Issue:** #29
@@ -1080,7 +1080,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-12, parte da consulta).
 - **Regra de negócio associada:** RN-15 — atualizar `docs/modules/auditoria.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `GET /painel/auditoria` (`ConsultarAuditoria` em `Application/Consultas`, `AuditoriaController`): só com `auditoria.ver`; no escopo organização vê tudo da organização ativa (RLS), em escopo menor só eventos das igrejas do alcance (sem os de governança, que não têm igreja); paginada em 25, 50 ou 100, por `ocorrido_em` decrescente, com `meta.total`; filtros de período (datas no fuso da organização, `ate` inclusivo), evento (catálogo), ator (uuid do acesso; desconhecido → lista vazia) e alvo (`alvo_tipo`, `alvo`). Resposta com `campos` e `metadados` codificados, ator pelo uuid do acesso (`AcessosDaOrganizacao::uuids`) e igreja pelo resumo. `ConsultaAuditoriaTest` 6 Green.
 
 ---
 

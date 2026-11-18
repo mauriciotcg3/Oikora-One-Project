@@ -18,9 +18,20 @@ final readonly class Resultado
         return new self($status, null, $dados);
     }
 
-    public static function falha(int $status, string $codigo): self
+    /** @param  array<string, mixed>  $dados  detalhes da recusa (ex.: mensagem e próximo passo) */
+    public static function falha(int $status, string $codigo, array $dados = []): self
     {
-        return new self($status, $codigo, []);
+        return new self($status, $codigo, $dados);
+    }
+
+    /**
+     * 422 por campo, no formato padrão do Laravel (`errors`), montado pela borda.
+     *
+     * @param  array<string, string>  $erros  campo → código do erro
+     */
+    public static function invalido(array $erros): self
+    {
+        return new self(422, 'campos_invalidos', ['erros' => $erros]);
     }
 
     public function sucesso(): bool
