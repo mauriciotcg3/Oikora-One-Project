@@ -1176,7 +1176,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-41); gate verde; lint de fronteiras aprovado.
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em 2026-11-20: `shared/ui/{EstadoCarregando,EstadoVazio,EstadoSucesso,EstadoAviso,EstadoErro,EstadoIndisponivel,DetalhesTecnicos,AjudaContextual}/` (um `index.ts` por componente, textos só por props), `shared/observabilidade/ui.ts` (`registrarEventoUi`, sem valores); erro e indisponível em `role=alert`, carregando/sucesso/aviso em `status`, identificadores só sob "Detalhes técnicos". 7 testes; `pnpm gate` verde, 38 testes, 266,05 KB (componentes ainda fora da entrada).
 
 ## T-51 — UI Standard: shell do painel, navegação e menu por capacidades
 - **Issue:** #72

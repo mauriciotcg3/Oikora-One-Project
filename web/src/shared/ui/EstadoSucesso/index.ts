@@ -1,0 +1,1 @@
+export { EstadoSucesso } from './EstadoSucesso'
