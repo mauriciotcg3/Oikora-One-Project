@@ -464,7 +464,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Codificada em W6 (2026-11-20): `GET|POST /api/v1/webhooks/meta` e `POST /api/v1/webhooks/{postmark|twilio}` sem sessão, com limite de taxa e validação de Meta HMAC-SHA256, Postmark HTTP Basic e Twilio HMAC-SHA1; entrada responde antes do processamento e envia só evento normalizado à fila `webhooks`. `ProcessarWebhook` localiza o tenant por id externo em porta estreita fora da RLS, instala o contexto na transação e atualiza `envios` sem regressão; bounce/falha definitiva marca `entrega_falhou_em`, spam descadastra e id desconhecido não produz efeito. Payload bruto não é persistido. `WebhooksTest`: 9 Green / 26 asserções; Avisos: 66 Green / 218 asserções; PHPStan sem erros.
 
 ## T-20 — Avisos: caixa de avisos, uso e limite de WhatsApp
 - **Issue:** #20

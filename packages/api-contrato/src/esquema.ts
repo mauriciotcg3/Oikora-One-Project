@@ -669,6 +669,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/webhooks/meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["webhook.confirmarMeta"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/webhooks/{provedor}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["webhook.receber"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -736,6 +768,18 @@ export interface components {
         };
         /** @description Unauthenticated */
         AuthenticationException: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @description Error overview. */
+                    message: string;
+                };
+            };
+        };
+        /** @description Not found */
+        ModelNotFoundException: {
             headers: {
                 [name: string]: unknown;
             };
@@ -2622,6 +2666,79 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "webhook.confirmarMeta": {
+        parameters: {
+            query?: {
+                "hub[mode]"?: string;
+                "hub[verify_token]"?: string;
+                "hub[challenge]"?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description An error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "webhook.receber": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provedor: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
 }

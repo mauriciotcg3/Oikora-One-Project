@@ -1,0 +1,8 @@
+{
+  "RecordType": "Bounce",
+  "MessageID": "postmark-bounce-123",
+  "Type": "HardBounce",
+  "TypeCode": 1,
+  "Email": "pessoa@exemplo.test",
+  "BouncedAt": "2026-11-20T12:00:00Z"
+}

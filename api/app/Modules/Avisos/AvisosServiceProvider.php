@@ -8,9 +8,11 @@ use App\Modules\Avisos\Application\CanalDeSms;
 use App\Modules\Avisos\Application\CanalDeWhatsApp;
 use App\Modules\Avisos\Application\DestinosDeAviso;
 use App\Modules\Avisos\Application\EnvioCodigoPelaFila;
+use App\Modules\Avisos\Application\EnviosExternos;
 use App\Modules\Avisos\Application\LinksDeDescadastro;
 use App\Modules\Avisos\Application\NumerosWhatsApp;
 use App\Modules\Avisos\Application\RegistrarAvisos;
+use App\Modules\Avisos\Application\WebhooksExternos;
 use App\Modules\Avisos\Contracts\Avisos;
 use App\Modules\Avisos\Contracts\EnvioCodigo;
 use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\MetaWhatsAppCodigos;
@@ -26,6 +28,8 @@ use App\Modules\Avisos\Infrastructure\Console\VarrerEnvios;
 use App\Modules\Avisos\Infrastructure\DestinosPelaConta;
 use App\Modules\Avisos\Infrastructure\LinkDeDescadastroAssinado;
 use App\Modules\Avisos\Infrastructure\NumerosWhatsAppIndisponiveis;
+use App\Modules\Avisos\Infrastructure\Webhooks\LocalizadorEnvioExterno;
+use App\Modules\Avisos\Infrastructure\Webhooks\WebhooksDosProvedores;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -50,6 +54,8 @@ class AvisosServiceProvider extends ServiceProvider
         $this->app->bind(LinksDeDescadastro::class, LinkDeDescadastroAssinado::class);
         // Número de WhatsApp da organização: `whatsapp_numeros` chega com a T-21; até lá, nenhum ativo.
         $this->app->bind(NumerosWhatsApp::class, NumerosWhatsAppIndisponiveis::class);
+        $this->app->bind(WebhooksExternos::class, WebhooksDosProvedores::class);
+        $this->app->bind(EnviosExternos::class, LocalizadorEnvioExterno::class);
 
         $this->app->singleton(PostmarkFalso::class);
         $this->app->singleton(MetaWhatsAppFalso::class);
