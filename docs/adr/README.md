@@ -25,3 +25,4 @@ substitua).
 | [OIK-ADR-0011](0011-hospedagem-ambientes-e-backups.md) | Hospedagem, ambientes e backups — AWS São Paulo com VM Lightsail, RDS PostgreSQL 17 e Cloudflare | Aceito |
 | [OIK-ADR-0012](0012-solicitacao-e-concessao-de-permissoes.md) | Solicitação e concessão temporária de permissões | Aceito |
 | [OIK-ADR-0013](0013-execucao-da-spec-em-ondas.md) | Execução da spec em ondas | Aceito |
+| [OIK-ADR-0014](0014-padrao-de-experiencia-da-interface.md) | Padrão de experiência da interface sobre MUI | Aceito |
