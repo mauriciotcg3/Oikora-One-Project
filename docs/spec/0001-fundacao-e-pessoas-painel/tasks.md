@@ -19,10 +19,12 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 | W4 | T-11, T-16, T-26, T-37, T-47 |
 | W5 | T-18, T-24, T-27, T-28, T-46 |
 | W6 | T-19, T-22, T-29, T-34 |
-| W7 | T-20, T-23, T-30, T-32, T-35, T-38, T-40, T-49, T-50, T-51, T-52, T-53 |
-| W8 | T-21, T-31, T-33, T-36, T-48, T-54 |
-| W9 | T-39, T-41, T-42, T-43, T-44, T-55, T-56, T-57 |
+| W7 | T-20, T-23, T-30, T-32, T-35, T-38, T-40 |
+| W8 | T-21, T-31, T-33, T-36, T-48 |
+| W9 | T-39, T-41, T-42, T-43, T-44 |
 | W10 | T-45 |
+| WUI-1 — UI Standard (frontend) | T-49, T-50, T-51, T-52, T-53 |
+| WUI-2 — Auditoria e rascunhos (depende de backend: T-22, T-32) | T-54, T-55, T-56, T-57 |
 
 ---
 
@@ -1137,7 +1139,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 
 ## T-49 — UI Standard: fundação visual (tokens, paleta semântica e contraste)
 - **Issue:** #70
-- **Onda:** W7
+- **Onda:** WUI-1
 - **Depende de:** T-37
 - **Objetivo:** definir tokens do Oikora UI Standard no tema MUI: paleta semântica success/warning/info nos dois esquemas, bordas de controle com contraste ≥ 3:1, escala de espaçamento e foco visível; sem alterar o botão do login.
 - **Context Pack:** `context/T-49.md`
@@ -1158,7 +1160,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 
 ## T-50 — UI Standard: componentes de estado, detalhes técnicos e ajuda contextual
 - **Issue:** #71
-- **Onda:** W7
+- **Onda:** WUI-1
 - **Depende de:** T-49
 - **Objetivo:** criar em `shared/ui/<Componente>/` os componentes de estado (carregando, vazio, sucesso, aviso, erro, indisponível), `DetalhesTecnicos` e `AjudaContextual`, com contrato de papéis ARIA, textos recebidos por props e telemetria `ui.*` sem dado pessoal.
 - **Context Pack:** `context/T-50.md`
@@ -1180,7 +1182,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 
 ## T-51 — UI Standard: shell do painel, navegação e menu por capacidades
 - **Issue:** #72
-- **Onda:** W7
+- **Onda:** WUI-1
 - **Depende de:** T-50
 - **Objetivo:** montar o shell do painel (cabeçalho, navegação lateral responsiva, pular ao conteúdo, ajuda em posição fixa) com itens montados pelas capacidades do `/me`, incluindo o menu 'Auditoria'; escopar a densidade dos botões do tema ao login.
 - **Context Pack:** `context/T-51.md`
@@ -1197,11 +1199,11 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-42); gate verde; entrada ≤ 350 KB.
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em WUI-1 (2026-11-20): `app/painel/{Shell,Navegacao,PaginaAuditoria,capacidades}`; rotas do painel sob o layout `shell` (login fora); menu montado pelas capacidades do `/me` (Início sempre, Auditoria com `auditoria.ver`; acesso direto sem a capacidade mostra aviso de acesso negado); pular ao conteúdo, navegação estreita em `Drawer` (Esc devolve o foco), `aria-current=page`, ajuda fixa no canto. Botão grande/arredondado do login passou a `size="large"` (padrão do tema agora é a densidade normal). 5 testes; `pnpm gate` verde, 275,13 KB de 350 KB. Itens de menu das demais telas entram com suas rotas (T-55 e seguintes).
 
 ## T-52 — UI Standard: formulários e jornadas guiadas
 - **Issue:** #73
-- **Onda:** W7
+- **Onda:** WUI-1
 - **Depende de:** T-50
 - **Objetivo:** criar o padrão de jornada guiada (etapas, validação junto ao campo, foco no primeiro erro, confirmação antes de ação irreversível) sobre `shared/forms`; salvar e retomar fica fora (OIK-ADR-0016, T-57).
 - **Context Pack:** `context/T-52.md`
@@ -1218,11 +1220,11 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-43); gate verde.
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em WUI-1 (2026-11-20): `shared/ui/{JornadaGuiada,ConfirmacaoIrreversivel}/`, `etapaComErro422` em `shared/forms`; validação da etapa ao avançar com foco no primeiro erro, valores preservados ao voltar, anúncio "Etapa n de N", 422 leva à etapa do campo (foco depois de montar), confirmação em `alertdialog` com foco inicial em cancelar. 5 testes; `pnpm gate` verde.
 
 ## T-53 — UI Standard: filtros na URL, tabela e detalhe progressivo
 - **Issue:** #74
-- **Onda:** W7
+- **Onda:** WUI-1
 - **Depende de:** T-50, T-51, T-52
 - **Objetivo:** criar `FiltrosNaUrl`, tabela com destaque de falha por texto e ícone, e painel de detalhe em camadas, com DataGrid MIT carregado por rota.
 - **Context Pack:** `context/T-53.md`
@@ -1239,11 +1241,11 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-44, CA-47); build mostra DataGrid em chunk separado do `painel-*.js`.
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em WUI-1 (2026-11-20) com DESVIO: `shared/ui/{FiltrosNaUrl,TabelaDeRegistros,DetalheEmCamadas}/`; filtros na URL (zod por campo, valor inválido ignorado, aplicar/limpar), tabela com texto "Falha" + ícone e botão por linha, detalhe em `Drawer` modal com resumo e `DetalhesTecnicos` sob demanda. 5 testes. A tabela usa `Table` do MUI, sem DataGrid: o plano §14 proíbe dependência nova (`package.json`/lockfile são pontos quentes) e o DataGrid não está instalado. Pendente decisão: adicionar `@mui/x-data-grid` (e então carregar por rota e conferir chunk separado) ou manter `Table`; o critério "DataGrid em chunk separado" do CA-44 não foi verificado.
 
 ## T-54 — Auditoria (API): filtro por igreja, busca, ator legível e correlação
 - **Issue:** #75
-- **Onda:** W8
+- **Onda:** WUI-2
 - **Depende de:** T-05, T-22, T-32, T-46, T-47
 - **Objetivo:** estender `GET /painel/auditoria` com filtro `igreja`, busca textual por evento/alvo, nome do ator e `trace_id`, sem valores de campo; inclui `resultado`, `codigo_falha` e gravação da falha em transação própria (OIK-ADR-0015).
 - **Context Pack:** `context/T-54.md`
@@ -1264,7 +1266,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 
 ## T-55 — Auditoria (painel): consulta, trilha e detalhe técnico progressivo
 - **Issue:** #76
-- **Onda:** W9
+- **Onda:** WUI-2
 - **Depende de:** T-51, T-53, T-54
 - **Objetivo:** criar `features/Auditoria` com menu próprio, busca, filtros na URL, destaque, trilha de um alvo, resumo compreensível e detalhe técnico progressivo, integrados ao `GET /painel/auditoria`; filtro e destaque de 'resultado' conforme a OIK-ADR-0015 (T-54).
 - **Context Pack:** `context/T-55.md`
@@ -1286,7 +1288,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 
 ## T-56 — UI Standard: documentação e exemplos do padrão
 - **Issue:** #77
-- **Onda:** W9
+- **Onda:** WUI-2
 - **Depende de:** T-52, T-55
 - **Objetivo:** documentar tokens, componentes, contratos de comportamento e jornadas em `docs/` com exemplos verificados por teste, sem nova ferramenta de catálogo (OPEN-UI-03).
 - **Context Pack:** `context/T-56.md`
@@ -1305,7 +1307,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 
 ## T-57 — Rascunhos de jornada guiada (API) e integração na jornada
 - **Issue:** #78
-- **Onda:** W9
+- **Onda:** WUI-2
 - **Depende de:** T-52, T-05
 - **Objetivo:** criar `rascunhos_jornada` com endpoints de ler, gravar com `versao` e descartar, expiração por job, e ligar o salvar e retomar à `JornadaGuiada` (OIK-ADR-0016).
 - **Context Pack:** `context/T-57.md`

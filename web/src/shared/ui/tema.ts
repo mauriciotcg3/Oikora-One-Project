@@ -76,7 +76,8 @@ export const temaOikora = createTheme({
     },
     MuiButton: {
       defaultProps: { disableElevation: true },
-      styleOverrides: { root: { borderRadius: 999, minHeight: 52 } },
+      // Botão grande e arredondado do login (protótipo aprovado) só em `size="large"`; o painel usa a densidade padrão.
+      styleOverrides: { sizeLarge: { borderRadius: 999, minHeight: 52 } },
     },
     MuiOutlinedInput: {
       styleOverrides: {

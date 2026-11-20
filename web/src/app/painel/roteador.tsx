@@ -2,6 +2,8 @@ import { createRootRoute, createRoute, createRouter, Outlet, useNavigate, type R
 import type { ReactNode } from 'react'
 import { PaginaLogin } from '../../features/Identidade'
 import { InicioPainel } from './InicioPainel'
+import { PaginaAuditoria } from './PaginaAuditoria'
+import { Shell } from './Shell'
 
 // Rotas da entrada `painel` (OIK-ADR-0006 §3), servidas sob /painel.
 
@@ -22,9 +24,12 @@ function TelaLogin(): ReactNode {
 }
 
 const raiz = createRootRoute({ component: Outlet })
-const rotaInicio = createRoute({ getParentRoute: () => raiz, path: '/', component: InicioPainel })
+// Telas autenticadas ficam dentro do shell; o login fica fora dele.
+const rotaShell = createRoute({ getParentRoute: () => raiz, id: 'shell', component: Shell })
+const rotaInicio = createRoute({ getParentRoute: () => rotaShell, path: '/', component: InicioPainel })
+const rotaAuditoria = createRoute({ getParentRoute: () => rotaShell, path: 'auditoria', component: PaginaAuditoria })
 const rotaLogin = createRoute({ getParentRoute: () => raiz, path: 'login', component: TelaLogin })
-const arvore = raiz.addChildren([rotaInicio, rotaLogin])
+const arvore = raiz.addChildren([rotaShell.addChildren([rotaInicio, rotaAuditoria]), rotaLogin])
 
 export function criarRoteador(historia?: RouterHistory) {
   return createRouter({ routeTree: arvore, basepath: '/painel', history: historia })

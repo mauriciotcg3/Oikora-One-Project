@@ -196,7 +196,7 @@ export function FormularioCodigo(props: Props): ReactNode {
             {dica?.texto}
           </Dica>
         </Box>
-        <Button type="submit" variant="contained" fullWidth loading={confirmando} loadingPosition="start">
+        <Button type="submit" variant="contained" size="large" fullWidth loading={confirmando} loadingPosition="start">
           {confirmando ? t('codigo.confirmando') : t('codigo.confirmar')}
         </Button>
       </Box>

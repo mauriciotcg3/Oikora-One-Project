@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 export function InicioPainel(): ReactNode {
   const { t } = useTranslation('painel')
   return (
-    <Box component="main" sx={{ minHeight: '100dvh', display: 'grid', placeContent: 'center', gap: 1, p: 3, textAlign: 'center' }}>
+    <Box sx={{ display: 'grid', placeContent: 'center', gap: 1, p: 3, textAlign: 'center' }}>
       <Typography variant="h1">{t('inicio.titulo')}</Typography>
       <Typography color="text.secondary">{t('inicio.texto')}</Typography>
     </Box>
