@@ -74,7 +74,7 @@ function Formulario({ campos, atuais, rotuloAplicar, rotuloLimpar, rotuloGrupo, 
   )
 
   const mudarBusca = (novos: Record<string, string | undefined>): void => {
-    // Mantém os demais parâmetros da rota (ex.: página); `to: '.'` fica na rota atual.
+    // Mantém os demais parâmetros da rota (ex.: tamanho da página); aplicar e limpar voltam à página 1; `to: '.'` fica na rota atual.
     void navegar({ to: '.', search: ((anterior: Record<string, unknown>) => ({ ...anterior, ...novos })) as never })
   }
 
@@ -82,12 +82,12 @@ function Formulario({ campos, atuais, rotuloAplicar, rotuloLimpar, rotuloGrupo, 
     evento.preventDefault()
     const novos = Object.fromEntries(campos.map((campo) => [campo.chave, rascunho[campo.chave]?.trim() || undefined]))
     registrarEventoUi('ui.filtros_aplicados', { quantidade: Object.values(novos).filter(Boolean).length })
-    mudarBusca(novos)
+    mudarBusca({ ...novos, pagina: undefined })
   }
 
   const limpar = (): void => {
     registrarEventoUi('ui.filtros_limpos')
-    mudarBusca(Object.fromEntries(campos.map((campo) => [campo.chave, undefined])))
+    mudarBusca({ ...Object.fromEntries(campos.map((campo) => [campo.chave, undefined])), pagina: undefined })
   }
 
   return (

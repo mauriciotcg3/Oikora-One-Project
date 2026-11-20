@@ -1,19 +1,31 @@
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import Paper from '@mui/material/Paper'
-import SvgIcon from '@mui/material/SvgIcon'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import type { ReactNode } from 'react'
+import { lazy, Suspense, type ReactNode } from 'react'
+import { EstadoCarregando } from '../EstadoCarregando'
 
 export interface ColunaDaTabela<L> {
   chave: string
   rotulo: string
   valor: (linha: L) => ReactNode
+}
+
+/** Paginação no servidor: a tabela só mostra a página recebida e avisa quando a pessoa troca. */
+export interface PaginacaoDaTabela {
+  /** Página atual, a partir de 1. */
+  pagina: number
+  porPagina: number
+  /** Total de registros na API (`meta.total`), para calcular as páginas sem baixá-los. */
+  total: number
+  aoMudar: (pagina: number, porPagina: number) => void
+  /** Há um pedido da página em andamento. */
+  carregando?: boolean
+}
+
+/** Textos do rodapé e do estado vazio, já traduzidos (o DataGrid traz inglês por padrão). */
+export interface TextosDaTabela {
+  linhasPorPagina: string
+  exibindo: (de: number, ate: number, total: number) => string
+  paginaAnterior: string
+  proximaPagina: string
+  semLinhas: string
 }
 
 export interface TabelaDeRegistrosProps<L extends { id: string; falha?: boolean }> {
@@ -26,64 +38,27 @@ export interface TabelaDeRegistrosProps<L extends { id: string; falha?: boolean 
   /** Rótulo do botão que abre o detalhe da linha, ex.: "Ver detalhes de …". */
   rotuloAbrir: (linha: L) => string
   aoAbrir: (linha: L) => void
+  paginacao: PaginacaoDaTabela
+  textos: TextosDaTabela
+  /** Texto mostrado enquanto o DataGrid carrega. */
+  textoCarregando: string
 }
 
-function IconeFalha(): ReactNode {
-  return (
-    <SvgIcon fontSize="small" color="error" aria-hidden="true">
-      <path d="M12 2L1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V9h2v4z" />
-    </SvgIcon>
-  )
-}
+// O DataGrid pesa; sai da entrada do painel e só baixa quando uma tela com tabela abre.
+// `lazy` apaga o genérico da linha; o cast o devolve (o módulo exporta exatamente esse tipo).
+const GradeDeRegistros = lazy(() => import('./GradeDeRegistros')) as unknown as <L extends { id: string; falha?: boolean }>(
+  props: Omit<TabelaDeRegistrosProps<L>, 'textoCarregando'>,
+) => ReactNode
 
 /**
- * Tabela de registros (OIK-ADR-0014): a linha de falha traz texto e ícone além da cor, e cada linha
- * abre o detalhe por um botão alcançável por teclado. Não busca dados (FE-FLOW-001).
+ * Tabela de registros (OIK-ADR-0014) sobre o DataGrid MIT: a linha de falha traz texto e ícone além
+ * da cor, e cada linha abre o detalhe por um botão alcançável por teclado. Não busca dados (FE-FLOW-001) e
+ * nunca pagina no navegador: recebe só a página atual e o total (OIK-ADR-0006 §6).
  */
-export function TabelaDeRegistros<L extends { id: string; falha?: boolean }>({
-  rotulo,
-  colunas,
-  linhas,
-  textoFalha,
-  rotuloAbrir,
-  aoAbrir,
-}: TabelaDeRegistrosProps<L>): ReactNode {
+export function TabelaDeRegistros<L extends { id: string; falha?: boolean }>({ textoCarregando, ...props }: TabelaDeRegistrosProps<L>): ReactNode {
   return (
-    <TableContainer component={Paper} variant="outlined">
-      <Table aria-label={rotulo}>
-        <TableHead>
-          <TableRow>
-            {colunas.map((coluna) => (
-              <TableCell key={coluna.chave} scope="col" sx={{ fontWeight: 600 }}>
-                {coluna.rotulo}
-              </TableCell>
-            ))}
-            <TableCell />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {linhas.map((linha) => (
-            <TableRow key={linha.id} sx={linha.falha ? { bgcolor: 'error.light' } : undefined}>
-              {colunas.map((coluna, posicao) => (
-                <TableCell key={coluna.chave}>
-                  {posicao === 0 && linha.falha && (
-                    <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, mr: 1, fontWeight: 600, color: 'error.main' }}>
-                      <IconeFalha />
-                      {textoFalha}
-                    </Box>
-                  )}
-                  {coluna.valor(linha)}
-                </TableCell>
-              ))}
-              <TableCell align="right">
-                <Button size="small" variant="outlined" onClick={() => aoAbrir(linha)}>
-                  {rotuloAbrir(linha)}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <Suspense fallback={<EstadoCarregando texto={textoCarregando} />}>
+      <GradeDeRegistros {...props} />
+    </Suspense>
   )
 }

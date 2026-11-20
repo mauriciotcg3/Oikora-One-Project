@@ -324,6 +324,6 @@ Decisão: OIK-ADR-0014 (UI Standard sobre MUI); estende §8 sem alterá-lo. Fron
 - **Shell** (`app/painel`): layout com navegação, pular ao conteúdo e ajuda; itens por capacidades do `/me`; menu "Auditoria" próprio.
 - **Filtros/tabela/detalhe** (`shared/ui`): filtros ligados à URL pelo TanStack Router (search params validados com zod); DataGrid MIT carregado por rota (`lazy`) para proteger o orçamento de 350 KB (ADR-0010 §5; atual 265,74 KB).
 - **Auditoria** (`features/Auditoria`, dono `Modules/Auditoria`): consome `GET /painel/auditoria`; acrescenta no backend (`Modules/Auditoria`) filtro por igreja, busca, ator legível e `trace_id` (T-54). "Resultado" fica ❓ OPEN-UI-01.
-- **Sem dependência nova** nesta etapa (`package.json` e lockfile são pontos quentes); axe segue no Playwright (ADR-0010 §5, T-45), com `eslint-plugin-jsx-a11y` no lint.
+- **Dependência nova (aprovada em 2026-11-20): `@mui/x-data-grid` (MIT)**, já decidido na OIK-ADR-0006 §6; é a única, e entra só pelo chunk `lazy` da `TabelaDeRegistros` (`package.json` e lockfile são pontos quentes); axe segue no Playwright (ADR-0010 §5, T-45), com `eslint-plugin-jsx-a11y` no lint.
 - **Observabilidade:** logs estruturados `ui.*` com módulo, ação, resultado e `request_id`/`trace_id`, sem conteúdo de campo; abrir detalhe técnico e aplicar/limpar filtros são registrados (ADR-0014).
 - **Riscos:** bundle (mitigado por rota); T-54 regenera o contrato OpenAPI — executar depois da T-22 para não colidir em `api/openapi.json` e `esquema.ts`.

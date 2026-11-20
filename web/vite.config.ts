@@ -37,6 +37,8 @@ export default defineConfig(({ mode }) => {
     setupFiles: ['./src/test/setup.ts'],
     css: false,
     restoreMocks: true,
+    // Os arquivos rodam em paralelo e a primeira renderização com MUI é lenta; 5 s oscilava (login, shell).
+    testTimeout: 15_000,
   },
   }
 })

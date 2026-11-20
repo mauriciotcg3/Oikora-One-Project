@@ -8,18 +8,18 @@
 
 - T-51 feita: shell do painel, navegação por capacidades do `/me`, rota Auditoria com acesso negado, densidade dos botões escopada ao login (`size="large"`).
 - T-52 feita: `JornadaGuiada` e `ConfirmacaoIrreversivel`; `etapaComErro422` em `shared/forms`.
-- T-53 feita com desvio: `FiltrosNaUrl`, `TabelaDeRegistros` (MUI `Table`) e `DetalheEmCamadas`.
+- T-53 feita: `FiltrosNaUrl`, `TabelaDeRegistros` (DataGrid MIT em chunk `lazy`) e `DetalheEmCamadas`.
 
 ## Decisões e desvios
 
-- DataGrid não usado: plano §14 diz "sem dependência nova" e o pacote não está instalado. Decisão do usuário: adicionar `@mui/x-data-grid` ou manter `Table`.
+- DataGrid: `@mui/x-data-grid` 9.18.0 adicionado com aprovação do usuário (ADR-0006 §6); plano §14 atualizado. `package.json` e `pnpm-lock.yaml` mudaram; a imagem `web` foi reconstruída (`./dev build web`). Paginação no servidor feita na `TabelaDeRegistros` + `usePaginacaoDaUrl` (a T-55 só consome).
 - `JornadaGuiada` e os campos das etapas: as features montam os campos com `Controller` e `inputRef={field.ref}` (não espalhar `field` inteiro no `TextField`, o `ref` iria para a raiz e o foco falha).
 - Claim das issues #72, #73 e #74 não feito (escrita no tracker exige OK).
 
 ## Gate de saída
 
-- `./dev run --rm --no-deps -T web pnpm --filter web gate`: typecheck, lint, 53 testes (11 arquivos), build, size-limit 275,13 KB de 350 KB.
-- Testes de login e do shell são sensíveis a carga quando a suíte roda inteira (timeouts de 1–5 s em `findBy`); passam isolados.
+- `./dev run --rm --no-deps -T web pnpm --filter web gate`: typecheck, lint, 53 testes (11 arquivos), build, size-limit 276,16 KB de 350 KB; DataGrid em `GradeDeRegistros-*.js` (162,44 KB gzip) separado.
+- `vite.config.ts`: `testTimeout` 15 s; os testes de login (5 s padrão) estouravam quando a suíte inteira roda em paralelo.
 
 ## Próximo passo
 
