@@ -24,3 +24,7 @@
 ## Próximo passo
 
 - Revisão consolidada da WUI-1; depois WUI-2 (T-54 a T-57), que depende de T-22 e T-32.
+
+## Galeria de desenvolvimento
+
+- `/painel/galeria` (`web/src/app/painel/galeria/Galeria.tsx`): componentes reais com dados de exemplo e "API" em memória; só no `pnpm dev` (`import.meta.env.DEV`; o build de produção não a inclui: o hash do `painel-*.js` não mudou). Teste de fumaça em `__tests__/galeria.test.tsx`. Gate: 62 testes, 277,81 KB.

@@ -1,4 +1,4 @@
-import { createRootRoute, createRoute, createRouter, Outlet, useNavigate, type RouterHistory } from '@tanstack/react-router'
+import { createRootRoute, createRoute, createRouter, lazyRouteComponent, Outlet, useNavigate, type RouterHistory } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { PaginaLogin } from '../../features/Identidade'
 import { InicioPainel } from './InicioPainel'
@@ -29,7 +29,12 @@ const rotaShell = createRoute({ getParentRoute: () => raiz, id: 'shell', compone
 const rotaInicio = createRoute({ getParentRoute: () => rotaShell, path: '/', component: InicioPainel })
 const rotaAuditoria = createRoute({ getParentRoute: () => rotaShell, path: 'auditoria', component: PaginaAuditoria })
 const rotaLogin = createRoute({ getParentRoute: () => raiz, path: 'login', component: TelaLogin })
-const arvore = raiz.addChildren([rotaShell.addChildren([rotaInicio, rotaAuditoria]), rotaLogin])
+// Galeria de componentes: só no `pnpm dev`. O `if` constante (`import.meta.env.DEV`) é removido do build,
+// então nem a rota nem o chunk da galeria vão para produção.
+const rotasDev = import.meta.env.DEV
+  ? [createRoute({ getParentRoute: () => raiz, path: 'galeria', component: lazyRouteComponent(() => import('./galeria/Galeria'), 'Galeria') })]
+  : []
+const arvore = raiz.addChildren([rotaShell.addChildren([rotaInicio, rotaAuditoria]), rotaLogin, ...rotasDev])
 
 export function criarRoteador(historia?: RouterHistory) {
   return createRouter({ routeTree: arvore, basepath: '/painel', history: historia })
