@@ -8,7 +8,7 @@ WORKDIR /src/minio
 RUN LDFLAGS="$(go run buildscripts/gen-ldflags.go)" \
     && CGO_ENABLED=0 go build -tags kqueue -trimpath --ldflags "${LDFLAGS}" -o /minio .
 
-FROM alpine:3.22
+FROM alpine:3.24
 RUN apk add --no-cache ca-certificates su-exec tzdata \
     && addgroup -S minio \
     && adduser -S -G minio minio
