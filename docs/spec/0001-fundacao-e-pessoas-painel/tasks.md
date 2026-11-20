@@ -19,9 +19,9 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 | W4 | T-11, T-16, T-26, T-37, T-47 |
 | W5 | T-18, T-24, T-27, T-28, T-46 |
 | W6 | T-19, T-22, T-29, T-34 |
-| W7 | T-20, T-23, T-30, T-32, T-35, T-38, T-40 |
-| W8 | T-21, T-31, T-33, T-36, T-48 |
-| W9 | T-39, T-41, T-42, T-43, T-44 |
+| W7 | T-20, T-23, T-30, T-32, T-35, T-38, T-40, T-49, T-50, T-51, T-52, T-53 |
+| W8 | T-21, T-31, T-33, T-36, T-48, T-54 |
+| W9 | T-39, T-41, T-42, T-43, T-44, T-55, T-56 |
 | W10 | T-45 |
 
 ---
@@ -928,10 +928,10 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Issue:** #40
 - **Onda:** W7
 - **Depende de:** T-15, T-22, T-37, T-46
-- **Objetivo:** criar as telas de acessos (convidar Pessoa com papel e escopo, revogar), papéis (criar e editar permissões do catálogo, com marcação de sensíveis) e consulta de auditoria com filtros.
+- **Objetivo:** criar as telas de acessos (convidar Pessoa com papel e escopo, revogar), papéis (criar e editar permissões do catálogo, com marcação de sensíveis). A consulta de auditoria saiu desta task e passou à T-55 (2026-11-20, OIK-ADR-0014).
 - **Context Pack:** `context/T-40.md`
 - **Arquivos de entrada:** `plan.md` §8; T-15, T-22, T-37, T-46 concluídas.
-- **Arquivos de saída:** `web/src/features/{Autorizacao,Auditoria}/**`.
+- **Arquivos de saída:** `web/src/features/Autorizacao/**`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `web/src/features/Autorizacao/__tests__/*.test.tsx`; `web/src/features/Auditoria/__tests__/*.test.tsx`
@@ -939,7 +939,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
   1. Convidar: escolher a Pessoa pela busca, o papel e o escopo; o 422 de pessoa sem contato aparece no campo.
   2. Revogar um acesso pede confirmação e atualiza a lista.
   3. Papel: as permissões vêm do catálogo, agrupadas, e as sensíveis por categoria; `ultimo_administrador` e `escalada_bloqueada` mostram mensagens próprias.
-  4. Auditoria: filtrar por período e evento; a tela não mostra valores de campo (só nomes).
+  4. Auditoria: movida para a T-55.
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
@@ -1131,6 +1131,176 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-31), tipos estritos e lint de fronteiras aprovados.
 - **Regra de negócio associada:** nenhuma nova.
+- **Status:** Pendente
+
+## Complemento — Oikora UI Standard e Auditoria no painel (OIK-ADR-0014)
+
+## T-49 — UI Standard: fundação visual (tokens, paleta semântica e contraste)
+- **Issue:** #70
+- **Onda:** W7
+- **Depende de:** T-37
+- **Objetivo:** definir tokens do Oikora UI Standard no tema MUI: paleta semântica success/warning/info nos dois esquemas, bordas de controle com contraste ≥ 3:1, escala de espaçamento e foco visível; sem alterar o botão do login.
+- **Context Pack:** `context/T-49.md`
+- **Arquivos de entrada:** `plan.md` §14; ADR-0014; `web/src/shared/ui/tema.ts`.
+- **Arquivos de saída:** `web/src/shared/ui/{tema.ts,tokens.ts,index.ts}`, `web/src/shared/ui/__tests__/tema.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/tema.test.tsx`
+- **Casos cobertos:**
+  1. Texto primário e secundário sobre `background.default` e `paper` tem contraste ≥ 4,5:1 nos esquemas claro e escuro (`getContrastRatio`).
+  2. A borda de um campo (`notchedOutline`) sobre `paper` tem ≥ 3:1 nos dois esquemas (WCAG 1.4.11).
+  3. `success`, `warning`, `info` e `error` têm texto sobre fundo ≥ 4,5:1 nos dois esquemas.
+  4. Renderizado no `ProvedoresBase`, um `Alert` de cada severidade expõe o texto ao leitor de tela (`role=alert`) e o campo de texto focado por teclado recebe o anel de foco do tema.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-40); `pnpm gate` verde com `size-limit` ≤ 350 KB; nenhuma dependência nova.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Codificada em 2026-11-20 (fora das ondas da W6): `shared/ui/tokens.ts` (borda de controle ≥ 3:1, paleta success/warning/info e error com `contrastText`, espaçamento, raio, foco), `tema.ts` consome os tokens (corrige `notchedOutline` fixo em `#CDBFB3`, ~1,8:1; anel `:focus-visible` global), 8 testes; `pnpm gate` verde, 266,05 KB de 350 KB. Botão do login mantido (escopo na T-51).
+
+## T-50 — UI Standard: componentes de estado, detalhes técnicos e ajuda contextual
+- **Issue:** #71
+- **Onda:** W7
+- **Depende de:** T-49
+- **Objetivo:** criar em `shared/ui/<Componente>/` os componentes de estado (carregando, vazio, sucesso, aviso, erro, indisponível), `DetalhesTecnicos` e `AjudaContextual`, com contrato de papéis ARIA, textos recebidos por props e telemetria `ui.*` sem dado pessoal.
+- **Context Pack:** `context/T-50.md`
+- **Arquivos de entrada:** T-49 concluída; `plan.md` §14; `shared/http/cliente.ts` (`ErroHttp`).
+- **Arquivos de saída:** `web/src/shared/ui/{EstadoCarregando,EstadoVazio,EstadoSucesso,EstadoAviso,EstadoErro,EstadoIndisponivel,DetalhesTecnicos,AjudaContextual}/**`, `web/src/shared/ui/index.ts`, `web/src/shared/ui/__tests__/estados.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/estados.test.tsx`
+- **Casos cobertos:**
+  1. Carregando usa `aria-busy` e `role=status` com texto; o vazio explica o próximo passo e oferece a ação.
+  2. Erro usa `role=alert`, mostra a mensagem da tarefa e o botão 'Tentar de novo' acionável por teclado.
+  3. `request_id` e `trace_id` ficam ocultos até abrir 'Detalhes técnicos' (disclosure por teclado) e podem ser copiados.
+  4. Indisponível e aviso são distinguíveis por texto e ícone, não só por cor.
+  5. Nenhum componente faz fetch nem contém texto fixo.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-41); gate verde; lint de fronteiras aprovado.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Pendente
+
+## T-51 — UI Standard: shell do painel, navegação e menu por capacidades
+- **Issue:** #72
+- **Onda:** W7
+- **Depende de:** T-50
+- **Objetivo:** montar o shell do painel (cabeçalho, navegação lateral responsiva, pular ao conteúdo, ajuda em posição fixa) com itens montados pelas capacidades do `/me`, incluindo o menu 'Auditoria'; escopar a densidade dos botões do tema ao login.
+- **Context Pack:** `context/T-51.md`
+- **Arquivos de entrada:** T-50 concluída; `app/painel/{roteador.tsx,Raiz.tsx,InicioPainel.tsx}`; ADR-0006 §9.
+- **Arquivos de saída:** `web/src/app/painel/{roteador.tsx,Shell.tsx,Navegacao.tsx,i18n/pt-BR.ts}`, `web/src/shared/ui/tema.ts`, `web/src/app/painel/__tests__/shell.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/app/painel/__tests__/shell.test.tsx`
+- **Casos cobertos:**
+  1. O primeiro Tab leva ao link 'Ir para o conteúdo' e o Enter move o foco para o `main`.
+  2. Os itens de menu vêm das capacidades do `/me`; sem `auditoria.ver` o item 'Auditoria' não aparece, e o acesso direto à rota mostra o estado de acesso negado.
+  3. Em tela estreita a navegação abre por botão com rótulo e fecha com Esc devolvendo o foco.
+  4. O item ativo é anunciado com `aria-current=page`.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-42); gate verde; entrada ≤ 350 KB.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Pendente
+
+## T-52 — UI Standard: formulários e jornadas guiadas
+- **Issue:** #73
+- **Onda:** W7
+- **Depende de:** T-50
+- **Objetivo:** criar o padrão de jornada guiada (etapas, validação junto ao campo, foco no primeiro erro, confirmação antes de ação irreversível) sobre `shared/forms`; salvar e retomar fica fora (OPEN-UI-02).
+- **Context Pack:** `context/T-52.md`
+- **Arquivos de entrada:** T-50 concluída; `shared/forms`; skill `frontend-form`.
+- **Arquivos de saída:** `web/src/shared/ui/{JornadaGuiada,ConfirmacaoIrreversivel}/**`, `web/src/shared/forms/**` (acréscimos), `web/src/shared/ui/__tests__/jornada.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/jornada.test.tsx`
+- **Casos cobertos:**
+  1. Avançar com campo inválido mostra o erro junto ao campo, move o foco a ele e não troca de etapa.
+  2. Voltar preserva o que foi digitado; a etapa atual é anunciada ('Etapa 2 de 4').
+  3. Ação irreversível só executa após confirmar no diálogo; Esc cancela sem executar e devolve o foco.
+  4. Erro 422 do servidor aparece no campo da etapa correspondente.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-43); gate verde.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Pendente
+
+## T-53 — UI Standard: filtros na URL, tabela e detalhe progressivo
+- **Issue:** #74
+- **Onda:** W7
+- **Depende de:** T-50, T-51, T-52
+- **Objetivo:** criar `FiltrosNaUrl`, tabela com destaque de falha por texto e ícone, e painel de detalhe em camadas, com DataGrid MIT carregado por rota.
+- **Context Pack:** `context/T-53.md`
+- **Arquivos de entrada:** T-50 e T-51 concluídas; `plan.md` §14; ADR-0006 §6.
+- **Arquivos de saída:** `web/src/shared/ui/{FiltrosNaUrl,TabelaDeRegistros,DetalheEmCamadas}/**`, `web/src/shared/ui/__tests__/filtrosTabela.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/filtrosTabela.test.tsx`
+- **Casos cobertos:**
+  1. Aplicar um filtro atualiza a URL; abrir a URL restaura os filtros; 'Limpar filtros' zera URL e lista.
+  2. Valores inválidos na URL são ignorados com segurança.
+  3. Linha de falha traz o texto 'Falha' e o ícone, e o leitor de tela a identifica.
+  4. O detalhe abre por teclado, mostra resumo primeiro e a camada técnica só sob demanda.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-44, CA-47); build mostra DataGrid em chunk separado do `painel-*.js`.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Pendente
+
+## T-54 — Auditoria (API): filtro por igreja, busca, ator legível e correlação
+- **Issue:** #75
+- **Onda:** W8
+- **Depende de:** T-05, T-22, T-32, T-46, T-47
+- **Objetivo:** estender `GET /painel/auditoria` com filtro `igreja`, busca textual por evento/alvo, nome do ator e `trace_id`, sem valores de campo; resultado/falha fica em OPEN-UI-01.
+- **Context Pack:** `context/T-54.md`
+- **Arquivos de entrada:** `docs/modules/auditoria.md`; T-46 e T-22 concluídas (regeneração do contrato).
+- **Arquivos de saída:** `api/app/Modules/Auditoria/**`, `api/tests/Feature/Auditoria/**`, `api/openapi.json`, `packages/api-contrato/src/esquema.ts`, `docs/modules/auditoria.md`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `api/tests/Feature/Auditoria/ConsultaAuditoriaTest.php`
+- **Casos cobertos:**
+  1. Filtrar por `igreja` devolve só eventos dessa igreja e respeita o alcance do usuário.
+  2. A busca encontra pelo código do evento e pelo alvo, sem aceitar texto livre sensível.
+  3. O ator vem com nome legível quando o usuário pode vê-lo; a resposta traz `trace_id` quando existe.
+  4. Nenhum valor anterior ou posterior aparece na resposta.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-46); contrato regenerado e versionado; `composer gate` verde.
+- **Regra de negócio associada:** RN-15 ampliada.
+- **Status:** Pendente
+
+## T-55 — Auditoria (painel): consulta, trilha e detalhe técnico progressivo
+- **Issue:** #76
+- **Onda:** W9
+- **Depende de:** T-51, T-53, T-54
+- **Objetivo:** criar `features/Auditoria` com menu próprio, busca, filtros na URL, destaque, trilha de um alvo, resumo compreensível e detalhe técnico progressivo, integrados ao `GET /painel/auditoria`; 'resultado' só após decisão de OPEN-UI-01.
+- **Context Pack:** `context/T-55.md`
+- **Arquivos de entrada:** T-51, T-53 e T-54 concluídas; `docs/modules/auditoria.md`; FR-037, NFR-008.
+- **Arquivos de saída:** `web/src/features/Auditoria/**`, `web/src/app/painel/roteador.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/features/Auditoria/__tests__/*.test.tsx`
+- **Casos cobertos:**
+  1. Filtrar por período, evento, ator, alvo e igreja atualiza a URL e a lista; limpar restaura.
+  2. Cada linha mostra um resumo compreensível; o detalhe técnico (campos afetados, metadados, `request_id`, correlação) abre sob demanda.
+  3. A trilha de um alvo lista seus eventos em ordem.
+  4. Nenhum valor anterior ou posterior aparece; sem `auditoria.ver` a tela mostra acesso negado.
+  5. Erro da consulta usa `EstadoErro` com 'Detalhes técnicos'.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-45); gate verde; Auditoria em chunk por rota.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Pendente
+
+## T-56 — UI Standard: documentação e exemplos do padrão
+- **Issue:** #77
+- **Onda:** W9
+- **Depende de:** T-52, T-55
+- **Objetivo:** documentar tokens, componentes, contratos de comportamento e jornadas em `docs/` com exemplos verificados por teste, sem nova ferramenta de catálogo (OPEN-UI-03).
+- **Context Pack:** `context/T-56.md`
+- **Arquivos de entrada:** T-49 a T-55 concluídas.
+- **Arquivos de saída:** `docs/ui/oikora-ui-standard.md`, `web/src/shared/ui/__tests__/exemplos.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/exemplos.test.tsx`
+- **Casos cobertos:**
+  1. Cada exemplo do documento renderiza e passa nas asserções de papéis e texto do seu componente.
+  2. O documento lista os componentes exportados e o teste falha se um deles não estiver documentado.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green; links locais do documento existentes.
+- **Regra de negócio associada:** nenhuma.
 - **Status:** Pendente
 
 ---
