@@ -36,6 +36,34 @@ final class AcessosDaOrganizacaoPostgres implements AcessosDaOrganizacao
         return $uuids;
     }
 
+    public function pessoas(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $pessoas = [];
+        foreach (DB::table('acessos')->whereIn('id', $ids)->get(['id', 'pessoa_id']) as $acesso) {
+            $pessoas[(int) $acesso->id] = (int) $acesso->pessoa_id;
+        }
+
+        return $pessoas;
+    }
+
+    public function contasAtivas(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $contas = [];
+        foreach (DB::table('acessos')->whereIn('id', $ids)->where('estado', 'ativo')->get(['id', 'conta_id']) as $acesso) {
+            $contas[(int) $acesso->id] = (int) $acesso->conta_id;
+        }
+
+        return $contas;
+    }
+
     public function ativos(array $ids): array
     {
         if ($ids === []) {

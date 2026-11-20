@@ -50,4 +50,32 @@ final class AtribuicoesDePermissaoPostgres implements AtribuicoesDePermissao
             ->where('acesso_id', $acessoId)
             ->exists();
     }
+
+    public function acessosComPermissao(int $organizacaoId, string $permissao): array
+    {
+        $dePapeis = DB::table('atribuicoes_papel as atribuicao')
+            ->join('papel_permissoes as permissao', function ($join): void {
+                $join->on('permissao.organizacao_id', '=', 'atribuicao.organizacao_id')
+                    ->on('permissao.papel_id', '=', 'atribuicao.papel_id');
+            })
+            ->where('atribuicao.organizacao_id', $organizacaoId)
+            ->where('permissao.permissao', $permissao)
+            ->select('atribuicao.acesso_id');
+
+        $deConcessoes = DB::table('concessoes_permissao as concessao')
+            ->join('concessao_permissoes as item', function ($join): void {
+                $join->on('item.organizacao_id', '=', 'concessao.organizacao_id')
+                    ->on('item.concessao_id', '=', 'concessao.id');
+            })
+            ->where('concessao.organizacao_id', $organizacaoId)
+            ->where('item.permissao', $permissao)
+            ->whereNull('concessao.revogada_em')
+            ->whereRaw('concessao.inicia_em <= now() and concessao.expira_em > now()')
+            ->select('concessao.acesso_id');
+
+        return array_values($dePapeis->union($deConcessoes)
+            ->pluck('acesso_id')
+            ->map(static fn (mixed $id): int => (int) $id)
+            ->all());
+    }
 }
