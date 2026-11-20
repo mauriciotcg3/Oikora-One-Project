@@ -26,3 +26,5 @@ substitua).
 | [OIK-ADR-0012](0012-solicitacao-e-concessao-de-permissoes.md) | Solicitação e concessão temporária de permissões | Aceito |
 | [OIK-ADR-0013](0013-execucao-da-spec-em-ondas.md) | Execução da spec em ondas | Aceito |
 | [OIK-ADR-0014](0014-padrao-de-experiencia-da-interface.md) | Padrão de experiência da interface sobre MUI | Aceito |
+| [OIK-ADR-0015](0015-registro-de-tentativas-recusadas-na-auditoria.md) | Registro de tentativas que falham na auditoria | Aceito |
+| [OIK-ADR-0016](0016-rascunhos-de-jornada-no-servidor.md) | Rascunhos de jornada guiada no servidor | Aceito |
