@@ -2,6 +2,7 @@
 
 namespace App\Modules\Pessoas\Infrastructure\Console;
 
+use App\Modules\Autorizacao\Contracts\AlcanceAtual;
 use App\Modules\Organizacao\Contracts\ConsultaOrganizacoes;
 use App\Modules\Pessoas\Infrastructure\Pessoa;
 use Illuminate\Console\Command;
@@ -36,7 +37,8 @@ class RecifrarCamposPessoas extends Command
                     DB::select("select set_config('app.organizacao_id', ?, true)", [(string) $organizacaoId]);
 
                     $recifradas = 0;
-                    Pessoa::query()->orderBy('id')->chunkById(100, function ($pessoas) use (&$recifradas): void {
+                    // Rotina de sistema: alcance de todas as igrejas, declarado (o filtro continua ligado).
+                    app(AlcanceAtual::class)->comoSistema($organizacaoId, fn () => Pessoa::query()->orderBy('id')->chunkById(100, function ($pessoas) use (&$recifradas): void {
                         foreach ($pessoas as $pessoa) {
                             $valores = [];
                             foreach (['cpf', 'rg', 'rg_pais', 'necessidades_especiais', 'tipo_sanguineo'] as $campo) {
@@ -46,7 +48,7 @@ class RecifrarCamposPessoas extends Command
                             $pessoa->forceFill($valores)->save();
                             $recifradas++;
                         }
-                    });
+                    }));
 
                     return $recifradas;
                 });

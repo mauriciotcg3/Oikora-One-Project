@@ -1,0 +1,84 @@
+# Fronteiras de camada (OIK-ADR-0010 §1; DEP-004, DEP-005, MOD-004). Roda no `composer gate` e no CI.
+# A fronteira entre módulos (MOD-002, DB-001: outro módulo só pelo `Contracts/` ou pela linguagem
+# publicada de Autorização e Auditoria) é conferida por `tests/Arquitetura/FronteirasDeModuloTest.php`.
+deptrac:
+  paths:
+    - ./app
+  exclude_files:
+    - '#/Database/Migrations/#'
+  layers:
+    - name: Domain
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Modules\\[^\\]+\\Domain\\#'
+    - name: Contracts
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Modules\\[^\\]+\\Contracts\\#'
+    - name: Application
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Modules\\[^\\]+\\Application\\#'
+    - name: Infrastructure
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Modules\\[^\\]+\\Infrastructure\\#'
+    - name: Presentation
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Modules\\[^\\]+\\Presentation\\#'
+    - name: Modulo
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Modules\\[^\\]+\\[^\\]+ServiceProvider$#'
+    - name: Shared
+      collectors:
+        - type: classNameRegex
+          value: '#^App\\Shared\\#'
+    - name: Framework
+      collectors:
+        - type: classNameRegex
+          value: '#^(Illuminate|Laravel|Symfony|Monolog|OpenTelemetry|Psr|Carbon|PragmaRX)\\#'
+    # Bibliotecas puras de valor, sem I/O nem framework: o Domain pode usar.
+    - name: Valores
+      collectors:
+        - type: classNameRegex
+          value: '#^libphonenumber\\#'
+  ruleset:
+    # Domínio puro: nada de framework, banco ou outra camada; só bibliotecas de valor.
+    Domain:
+      - Valores
+    Contracts:
+      - Domain
+    Application:
+      - Domain
+      - Contracts
+      - Shared
+      - Framework
+      - Valores
+    Infrastructure:
+      - Domain
+      - Contracts
+      - Application
+      - Shared
+      - Framework
+      - Valores
+    Presentation:
+      - Domain
+      - Contracts
+      - Application
+      - Shared
+      - Framework
+      - Valores
+    Modulo:
+      - Domain
+      - Contracts
+      - Application
+      - Infrastructure
+      - Presentation
+      - Shared
+      - Framework
+      - Valores
+    # Shared não conhece módulos de negócio.
+    Shared:
+      - Framework

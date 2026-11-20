@@ -17,6 +17,11 @@ it('expande organização e regional e soma atribuições de igreja', function (
                 ['permissao' => Permissao::PessoasEditar->value, 'escopo_tipo' => 'igreja', 'escopo_id' => 3],
             ];
         }
+
+        public function temPapel(int $organizacaoId, int $acessoId): bool
+        {
+            return true;
+        }
     };
     $igrejas = new class implements CatalogoIgrejas
     {
@@ -33,6 +38,26 @@ it('expande organização e regional e soma atribuições de igreja', function (
         public function pertenceAOrganizacao(int $organizacaoId, int $igrejaId): bool
         {
             return in_array($igrejaId, [1, 2, 3], true);
+        }
+
+        public function igrejaPorUuid(string $uuid): ?int
+        {
+            return null;
+        }
+
+        public function regionalPorUuid(string $uuid): ?int
+        {
+            return null;
+        }
+
+        public function resumo(array $ids): array
+        {
+            return [];
+        }
+
+        public function resumoRegionais(array $ids): array
+        {
+            return [];
         }
     };
 
@@ -55,6 +80,11 @@ it('autoriza dentro e nega fora do alcance para toda permissão catalogada', fun
                 'escopo_id' => 2,
             ]];
         }
+
+        public function temPapel(int $organizacaoId, int $acessoId): bool
+        {
+            return true;
+        }
     };
     $igrejas = new class implements CatalogoIgrejas
     {
@@ -71,6 +101,26 @@ it('autoriza dentro e nega fora do alcance para toda permissão catalogada', fun
         public function pertenceAOrganizacao(int $organizacaoId, int $igrejaId): bool
         {
             return in_array($igrejaId, [1, 2], true);
+        }
+
+        public function igrejaPorUuid(string $uuid): ?int
+        {
+            return null;
+        }
+
+        public function regionalPorUuid(string $uuid): ?int
+        {
+            return null;
+        }
+
+        public function resumo(array $ids): array
+        {
+            return [];
+        }
+
+        public function resumoRegionais(array $ids): array
+        {
+            return [];
         }
     };
     $politica = new PoliticaDePermissao(new Alcance($atribuicoes, $igrejas));

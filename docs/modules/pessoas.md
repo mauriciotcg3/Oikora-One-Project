@@ -1,10 +1,10 @@
 # Módulo: Pessoas
 
-**Última atualização:** 2026-11-08
+**Última atualização:** 2026-11-17
 **Arquivos principais:** `api/app/Modules/Pessoas/**`, `api/app/Shared/Cifra/**`, `api/config/oikora.php`
 
 ## Visão geral
-O módulo Pessoas é dono do cadastro-base de pessoas, contatos e endereços de cada organização. Nesta primeira entrega ele define o catálogo dos campos da ficha, persiste o schema inicial e protege documentos e saúde com uma chave independente da aplicação. Ainda não expõe endpoints nem casos de uso de cadastro.
+O módulo Pessoas é dono do cadastro-base de pessoas, contatos e endereços de cada organização. Define o catálogo dos campos da ficha, protege documentos e saúde com chave própria e expõe ao painel o cadastro rápido, a ficha por seções com completude e foto, o vínculo, a situação e a matrícula.
 
 ## Regras de negócio ativas
 | ID | Regra | Onde está implementada | Origem |
@@ -14,13 +14,30 @@ O módulo Pessoas é dono do cadastro-base de pessoas, contatos e endereços de 
 | RN-10.3 | O nome de busca é gravado em minúsculas e sem acentos e possui índice trigram. | `Pessoa::booted`; índice `pessoas_nome_busca_trgm` | OIK-SPEC-0001 T-09; OIK-ADR-0002 §10 |
 | RN-10.4 | Cada campo configurável da ficha pertence a uma categoria e a uma seção; documentos, saúde, contatos/endereço e fé/conversão permanecem separados. | `CampoFicha::categoria`; `CampoFicha::secao` | OIK-SPEC-0001 T-09; RN-10; OIK-ADR-0004 §10 |
 | RN-10.5 | Pessoas, contatos e endereços pertencem a uma organização e são isolados pela RLS; referências entre essas tabelas usam organização e identificador. | migration `create_pessoas_tables` | OIK-SPEC-0001 T-09; OIK-ADR-0002 §4 e §6 |
+| RN-09 | Toda consulta de Pessoa passa pelo filtro global de alcance (`pessoas.ver` na igreja atual da pessoa); sem alcance no contexto, a consulta falha com `authz.context_missing`. Ficha fora do alcance: 403; inexistente: 404. | `PessoaEscopoAlcance`; `LerFicha` | OIK-SPEC-0001 T-14; OIK-ADR-0004 §5 |
+| RN-09.1 | A busca na denominação (nome, CPF exato, e-mail ou telefone) é a única consulta que sai do filtro e seleciona só `uuid`, `nome`, igreja e vínculo. | `BuscaDenominacaoPostgres`; guard `EscopoAlcanceTest` | OIK-SPEC-0001 T-14; OIK-ADR-0004 §6 |
+| RN-10 | Campos de saúde, documentos, contatos/endereço e fé/conversão só entram no SELECT e no JSON da ficha para quem tem `pessoas.sensiveis.<categoria>.ver` na igreja da pessoa; sem `contatos.ver`, contatos e endereços nem são lidos. | `LerFicha` | OIK-SPEC-0001 T-14; OIK-ADR-0004 §7 |
+| RN-06 (mecanismo) | A organização mantém seis listas: `como_chegou`, `motivo_vinculo`, `motivo_inativacao`, `motivo_reativacao`, `tipo_membro` e `funcao`. Começam vazias; o nome é único na lista (sem diferenciar maiúsculas); itens não são excluídos, só desativados. Item desativado deixa de ser aceito em cadastro novo, mas continua mostrado onde já foi usado. | `ListasDeValores`; `CriarItemListaAction`; `EditarItemListaAction`; regra `ValorAtivoDaLista` | OIK-SPEC-0001 T-25; U-09; U-28; CA-30 |
+| RN-13 | Os obrigatórios são definidos por vínculo (`visitante`, `frequentador`, `membro`), só com chaves do catálogo de campos; começam vazios (ficha 100% completa). Não impedem o cadastro rápido: definem a completude. | `CamposObrigatorios`; `DefinirObrigatoriosAction` | OIK-SPEC-0001 T-25; U-05; U-06 |
+| RN-13.1 | Manter listas e obrigatórios exige `pessoas.configurar` com escopo organização; a leitura das listas também é liberada, só com itens ativos, a quem cria ou edita pessoas em alguma igreja. Toda mudança é auditada sem o nome do item (texto livre): `pessoas.lista_valor_criado`, `pessoas.lista_valor_atualizado` (com `nome_alterado`, ordem e ativo antes/depois) e `pessoas.obrigatorios_atualizados` (campos antes/depois). | `Configuracao`; `ListasController`; `ObrigatoriosController` | OIK-SPEC-0001 T-25; OIK-ADR-0004; OIK-ADR-0005 §5 |
+| RN-23 | Possível duplicado: (nome normalizado E nascimento) OU CPF OU e-mail iguais na organização, inclusive na lixeira. A verificação roda enquanto se digita e devolve só uuid, nome, igreja, vínculo, os motivos e se está na lixeira; a ação é `abrir` (no alcance), `recuperar` (na lixeira, com `pessoas.excluir` na igreja) ou nenhuma. Pares marcados como "é outra pessoa" ficam em `pares_nao_duplicados`. | `VerificarDuplicidade`; `BuscaDenominacaoPostgres::duplicados` | OIK-SPEC-0001 T-26; U-20; CA-01 |
+| RN-10 (escrita) | A ficha é editada por seção (`pessoais`, `documentos`, `contatos`, `endereco`, `saude`, `eclesiasticos`, `adicionais`) com `pessoas.editar` na igreja da pessoa; seção de categoria sensível exige o `…editar` da categoria, senão 422 por campo `sem_permissao_categoria`. CPF de outra pessoa (inclusive na lixeira) é 422 `cpf_em_uso`. Contatos: celular e telefone em E.164, e-mail em minúsculas, um principal por tipo, "é WhatsApp" só em celular; contato mantido conserva o descadastro. A auditoria `pessoa.atualizada` leva só os nomes dos campos que mudaram. | `EditarFichaAction`; `EdicaoDeFichasEloquent`; `FichaController` | OIK-SPEC-0001 T-27; OIK-ADR-0004 §7; OIK-ADR-0005 §2 |
+| RN-13 (completude) | Completude = obrigatórios do vínculo preenchidos ÷ obrigatórios, arredondada para baixo; lista vazia = 100%. Conta a ficha inteira, inclusive campo sensível que quem vê não enxerga, sem ler o valor. | `Domain/Completude`; `FichasEloquent::preenchidos`; `LerFicha` | OIK-SPEC-0001 T-27; CA-14; U-05 |
+| — | Foto: URL assinada de envio (PNG, JPEG ou WebP até 5 MB) para quem tem `pessoas.editar`; a ficha aceita só caminho do prefixo da pessoa já enviado e devolve a foto por URL assinada de curta duração. | `PedirEnvioDaFoto`; `FichaController`; `Shared/Arquivos` | OIK-SPEC-0001 T-27; OIK-ADR-0011 §7 |
+| RN-07 | O vínculo só avança Visitante → Frequentador → Membro, sem pular e sem voltar (422 `transicao_vinculo_invalida`, com a mensagem e o próximo vínculo). Pessoa inativa não muda de vínculo. | `Domain/Vinculo::avancarPara`; `AlterarVinculoAction` | OIK-SPEC-0001 T-28; CA-06 |
+| RN-06 | Mudar vínculo, inativar e reativar exigem motivo ativo da lista própria (`motivo_vinculo`, `motivo_inativacao`, `motivo_reativacao`) e gravam `vinculo_alterado` ou `situacao_alterada` na linha do tempo (motivo e de/para). A reativação volta ao mesmo vínculo e matrícula. | `AlterarVinculoAction`; `AlterarSituacaoAction`; `VinculosDePessoasEloquent` | OIK-SPEC-0001 T-28; CA-15; U-28 |
+| RN-05 | Passar a Membro no modo manual exige matrícula livre na organização, inclusive na lixeira (`matricula_obrigatoria`, `matricula_em_uso`). Com o modo `automatica`, `matricula_automatica_indisponivel` (U-07). Só Membro tem matrícula. | `AlterarVinculoAction`; `BuscaDenominacao::matriculaEmUso` | OIK-SPEC-0001 T-28; CA-16 |
+| RN-18 | Mudar o vínculo desliga `novo_convertido`. | `VinculosDePessoasEloquent::alterarVinculo` | OIK-SPEC-0001 T-28 |
+| RN-01 | Cadastro rápido: nome, celular ou e-mail (um dos dois), vínculo, igreja no alcance de `pessoas.criar` e, opcional, "como chegou" (item ativo), nascimento e CPF. CPF de outra pessoa da organização, inclusive na lixeira, é 422 `cpf_em_uso`. Os obrigatórios do vínculo não bloqueiam. Grava o evento `entrada` na linha do tempo, com "como chegou" como motivo, e a auditoria `pessoa.criada` só com os nomes dos campos. | `CadastrarPessoaAction`; `CadastroDePessoasEloquent` | OIK-SPEC-0001 T-26; CA-13 |
 
 ## Interfaces / contratos expostos
-Não há endpoint, Contract ou evento público nesta entrega. A interface operacional disponível é o comando `oikora:chaves:recifrar`, que regrava os campos sensíveis com a chave atual.
+- **Painel (`/api/v1/painel`, grupo `painel`):** `GET /pessoas/duplicidade?nome=&nascimento=&cpf=&email=`, `POST /pessoas` (`nome`, `celular`, `email`, `vinculo`, `igreja`, `como_chegou`, `nascimento`, `cpf`, `nao_duplicadas[]`; 201 com `data.uuid`; `cpf_em_uso` 422), `GET /pessoas/{id}` (com `completude` e `foto_url`), `PATCH /pessoas/{id}` (`secao` e os campos dela; devolve a ficha), `POST /pessoas/{id}/foto` (`tipo_conteudo`, `tamanho`; 201 com `url`, `cabecalhos`, `caminho`, `expira_em`), `POST /pessoas/{id}/vinculo` (`vinculo`, `motivo`, `matricula`), `POST /pessoas/{id}/situacao` (`situacao`, `motivo`), `GET /busca?q=`, `GET|POST /listas/{lista}`, `PUT /listas/{lista}/{id}`, `GET|PUT /configuracao/obrigatorios` (`{vinculo, campos[]}`, substitui o conjunto do vínculo). Erros: `authz.denied` (403), `item_inexistente` (404), `nome_em_uso` (422).
+- **Comando:** `oikora:chaves:recifrar`, que regrava os campos sensíveis com a chave atual.
+- **Contract `ContatosDaPessoa`** (para Avisos): endereço de entrega da ficha, uuid da Pessoa, descadastro por canal e por "SAIR".
 
 ## Dependências
-- **Depende de:** infraestrutura compartilhada `Shared/Cifra`, contexto de organização de `Shared/Tenancy` e tabelas `organizacoes`, `igrejas` e `acessos` já aprovadas na Spec.
-- **É usado por:** nenhum outro módulo por interface pública nesta entrega; `acessos` recebe a FK composta para a Pessoa da mesma organização.
+- **Depende de:** `Shared/Cifra`, `Shared/Arquivos` (URL assinada), Contract `ConsultaOrganizacoes` (modo de matrícula e uuid da organização), contexto de organização de `Shared/Tenancy` e tabelas `organizacoes`, `igrejas` e `acessos` já aprovadas na Spec.
+- **É usado por:** Avisos, pelo Contract `ContatosDaPessoa`; `acessos` recebe a FK composta para a Pessoa da mesma organização.
 
 ## Decisões arquiteturais relevantes
 | ADR | Como afeta este módulo |
@@ -34,10 +51,16 @@ Não há endpoint, Contract ou evento público nesta entrega. A interface operac
 - **Erros comuns e o que significam:** ausência ou formato inválido de `OIKORA_CHAVE_CAMPOS`; ausência de `OIKORA_CHAVE_HMAC_CPF`; falha ao decifrar indica que nenhuma chave configurada reconheceu o valor persistido.
 
 ## Pontos em aberto / riscos conhecidos
-- ⚠️ A autorização e a projeção por categoria serão implementadas nas tasks de casos de uso e API; esta entrega oferece somente catálogo, persistência e cifra.
+- ⚠️ A ação `recuperar` do detector só é anunciada: a rota de recuperação da lixeira chega com a task da lixeira.
+- ⚠️ O cadastro rápido grava o celular sem marcar `e_whatsapp`; a marcação é feita na seção `contatos` da ficha.
+- ⚠️ No OpenAPI, o `PATCH /pessoas/{id}` mostra só `secao`: as regras de cada seção são escolhidas em tempo de execução e o Scramble não as infere.
 - ⚠️ A rotação é transacional por organização e pode concluir organizações anteriores antes de falhar em uma posterior; o comando é reexecutável.
 
 ## Changelog
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
 | 2026-11-08 | Criação inicial com schema, catálogo, HMAC, busca e rotação da cifra. | OIK-SPEC-0001 T-09 |
+| 2026-11-10 | Filtro global de alcance, busca na denominação, ficha com projeção de sensíveis (`GET /painel/pessoas/{id}`, `GET /painel/busca`); rotinas de sistema por `AlcanceAtual::comoSistema`. | OIK-SPEC-0001 T-14 |
+| 2026-11-13 | Listas de valores e obrigatórios por vínculo (`listas_valores`, `campos_obrigatorios`, sob RLS), rotas de manutenção com `pessoas.configurar` e auditoria; FK de `pessoas.tipo_membro_id` e `como_chegou_id` para `listas_valores`. | OIK-SPEC-0001 T-25 |
+| 2026-11-17 | Cadastro rápido e detector de duplicidade (com lixeira); `eventos_linha_do_tempo` e `pares_nao_duplicados` sob RLS. | OIK-SPEC-0001 T-26 |
+| 2026-11-17 | Ficha por seções com completude e foto por URL assinada; vínculo, situação e matrícula com motivo e linha do tempo; Contract `ContatosDaPessoa`. | OIK-SPEC-0001 T-27, T-28 (e T-18) |

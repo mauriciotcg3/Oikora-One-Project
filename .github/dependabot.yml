@@ -1,0 +1,31 @@
+# Atualizações semanais (OIK-ADR-0010 §7). Cada PR passa pelo CI como qualquer outro.
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /api
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+
+  - package-ecosystem: docker
+    directories:
+      - /api
+      - /web
+      - /infra/minio
+    schedule:
+      interval: weekly
+      day: monday

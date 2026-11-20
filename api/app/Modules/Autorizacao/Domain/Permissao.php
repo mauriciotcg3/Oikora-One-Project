@@ -28,4 +28,24 @@ enum Permissao: string
     case ContatosEditar = 'pessoas.sensiveis.contatos.editar';
     case FeVer = 'pessoas.sensiveis.fe.ver';
     case FeEditar = 'pessoas.sensiveis.fe.editar';
+
+    /**
+     * Pode ser pedida por concessão temporária (OIK-ADR-0012 §6): governança e exportação, não. A
+     * própria aprovação de solicitações também não, para ninguém decidir pedidos por concessão.
+     */
+    public function solicitavel(): bool
+    {
+        return ! in_array($this, [
+            self::PapeisGerir,
+            self::AcessosGerir,
+            self::PessoasExportar,
+            self::SolicitacoesPermissaoAprovar,
+        ], true);
+    }
+
+    /** Categoria sensível (`saude`, `documentos`, `contatos`, `fe`), ou null (OIK-ADR-0012 §5). */
+    public function categoriaSensivel(): ?string
+    {
+        return preg_match('/^pessoas\.sensiveis\.([a-z]+)\./', $this->value, $partes) === 1 ? $partes[1] : null;
+    }
 }

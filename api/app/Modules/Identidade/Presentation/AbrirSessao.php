@@ -14,7 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
 /** Etapa do pipeline de login do Fortify: traduz o resultado de `Entrar` para sessão e contrato HTTP. */
 final class AbrirSessao
 {
-    public function __construct(private readonly Entrar $entrar) {}
+    public function __construct(
+        private readonly Entrar $entrar,
+        private readonly ElevacaoNoLogin $elevacao,
+    ) {}
 
     public function handle(EntrarRequest $request, Closure $proximo): Responsable|Response
     {
@@ -30,6 +33,7 @@ final class AbrirSessao
 
         Auth::guard('web')->loginUsingId($contaId);
         $request->session()->regenerate();
+        $this->elevacao->abrir($request, $contaId, $request->entrada(), null);
 
         return $proximo($request);
     }
@@ -37,7 +41,7 @@ final class AbrirSessao
     private function recusar(EntrarRequest $request, FalhaDeLogin $falha): JsonResponse
     {
         if ($falha->contaId !== null) {
-            DesafioPendente::abrir($request, $falha->contaId, $falha->identificadorResumo);
+            DesafioPendente::abrir($request, $falha->contaId, $falha->identificadorResumo, $request->entrada());
         }
 
         return match ($falha->motivo) {

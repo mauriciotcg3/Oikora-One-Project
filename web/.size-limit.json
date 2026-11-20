@@ -1,0 +1,8 @@
+[
+  {
+    "name": "painel",
+    "path": "dist/assets/painel-*.js",
+    "limit": "350 KB",
+    "gzip": true
+  }
+]

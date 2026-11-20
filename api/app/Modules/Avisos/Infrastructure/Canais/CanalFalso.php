@@ -2,7 +2,9 @@
 
 namespace App\Modules\Avisos\Infrastructure\Canais;
 
+use App\Modules\Avisos\Application\CanalDeAviso;
 use App\Modules\Avisos\Application\CanalDeCodigo;
+use App\Modules\Avisos\Application\MensagemDeAviso;
 use App\Modules\Avisos\Application\MensagemDeCodigo;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -12,10 +14,13 @@ use Throwable;
  * Adapter sem provedor real, usado até a integração de cada canal existir (OIK-ADR-0010 §2).
  * No dev, grava a mensagem em `storage/app/private/codigos-dev.log`, para o código poder ser lido no navegador.
  */
-abstract class CanalFalso implements CanalDeCodigo
+abstract class CanalFalso implements CanalDeAviso, CanalDeCodigo
 {
     /** @var list<MensagemDeCodigo> */
     public array $enviados = [];
+
+    /** @var list<MensagemDeAviso> */
+    public array $avisosEnviados = [];
 
     private ?Throwable $falha = null;
 
@@ -49,5 +54,21 @@ abstract class CanalFalso implements CanalDeCodigo
         }
 
         return 'falso-'.Str::uuid();
+    }
+
+    public function enviarAviso(MensagemDeAviso $mensagem): string
+    {
+        if ($this->falha !== null) {
+            throw $this->falha;
+        }
+
+        $this->avisosEnviados[] = $mensagem;
+
+        return 'falso-'.Str::uuid();
+    }
+
+    public function provedor(): string
+    {
+        return strtolower(str_replace('Falso', '', class_basename($this)));
     }
 }

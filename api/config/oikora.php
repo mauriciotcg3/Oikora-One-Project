@@ -20,6 +20,13 @@ return [
     // Chave do HMAC que resume identificador e IP em `eventos_autenticacao` e nos limites.
     'chave_resumo' => env('OIKORA_CHAVE_RESUMO', env('APP_KEY')),
 
+    // OpenTelemetry (OIK-ADR-0010 §9): desligado por padrão; ligar com OTEL_SDK_DISABLED=false e o
+    // endpoint OTLP/HTTP do coletor (Grafana Alloy).
+    'otel' => [
+        'ligado' => ! filter_var(env('OTEL_SDK_DISABLED', true), FILTER_VALIDATE_BOOL),
+        'endpoint' => env('OTEL_EXPORTER_OTLP_ENDPOINT', 'http://alloy:4318'),
+    ],
+
     // Filas conhecidas (plan.md §1), mostradas em GET /api/v1/saude mesmo quando vazias.
     'filas' => ['codigos', 'avisos', 'webhooks', 'default', 'pesadas'],
 
@@ -41,6 +48,26 @@ return [
         'desafio_minutos' => (int) env('OIKORA_DESAFIO_VALIDADE', 30),
         'sms_por_hora' => (int) env('OIKORA_SMS_POR_HORA', 3),
         'sms_por_dia' => (int) env('OIKORA_SMS_POR_DIA', 10),
+        // `falso` (dev e testes) grava em storage; `real` chama Postmark, Meta e Twilio (T-11).
+        'provedores' => env('OIKORA_CODIGOS_PROVEDORES', 'falso'),
+    ],
+
+    // Avisos (OIK-ADR-0008 §9, §10, T-18): `falso` em dev e testes; `real` usa Postmark e o número de
+    // WhatsApp da organização.
+    'avisos' => [
+        'provedores' => env('OIKORA_AVISOS_PROVEDORES', 'falso'),
+    ],
+
+    // Arquivos privados (OIK-ADR-0011 §7): logo, fotos e anexos só por URL assinada de curta duração.
+    'arquivos' => [
+        'disco' => env('OIKORA_ARQUIVOS_DISCO', 'arquivos'),
+        'validade_minutos' => (int) env('OIKORA_ARQUIVOS_VALIDADE_MINUTOS', 5),
+    ],
+
+    // Elevação do painel (OIK-ADR-0003 §9): expira com 2h sem uso ou 12h no total.
+    'painel' => [
+        'elevacao_ociosa_minutos' => (int) env('OIKORA_ELEVACAO_OCIOSA_MINUTOS', 120),
+        'elevacao_total_horas' => (int) env('OIKORA_ELEVACAO_TOTAL_HORAS', 12),
     ],
 
     // Regra das 24h do OIK-ADR-0003 §7.

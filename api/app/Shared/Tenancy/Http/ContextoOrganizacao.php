@@ -18,13 +18,16 @@ final readonly class ContextoOrganizacao
     {
         return DB::transaction(function () use ($request, $next): Response {
             $organizacaoId = $this->resolvedor->resolver($request);
-            $esperada = $request->header('X-Organizacao-Esperada');
+            DB::select("select set_config('app.organizacao_id', ?, true)", [(string) $organizacaoId]);
 
-            if ($esperada !== null && ! hash_equals((string) $organizacaoId, $esperada)) {
+            // O front conhece só o identificador público (uuid) da organização ativa, que vem do `/me`.
+            $esperada = $request->header('X-Organizacao-Esperada');
+            if ($esperada !== null && ! hash_equals($this->uuidDa($organizacaoId), $esperada)) {
                 return new JsonResponse(['codigo' => 'organizacao_trocada'], Response::HTTP_CONFLICT);
             }
 
-            DB::select("select set_config('app.organizacao_id', ?, true)", [(string) $organizacaoId]);
+            // Os middlewares seguintes (ator e alcance) leem daqui, sem resolver de novo.
+            $request->attributes->set('organizacao_id', $organizacaoId);
 
             if ($request->user() !== null) {
                 DB::select("select set_config('app.conta_id', ?, true)", [(string) $request->user()->getAuthIdentifier()]);
@@ -32,5 +35,12 @@ final readonly class ContextoOrganizacao
 
             return $next($request);
         });
+    }
+
+    private function uuidDa(int $organizacaoId): string
+    {
+        $uuid = DB::table('organizacoes')->where('id', $organizacaoId)->value('uuid');
+
+        return is_string($uuid) ? $uuid : '';
     }
 }

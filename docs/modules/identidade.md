@@ -29,12 +29,16 @@ Cuida da conta global da pessoa e da entrada no sistema. Hoje faz o login por e-
 | — | Conta bloqueada recebe 403 `conta_bloqueada`, só depois de a senha conferir. | `Application/Entrar.php` | plan.md §7 |
 | — | A sessão dura 30 dias e é renovada com o uso. | `api/config/session.php` | OIK-ADR-0003 §9; U-30 |
 | — | Senha nova exige no mínimo 8 caracteres e não pode estar vazada. | `IdentidadeServiceProvider.php`, `Presentation/RecuperacaoSenhaController.php` | OIK-ADR-0003 §4; U-29 |
+| RN-12 | Ninguém define a senha de outra pessoa: a senha só muda pela própria sessão (`PUT /conta/senha`, com senha confirmada) ou pelo token de recuperação enviado ao identificador verificado da própria conta. Não há rota de painel que grave senha alheia. O convite de uso único (72h, revogável) entra na T-22. | `Presentation/ContaController.php`, `Application/RedefinirSenha.php` | OIK-ADR-0003 §5; RN-12 |
 | — | Uma conta tem no máximo um acesso ativo por organização, e uma Pessoa também. | índices únicos parciais de `acessos` | OIK-ADR-0003 §2 |
+| RN-16 | 2FA obrigatório para quem tem o papel de sistema Administrador em alguma organização (acesso ativo); opcional para os demais. Administrador sem 2FA cadastrado não eleva (`dois_fatores_cadastro_necessario`); quem tem 2FA, obrigatório ou não, precisa do código para elevar. | `Infrastructure/DoisFatoresPeloPapel.php`, `Application/ElevarPainel.php` | OIK-ADR-0003 §7; CA-10 |
+| — | A organização ativa fica na sessão e é revalidada a cada requisição contra os acessos ativos. Com um único acesso, é escolhida sozinha; com mais de um, a pessoa escolhe por `PUT /me/organizacao-ativa`. Acesso revogado depois do login: a próxima requisição responde 403 `acesso_revogado`, sem gravar contexto. | `Infrastructure/ResolvedorOrganizacaoSessao.php`, `Application/MinhaConta.php` | OIK-ADR-0003 §12; CA-09 |
+| — | Rotas `/api/v1/painel/*` exigem elevação viva: expira com 2h sem uso ou 12h no total (`elevacao_necessaria`). O login com `entrada: painel` já abre a elevação (senha + 2FA quando a conta o tem). A elevação regenera o id da sessão. | `Presentation/ElevacaoPainel.php`, `Presentation/ElevacaoNoLogin.php`, `Application/SessaoDoPainel.php` | OIK-ADR-0003 §9; U-32 |
 
 ## Interfaces / contratos expostos
 | Rota | Respostas |
 |---|---|
-| `POST /api/v1/auth/login` (`identificador`, `senha`) | 204 entrou; 422 dados inválidos; 403 `dois_fatores_necessario`, `conta_bloqueada` ou `canal_indisponivel`; 429 `muitas_tentativas` com `Retry-After` |
+| `POST /api/v1/auth/login` (`identificador`, `senha`, `entrada` opcional: `painel` ou `membro`) | 204 entrou (com `painel`, já elevado quando cabe); 422 dados inválidos; 403 `dois_fatores_necessario`, `conta_bloqueada` ou `canal_indisponivel`; 429 `muitas_tentativas` com `Retry-After` |
 | `POST /api/v1/auth/logout` | 204 saiu; 401 sem sessão |
 | `POST /api/v1/auth/2fa/confirmar` (`codigo` ou `codigo_recuperacao`) | 204 entrou; 401 `sem_desafio`; 403 `conta_bloqueada`; 422 código incorreto ou vencido; 429 `muitas_tentativas` |
 | `POST /api/v1/auth/2fa/enviar` (`canal`: `email` ou `whatsapp`) | 200 com `canal` e `destino` mascarado; 401 `sem_desafio`; 403 `conta_bloqueada`; 422 canal sem contato; 429 `muitas_tentativas` |
@@ -47,8 +51,12 @@ Cuida da conta global da pessoa e da entrada no sistema. Hoje faz o login por e-
 | `PUT /api/v1/conta/senha` (`senha`) | 204 trocada, sem sessão; 401; 403 `senha_nao_confirmada`; 422 |
 | `POST /api/v1/conta/verificacao/{email\|celular}` | 204 aceito; 401; 422 sem esse contato; 429 `muitas_tentativas` |
 | `POST /api/v1/conta/verificacao/{email\|celular}/confirmar` (`codigo`) | 204 verificado; 401; 422 código incorreto; 429 `muitas_tentativas` |
+| `GET /api/v1/me` | 200 com `conta`, `organizacao_ativa` (ou null), `organizacoes`, `capacidades` (`permissao`, `organizacao`), `elevacao` (`ativa`, `expira_em`) e `dois_fatores` (`canal`, `obrigatorio`); 401 |
+| `PUT /api/v1/me/organizacao-ativa` (`organizacao`: uuid) | 204 escolhida; 401; 403 `organizacao_sem_acesso`; 422 |
+| `POST /api/v1/painel/elevacao` (`senha`, `codigo` ou `codigo_recuperacao`) | 204 elevado, com sessão nova; 401; 403 `dois_fatores_necessario` (com `canal` e `destino`), `dois_fatores_cadastro_necessario`, `conta_bloqueada`, `canal_indisponivel` ou erro de organização; 422 senha ou código; 429 `muitas_tentativas` |
+| Rotas `/api/v1/painel/*` | 403 `elevacao_necessaria`, `organizacao_nao_escolhida`, `acesso_revogado`, `acesso_inexistente` ou `sem_atribuicao`; 409 `organizacao_trocada` quando `X-Organizacao-Esperada` diverge |
 
-Funções do banco para uso antes do contexto: `identidade_localizar_conta(texto)` e `identidade_identificador_em_uso(texto)`.
+Funções do banco para uso antes do contexto: `identidade_localizar_conta(texto)`, `identidade_identificador_em_uso(texto)` e `identidade_acessos_ativos_da_conta(conta)` (organizações com acesso ativo). Autorização publica `autorizacao_conta_tem_papel_sistema(conta, sistema)` para a RN-16.
 
 Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `paraEnvio`, `registrarEnvio`).
 
@@ -64,13 +72,15 @@ Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `para
 | OIK-ADR-0005 | `eventos_autenticacao` é só inclusão para `oikora_app`. |
 
 ## Observabilidade — o que o suporte deve saber
-- **Eventos logados** em `eventos_autenticacao`, com identificador e IP em HMAC: `auth.login.sucesso`, `auth.login.falha`, `auth.login.limite`, `auth.login.conta_bloqueada`, `auth.login.dois_fatores_pendente`, `auth.2fa.sucesso`, `auth.2fa.falha`, `auth.2fa.limite`, `auth.senha.recuperacao_pedida`, `auth.senha.recuperacao_limite`, `auth.senha.redefinida`, `auth.senha.trocada`, `auth.2fa.ativado`, `auth.2fa.desativado`, `auth.contato.verificado`, `auth.login.canal_indisponivel`. O canal de `auth.2fa.sucesso` pode ser `recuperacao`.
+- **Eventos logados** em `eventos_autenticacao`, com identificador e IP em HMAC: `auth.login.sucesso`, `auth.login.falha`, `auth.login.limite`, `auth.login.conta_bloqueada`, `auth.login.dois_fatores_pendente`, `auth.2fa.sucesso`, `auth.2fa.falha`, `auth.2fa.limite`, `auth.senha.recuperacao_pedida`, `auth.senha.recuperacao_limite`, `auth.senha.redefinida`, `auth.senha.trocada`, `auth.2fa.ativado`, `auth.2fa.desativado`, `auth.contato.verificado`, `auth.login.canal_indisponivel`, `auth.elevacao`, `auth.elevacao.falha`, `auth.elevacao.sem_dois_fatores`. O canal de `auth.2fa.sucesso` pode ser `recuperacao`.
+- **Auditoria:** `auth.elevacao` também vai para a auditoria da organização ativa, com `via` (`login` ou `dialogo`) e `segundo_fator`. No login de quem tem mais de uma organização, a elevação fica só em `eventos_autenticacao`, porque ainda não há organização escolhida.
 - **Métricas expostas:** nenhuma ainda (T-06).
 - **Erros comuns:** todo erro traz `request_id` no corpo e `X-Request-Id` no cabeçalho, que aparece também no evento. 419 é token CSRF ausente ou vencido.
 
 ## Pontos em aberto / riscos conhecidos
 - ⚠️ Os números do limite de tentativas, de reenvios e de pedidos de recuperação são provisórios (U-22).
-- ⚠️ `ExigenciaDeDoisFatores` responde "não" para todos até a T-16 ligar o papel Administrador. Até lá, a regra das 24h e a proibição de desativar não valem em uso real, e um Administrador sem 2FA entra (CA-10).
+- ⚠️ O cadastro do 2FA antes do primeiro acesso do Administrador depende das telas da T-38; até lá, o painel só responde `dois_fatores_cadastro_necessario`.
+- ⚠️ A elevação continua valendo depois de `PUT /me/organizacao-ativa`: ela prova quem é a pessoa, não a organização.
 - ⚠️ As rotas `/conta/*` não têm tela no web.
 - ⚠️ Com o e-mail ou o celular como único contato, quem tem 2FA obrigatório fica sem entrar por até 24h depois de recuperar a senha (`canal_indisponivel`).
 - ⚠️ A mensagem de erro da tela de TOTP fala em "Confira a mensagem", texto pensado para código por mensagem.
@@ -83,6 +93,8 @@ Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `para
 ## Changelog
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-17 | Organização ativa na sessão, `/me`, troca de organização, elevação do painel (2h/12h, entrada `painel`) e RN-16 pelo papel Administrador. | OIK-SPEC-0001 T-16 |
+| 2026-11-13 | T-10 fechada: casos do login, limite, eventos, sessão, RLS de identidade e unicidade de `acessos` conferidos (27 testes); RN-12 registrada. | OIK-SPEC-0001 T-10 |
 | 2026-11-08 | Integridade referencial de `acessos.pessoa_id` ligada ao cadastro de pessoas. | OIK-SPEC-0001 T-09 |
 | 2026-11-07 | Criação inicial do documento, com o login por senha. | OIK-SPEC-0001 T-10 (fatia do login) |
 | 2026-11-07 | 2FA por código e recuperação de senha, com a sessão aberta só no `confirmar`. | OIK-SPEC-0001 T-12 (recorte) |

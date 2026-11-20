@@ -5,9 +5,20 @@ import { InicioPainel } from './InicioPainel'
 
 // Rotas da entrada `painel` (OIK-ADR-0006 §3), servidas sob /painel.
 
+/** Volta só para dentro do painel: o parâmetro vem da URL e não pode levar a outro site. */
+export function destinoDepoisDoLogin(busca: string): string | null {
+  const voltar = new URLSearchParams(busca).get('voltar')
+  return voltar !== null && voltar.startsWith('/painel/') && !voltar.startsWith('//') ? voltar : null
+}
+
 function TelaLogin(): ReactNode {
   const navegar = useNavigate()
-  return <PaginaLogin aoEntrar={() => void navegar({ to: '/' })} />
+  const aoEntrar = (): void => {
+    const destino = destinoDepoisDoLogin(window.location.search)
+    if (destino) window.location.assign(destino)
+    else void navegar({ to: '/' })
+  }
+  return <PaginaLogin aoEntrar={aoEntrar} />
 }
 
 const raiz = createRootRoute({ component: Outlet })

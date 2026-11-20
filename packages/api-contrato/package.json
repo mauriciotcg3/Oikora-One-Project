@@ -8,5 +8,19 @@
   ],
   "exports": {
     ".": "./src/index.ts"
+  },
+  "scripts": {
+    "gerar": "openapi-typescript ../../api/openapi.json -o src/esquema.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc --noEmit && vitest run",
+    "gate": "pnpm gerar && git diff --exit-code -- src/esquema.ts && pnpm test"
+  },
+  "dependencies": {
+    "openapi-fetch": "0.17.0"
+  },
+  "devDependencies": {
+    "openapi-typescript": "7.13.0",
+    "typescript": "~6.0.3",
+    "vitest": "5.0.5"
   }
 }

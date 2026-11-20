@@ -68,7 +68,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; `composer gate` e `pnpm gate` passam localmente; um PR de teste executa o workflow (CA-29, parte do CI).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): `composer gate` = Pint → PHPStan 8 (sem baseline) → Pest → Deptrac (`deptrac.yaml`, camadas DEP-004/005) e guard de fronteira entre módulos (MOD-002); `pnpm gate` = tsc → ESLint → Vitest → build → size-limit (painel ≤ 350 KB gzip, hoje 245,91 KB); `ci.yml` com filtro por caminho, cache, cancelamento, cobertura ≥ 80% nas linhas alteradas (diff-cover), gitleaks e auditoria de dependências; `noturno.yml` (dependências; jornadas na T-45); Dependabot semanal. GateTest Green (o caso do size-limit pula no container da API, que só monta `api/`). Pendentes: passo de contrato (Scramble/oasdiff) entra com a T-05; Pest em paralelo exige banco por processo; validar o workflow num PR de teste.
 
 ## T-03 — Isolamento por organização no banco (RLS)
 - **Issue:** #3
@@ -135,7 +135,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; o CI falha quando o contrato diverge ou quando o `oasdiff` aponta quebra (CA-29).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em W3 (2026-11-13): Scramble 0.13.53 gera `api/openapi.json` (OpenAPI 3.1, só a `/api/v1`, servidor relativo `/api/v1` para não depender do `APP_URL`, sem `/docs/api` exposto); `/saude` com `@response` (o Scramble não infere `array_fill_keys`). Risco do `plan.md` §13 validado: `when()` num Resource vira propriedade opcional. `packages/api-contrato`: `esquema.ts` gerado por `openapi-typescript` 7.13.0 e `criarClienteApi()` sobre `openapi-fetch` 0.17.0, com `gate` (regera = versionado, `tsc`, Vitest). CI: no job `api`, "gerado = versionado" e `oasdiff` v1.35.0 contra a base do PR e contra a tag do app mínimo (variável `CONTRATO_TAG_APP_MINIMO`, vazia até existir app); no job `web`, o `gate` do pacote, e `api/openapi.json` entrou no filtro. Testes: `OpenApiTest` 4 Green; `cliente.test.ts` 2 Green. Pendente: o `oasdiff` só roda de verdade no primeiro PR (imagem não baixada localmente); o `shared/http` do front passa a usar o cliente na T-37.
 
 ## T-06 — Instrumentação no código e log seguro
 - **Issue:** #6
@@ -157,7 +157,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-28).
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): `X-Request-Id` aceito da borda ou gerado, `traceparent` W3C e `X-Cliente`; canal `json` no stdout como padrão, com redação por chave e por padrão (CPF, e-mail, telefone, código de 6 dígitos, token); job herda o `request_id` como `correlation_id`; SDK OpenTelemetry com exportação OTLP desligada por padrão (`OTEL_SDK_DISABLED`). 15 testes Green. Fora deste recorte: spans de Action/SQL/job e Sentry.
 
 ---
 
@@ -253,7 +253,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** RN-12 — atualizar `docs/modules/identidade.md`.
-- **Status:** Parcial (fatia do login, 2026-11-07): login, logout, sessão, limite, eventos e RLS de identidade Green. Login responde 204, conforme o contrato do front. `acessos.pessoa_id` sem FK até a T-09; política de senha sem rota até a T-12/T-22.
+- **Status:** Codificada em W3 (2026-11-13): os nove casos conferidos — `LoginTest` e `ContasRlsTest`, 27 testes Green. As pendências da fatia de 2026-11-07 foram fechadas no baseline: FK composta de `acessos.pessoa_id` (T-09) e política de senha (`Password::min(8)->uncompromised()`) nas rotas de troca e recuperação (T-12). RN-12 registrada em `docs/modules/identidade.md`. Login responde 204, conforme o contrato do front.
 
 ## T-11 — Envio de códigos de identidade (fila `codigos`)
 - **Issue:** #11
@@ -276,7 +276,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; nenhuma chamada de rede real (`preventStrayRequests`).
 - **Regra de negócio associada:** RN-21 (códigos) — atualizar `docs/modules/avisos.md`.
-- **Status:** Parcial (recorte de códigos, 2026-11-07): fila `codigos`, Contract, reserva por SMS, limites e estado do envio Green, com adapters falsos. Faltam os adapters reais de Postmark, Meta e Twilio.
+- **Status:** Codificada em W4 (2026-11-17): sobre o recorte de 2026-11-07 (fila `codigos`, Contract, reserva por SMS, limites e estado do envio), entram os adapters reais `PostmarkCodigos` (`POST /email`), `MetaWhatsAppCodigos` (Cloud API, template `authentication` com o código no corpo e no botão) e `TwilioCodigos` (Messages, por serviço ou remetente), sobre a base `CanalHttp` (timeout 10 s, conexão 3 s, classificação temporário/definitivo, log `avisos.provedor.chamada` sem dado pessoal). Escolha por `OIKORA_CODIGOS_PROVEDORES` (`falso` por padrão). `CanaisDeCodigoReaisTest` 19 Green com `Http::fake` e `preventStrayRequests`; Avisos 37 Green. Pendente fora do código: credenciais por ambiente e template aprovado na conta da plataforma.
 
 ## T-12 — Verificação de contato, 2FA e recuperação de senha
 - **Issue:** #12
@@ -345,7 +345,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-03 para ficha e busca; CA-20).
 - **Regra de negócio associada:** RN-09, RN-10 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): `PessoaEscopoAlcance` global no model (sem alcance → `authz.context_missing`); `BuscaDenominacao` (porta) + `BuscaDenominacaoPostgres`, único que remove o filtro, com SELECT de `uuid`, `nome`, `igreja_id`, `vinculo` (nome, CPF exato por HMAC, e-mail e telefone); `LerFicha` projeta por categoria no SELECT e omite contatos/endereços sem `contatos.ver`; `GET /painel/pessoas/{id}` (403 fora do alcance, 404 inexistente) e `GET /painel/busca`. Rotinas de sistema usam `AlcanceAtual::comoSistema`. 22 testes Green.
 
 ## T-15 — Gestão de papéis e atribuições com travas
 - **Issue:** #15
@@ -368,7 +368,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-11).
 - **Regra de negócio associada:** RN-17 — atualizar `docs/modules/autorizacao.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): `GET /painel/permissoes`, `GET|POST /painel/papeis`, `PUT /painel/papeis/{id}`, `POST|DELETE /painel/acessos/{id}/atribuicoes[/{id}]`; trava do último Administrador (atribuição e governança do papel), anti-escalada por permissão e por escopo, auditoria com permissões e escopo antes/depois. Grupo de middleware `painel` (sessão, organização, ator) e Contract `AlcanceAtual`. 13 testes Green. A organização ativa ainda vem da porta `ResolvedorOrganizacaoAtiva` (T-16).
 
 ## T-16 — Organização ativa, `/me` e elevação do painel
 - **Issue:** #16
@@ -394,7 +394,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-10; CA-09, parte do efeito).
 - **Regra de negócio associada:** RN-16 — atualizar `docs/modules/identidade.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W4 (2026-11-17): `ResolvedorOrganizacaoSessao` (organização na sessão, revalidada a cada pedido pela via estreita `identidade_acessos_ativos_da_conta`; um acesso → automática; revogado → 403 `acesso_revogado`); `GET /me` (conta, organização ativa, organizações, capacidades do alcance, elevação, 2FA) e `PUT /me/organizacao-ativa`; `POST /painel/elevacao` (senha + 2FA quando a conta o tem; Administrador sem 2FA → `dois_fatores_cadastro_necessario`; regenera a sessão); middleware `ElevacaoPainel` (2h sem uso, 12h total) no grupo `painel` pelo alias `elevacao.painel`; `ResolverAtor` exige ao menos uma atribuição (`sem_atribuicao`); login com `entrada: painel` já eleva, também depois do 2FA (U-32); `auth.elevacao` na auditoria e em `eventos_autenticacao` (U-31). RN-16 real: `DoisFatoresPeloPapel` pelo Contract `PapeisDaConta` de Autorização (função `autorizacao_conta_tem_papel_sistema`). `OrganizacaoAtivaTest` 6 e `ElevacaoPainelTest` 9 Green; helper `entrarNoPainel` entra pela entrada `painel`.
 
 ## T-17 — Avisos: caixa de saída transacional e idempotência
 - **Issue:** #17
@@ -418,7 +418,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-25, CA-26); no `compose.yaml`, `worker-codigos` consome só `codigos`, `worker-geral` consome `avisos,webhooks,default` e `worker-pesadas` consome `pesadas` (U-30).
 - **Regra de negócio associada:** RN-21, RN-22 — atualizar `docs/modules/avisos.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W2 (2026-11-10): tabelas `avisos` (idempotência por organização, tipo, referência, destinatário e chave) e `envios` particionada por mês do aviso (único `aviso_id`+`canal`), com RLS; catálogo `TipoAviso`; Contract `Avisos::registrar` na transação do fato, job `EnviarAviso` na fila `avisos` com `afterCommit`, `FOR UPDATE SKIP LOCKED`, esperas 1 min/5 min/30 min/2 h e definitivo na 5ª; supressão `em_migracao` com `envio.suprimido`; `envios:varrer` e `avisos:criar-particoes` no agendador. Workers já seguem a U-30 desde a T-01. 9 testes Green. Destino de pessoa sem conta fica para T-18/T-22 (hoje falha como `sem_destino`).
 
 ## T-18 — Avisos: canais e-mail e WhatsApp, regras por categoria, janela e preferências
 - **Issue:** #18
@@ -441,7 +441,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** RN-21 — atualizar `docs/modules/avisos.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `CaixaDeSaida` aplica as regras por categoria (convite em todos os canais com contato; serviço por um canal, preferido ou WhatsApp da organização, senão e-mail), `JanelaDiurna` (8h–21h no fuso da organização; fora dela o envio nasce `agendado` e o `envios:varrer` o solta), `ReenviarPeloProximoCanal` (falha definitiva ou WhatsApp sem entrega em 30 min), `preferencias_aviso` com `PreferenciasDeAviso` (tipo obrigatório não se desliga; serviço só troca o canal), `Descadastrar` (link assinado `POST /api/v1/descadastro`, RFC 8058, e "SAIR"), Contract `ContatosDaPessoa` (Pessoas) e `PerfilDeEnvio` (Organização, com `email_contato`). Adapters reais `PostmarkAvisos` ("Nome via Oikora", responder-para, Blade sem dado da ficha, `List-Unsubscribe` em tipo não obrigatório) e `MetaWhatsAppAvisos` (número da organização) atrás de `OIKORA_AVISOS_PROVEDORES`. `RegrasCanalTest` 11 e `DescadastroTest` 9 Green. Pendente: `whatsapp_numeros` real (T-21; até lá `NumerosWhatsAppIndisponiveis`), webhook que chama o "SAIR" e confirma entrega (T-19), templates aprovados na Meta.
 
 ## T-19 — Avisos: webhooks de status
 - **Issue:** #19
@@ -575,7 +575,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `GET|PUT /painel/organizacao` (nome, fuso IANA, cor com contraste AA contra o texto branco do tema, `email_contato`, limite de WhatsApp e logo pelo caminho emitido; modo de matrícula exige `pessoas.configurar`, U-18), `POST /painel/organizacao/logo` (PNG, JPEG ou WebP até 1 MB; URL assinada de `PUT`, 5 min), leitura do logo por URL assinada; `GET|POST /painel/igrejas` e `PUT /painel/igrejas/{id}` com `igrejas.gerir` no escopo organização, sem rota de exclusão. Porta `Shared\Arquivos\ArquivosPrivados` sobre o disco `arquivos` (local com `serve` em dev e testes; S3 em produção). Auditoria `organizacao.configurada` e `organizacao.igreja_criada|igreja_atualizada` só com nomes de campo. `IgrejasTest` 6 e `ConfiguracaoOrganizacaoTest` 8 Green. Pendente: driver S3/MinIO (`league/flysystem-aws-s3-v3` e variáveis do bucket) para produção.
 
 ---
 
@@ -601,7 +601,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-30).
 - **Regra de negócio associada:** RN-06, RN-13 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W3 (2026-11-13): `listas_valores` (seis listas, nome único sem diferenciar maiúsculas, ordem, desativação sem exclusão) e `campos_obrigatorios` (por vínculo, só chaves de `CampoFicha`), sob RLS; FKs de `pessoas.tipo_membro_id` e `como_chegou_id`. Rotas `GET|POST /painel/listas/{lista}`, `PUT /painel/listas/{lista}/{id}`, `GET|PUT /painel/configuracao/obrigatorios`; manutenção com `pessoas.configurar` em escopo organização; leitura só de ativos para quem cria/edita pessoas. Auditoria `pessoas.lista_valor_criado|lista_valor_atualizado|obrigatorios_atualizados` (sem o nome, que é texto livre). Regra `ValorAtivoDaLista` pronta para a T-26. O teste de declarações de segurança passou a ver Actions em subpastas de `Application/`. 19 testes Green.
 
 ## T-26 — Cadastro rápido com alerta de duplicidade
 - **Issue:** #26
@@ -624,7 +624,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-01, CA-13).
 - **Regra de negócio associada:** RN-01, RN-23 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W4 (2026-11-17): `GET /painel/pessoas/duplicidade` (nome + nascimento normalizados, CPF por HMAC ou e-mail; inclui a lixeira com ação `recuperar`; fora do alcance só nome, igreja e vínculo) em `BuscaDenominacaoPostgres::duplicados`, a única classe que sai do filtro; `POST /painel/pessoas` com `CadastrarPessoaAction` (`pessoas.criar` na igreja, `cpf_em_uso` 422 inclusive na lixeira, evento `entrada` com "como chegou" como motivo, pares de `nao_duplicadas`, auditoria `pessoa.criada` só com nomes de campo). Migrations `eventos_linha_do_tempo` e `pares_nao_duplicados` sob RLS. `CadastroRapidoTest` 7 e `DuplicidadeTest` 5 Green. O arquivo da Action ficou `Actions/CadastrarPessoaAction.php`, para entrar no guard de declarações de segurança.
 
 ## T-27 — Ficha por seções, completude e foto
 - **Issue:** #27
@@ -646,7 +646,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-14).
 - **Regra de negócio associada:** RN-10, RN-13 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `PATCH /painel/pessoas/{id}` com `secao` (`pessoais`, `documentos`, `contatos`, `endereco`, `saude`, `eclesiasticos`, `adicionais`) e os campos dela; `EditarFichaAction` exige `pessoas.editar` na igreja da pessoa e, em seção sensível, o `…editar` da categoria (sem ele, 422 por campo `sem_permissao_categoria`); CPF em uso por outra pessoa (inclusive na lixeira) → 422 `cpf_em_uso`; contatos substituídos em E.164 e minúsculas, um principal por tipo, "é WhatsApp" só em celular, sem perder descadastro de contato mantido; auditoria `pessoa.atualizada` só com nomes dos campos que mudaram (comparação decifrada). `Domain/Completude` (piso, lista vazia = 100%) sobre os obrigatórios do vínculo, conferida sem ler valores; a ficha devolve `completude` e `foto_url` (URL assinada). `POST /painel/pessoas/{id}/foto` (PNG, JPEG ou WebP até 5 MB) e foto aceita só no prefixo da pessoa. A Action ficou `Actions/EditarFichaAction.php`. `FichaTest` 8 e `CompletudeTest` 3 Green.
 
 ## T-28 — Vínculo, situação e matrícula
 - **Issue:** #28
@@ -669,7 +669,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-06, CA-15, CA-16).
 - **Regra de negócio associada:** RN-03, RN-05, RN-06, RN-07 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `Domain/Vinculo::avancarPara` (só um passo à frente; `TransicaoVinculoInvalida` com a mensagem e o próximo vínculo) e `Domain/Situacao` (sem valor = ativa; listas de motivo próprias, U-28). `POST /painel/pessoas/{id}/vinculo` (`AlterarVinculoAction`: motivo ativo de `motivo_vinculo`, pessoa inativa recusada, Membro no modo manual exige matrícula livre na organização inclusive na lixeira — `matricula_obrigatoria`, `matricula_em_uso` —, modo `automatica` → `matricula_automatica_indisponivel`, mudar o vínculo desliga `novo_convertido`) e `POST /painel/pessoas/{id}/situacao` (`AlterarSituacaoAction`: inativar e reativar com motivo, vínculo e matrícula mantidos). Eventos `vinculo_alterado` e `situacao_alterada` na linha do tempo (motivo e de/para), auditoria `pessoa.atualizada` só com nomes de campo; recusa de regra em 422 com `codigo` e `mensagem`. `VinculoTest` 7 e `VinculoSituacaoTest` 7 Green.
 
 ## T-29 — Linha do tempo manual, relacionamentos, funções e tipo de membro
 - **Issue:** #29
@@ -878,7 +878,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; `pnpm gate` verde, com `size-limit` dentro de 350 KB.
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Codificada em W4 (2026-11-17): `shared/http` com `enviarComSessao` (credentials, `X-XSRF-TOKEN`, `X-Organizacao-Esperada` = uuid da organização do `/me`, `X-Cliente`, `traceparent` W3C novo por pedido; 419 renova e repete; 401, 403 `elevacao_necessaria` e 409 `organizacao_trocada` delegados à entrada por `configurarSessao`), `requisitar` e `criarClienteTipado()` sobre `@oikora/api-contrato` (dependência `workspace:*`); `shared/forms` (`aplicarErros422`, `ResumoErros`); `shared/observabilidade` (trace); `app/painel` com `FronteiraDeErro` (mostra e registra o `trace_id`), `SessaoPainel` (diálogo de elevação da feature Identidade, login com `voltar` só para `/painel/`, `BroadcastChannel` entre abas); login envia `entrada: painel`; fronteiras no ESLint por `no-restricted-imports`. A API passou a conferir `X-Organizacao-Esperada` pelo uuid. 23 testes; `pnpm gate` verde, 265,74 KB de 350 KB. Pendente: SDK OpenTelemetry com exportador, que espera o coletor do OIK-ADR-0010 (hoje só a propagação `traceparent`); tema com o logo da organização, que depende da configuração da organização (T-24).
 
 ## T-38 — Telas de identidade: login, 2FA, elevação, convite e recuperação
 - **Issue:** #38
@@ -1080,7 +1080,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-12, parte da consulta).
 - **Regra de negócio associada:** RN-15 — atualizar `docs/modules/auditoria.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W5 (2026-11-17): `GET /painel/auditoria` (`ConsultarAuditoria` em `Application/Consultas`, `AuditoriaController`): só com `auditoria.ver`; no escopo organização vê tudo da organização ativa (RLS), em escopo menor só eventos das igrejas do alcance (sem os de governança, que não têm igreja); paginada em 25, 50 ou 100, por `ocorrido_em` decrescente, com `meta.total`; filtros de período (datas no fuso da organização, `ate` inclusivo), evento (catálogo), ator (uuid do acesso; desconhecido → lista vazia) e alvo (`alvo_tipo`, `alvo`). Resposta com `campos` e `metadados` codificados, ator pelo uuid do acesso (`AcessosDaOrganizacao::uuids`) e igreja pelo resumo. `ConsultaAuditoriaTest` 6 Green.
 
 ---
 
@@ -1108,7 +1108,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-31).
 - **Regra de negócio associada:** RN-24 — atualizar `docs/modules/autorizacao.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W4 (2026-11-17): quatro tabelas da ADR-0012 sob RLS, com FKs compostas e checks (duração ≤ 72 h, permissão solicitável, uma concessão por pedido); `Permissao::solicitavel()` e `categoriaSensivel()`; Actions `SolicitarPermissao`, `CancelarSolicitacao`, `AprovarSolicitacao`, `RecusarSolicitacao` e `RevogarConcessao` (decisão só por administrador com `permissoes.solicitacoes.aprovar`, sem autoaprovação, teto pelo `AntiEscalada`, linha travada com `FOR UPDATE` e `versao`); concessão vigente somada em `AtribuicoesDePermissao::doAcesso` (vale pelo relógio do banco, sem job nem cache); `ResolverAtor` exige papel (`temPapel`), não concessão; `#[RequerPermissao(null)]` para o que basta acesso ativo; auditoria `authz.permission_*` e log técnico sem justificativa. `/me` alinhado ao `contrato-permissoes.md` (`data`, ids públicos, `autorizacao.capacidades` com `escopo_tipo` e `escopo_ids`, incluindo concessões); `CatalogoIgrejas::resumoRegionais`. `SolicitacoesPermissaoTest` 7 e `ConcessoesPermissaoRlsTest` 3 Green. Pendente: evento `authz.permission_grant_expired` e expiração de pedidos pendentes (rotina agendada); código `sem_permissao` do contrato × `authz.denied` das rotas.
 
 ## T-48 — Solicitação e aprovação temporária de permissões (frontend)
 - **Issue:** #48

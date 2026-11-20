@@ -1,0 +1,4228 @@
+{
+    "openapi": "3.1.2",
+    "info": {
+        "title": "Oikora One",
+        "version": "1.0.0",
+        "description": "API do Oikora One. Contrato gerado pelo Scramble e versionado em `api/openapi.json` (OIK-ADR-0006 \u00a78)."
+    },
+    "servers": [
+        {
+            "url": "/api/v1"
+        }
+    ],
+    "paths": {
+        "/painel/auditoria": {
+            "get": {
+                "operationId": "auditoria.listar",
+                "tags": [
+                    "Auditoria"
+                ],
+                "parameters": [
+                    {
+                        "name": "de",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "ate",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "evento",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/EventoAuditoria"
+                        }
+                    },
+                    {
+                        "name": "ator",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "alvo_tipo",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[a-z][a-z0-9_]{0,79}$"
+                        }
+                    },
+                    {
+                        "name": "alvo",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 80
+                        }
+                    },
+                    {
+                        "name": "pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000
+                        }
+                    },
+                    {
+                        "name": "por_pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                "25",
+                                "50",
+                                "100"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "por_pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            },
+                                            "required": [
+                                                "pagina",
+                                                "por_pagina",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "operationId": "authenticatedSession.store",
+                "summary": "Attempt to authenticate a new session",
+                "tags": [
+                    "AuthenticatedSession"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "operationId": "authenticatedSession.destroy",
+                "summary": "Destroy an authenticated session",
+                "tags": [
+                    "AuthenticatedSession"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/duplicidade": {
+            "get": {
+                "operationId": "cadastroRapido.duplicidade",
+                "tags": [
+                    "CadastroRapido"
+                ],
+                "parameters": [
+                    {
+                        "name": "nome",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 160
+                        }
+                    },
+                    {
+                        "name": "nascimento",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "cpf",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 20
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 160
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas": {
+            "post": {
+                "operationId": "cadastroRapido.cadastrar",
+                "tags": [
+                    "CadastroRapido"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "maxLength": 160
+                                    },
+                                    "igreja": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "vinculo": {
+                                        "$ref": "#/components/schemas/Vinculo"
+                                    },
+                                    "celular": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 30
+                                    },
+                                    "email": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "email",
+                                        "maxLength": 160
+                                    },
+                                    "como_chegou": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    },
+                                    "nascimento": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "date"
+                                    },
+                                    "cpf": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 20
+                                    },
+                                    "nao_duplicadas": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "maxItems": 20
+                                    }
+                                },
+                                "required": [
+                                    "nome",
+                                    "igreja",
+                                    "vinculo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/conta/confirmar-senha": {
+            "post": {
+                "operationId": "conta.confirmarSenha",
+                "tags": [
+                    "Conta"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "senha": {
+                                        "type": "string",
+                                        "maxLength": 1024
+                                    }
+                                },
+                                "required": [
+                                    "senha"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "429": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "muitas_tentativas"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Muitas tentativas. Aguarde para tentar de novo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/conta/2fa": {
+            "get": {
+                "operationId": "conta.estadoDoisFatores",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "canal": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        },
+                                        "recuperacao_restantes": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": [
+                                        "canal",
+                                        "recuperacao_restantes"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "conta.ativarDoisFatores",
+                "tags": [
+                    "Conta"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "canal": {
+                                        "type": "string",
+                                        "enum": [
+                                            "email",
+                                            "whatsapp",
+                                            "totp"
+                                        ]
+                                    },
+                                    "codigo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "canal"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "canal": {
+                                                    "type": "string",
+                                                    "const": "totp"
+                                                },
+                                                "codigos_recuperacao": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "canal",
+                                                "codigos_recuperacao"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "segredo": {
+                                                    "type": "string"
+                                                },
+                                                "otpauth_url": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "segredo",
+                                                "otpauth_url"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "canal": {
+                                                    "type": "string"
+                                                },
+                                                "codigos_recuperacao": {
+                                                    "type": [
+                                                        "array",
+                                                        "null"
+                                                    ],
+                                                    "items": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "canal",
+                                                "codigos_recuperacao"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "conta.desativarDoisFatores",
+                "tags": [
+                    "Conta"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "dois_fatores_obrigatorio"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Seu papel exige o 2FA."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/conta/senha": {
+            "put": {
+                "operationId": "conta.trocarSenha",
+                "tags": [
+                    "Conta"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "senha": {
+                                        "type": "string",
+                                        "maxLength": 1024
+                                    }
+                                },
+                                "required": [
+                                    "senha"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/descadastro": {
+            "post": {
+                "operationId": "avisos.descadastro",
+                "tags": [
+                    "Descadastro"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/auth/2fa/confirmar": {
+            "post": {
+                "operationId": "doisFatores.confirmar",
+                "tags": [
+                    "DoisFatores"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "codigo": {
+                                        "type": "string"
+                                    },
+                                    "codigo_recuperacao": {
+                                        "type": "string",
+                                        "maxLength": 20
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "429": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "muitas_tentativas"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Muitas tentativas. Pe\u00e7a um novo c\u00f3digo ou entre de novo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "conta_bloqueada"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Conta bloqueada."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "sem_desafio"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Entre de novo para receber um c\u00f3digo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/auth/2fa/enviar": {
+            "post": {
+                "operationId": "doisFatores.enviar",
+                "tags": [
+                    "DoisFatores"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "canal": {
+                                        "type": "string",
+                                        "enum": [
+                                            "email",
+                                            "whatsapp"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "canal"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "canal": {
+                                            "type": "string"
+                                        },
+                                        "destino": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "canal",
+                                        "destino"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "muitas_tentativas"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Muitas tentativas. Pe\u00e7a um novo c\u00f3digo ou entre de novo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "conta_bloqueada"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Conta bloqueada."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "sem_desafio"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Entre de novo para receber um c\u00f3digo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/elevacao": {
+            "post": {
+                "operationId": "presentation.elevacao",
+                "tags": [
+                    "Elevacao"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "senha": {
+                                        "type": "string",
+                                        "maxLength": 200
+                                    },
+                                    "codigo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "codigo_recuperacao": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 20
+                                    }
+                                },
+                                "required": [
+                                    "senha"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "429": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "muitas_tentativas"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Muitas tentativas. Aguarde para tentar de novo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "codigo": {
+                                                    "type": "string",
+                                                    "const": "dois_fatores_necessario"
+                                                },
+                                                "canal": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "destino": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "codigo",
+                                                "canal",
+                                                "destino"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "codigo": {
+                                                    "type": "string",
+                                                    "const": "dois_fatores_cadastro_necessario"
+                                                },
+                                                "message": {
+                                                    "type": "string",
+                                                    "const": "Cadastre a verifica\u00e7\u00e3o em duas etapas para entrar no painel."
+                                                }
+                                            },
+                                            "required": [
+                                                "codigo",
+                                                "message"
+                                            ]
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "codigo": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "codigo"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}": {
+            "patch": {
+                "operationId": "ficha.editar",
+                "tags": [
+                    "Ficha"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "secao": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pessoais",
+                                            "documentos",
+                                            "contatos",
+                                            "endereco",
+                                            "saude",
+                                            "eclesiasticos",
+                                            "adicionais"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "secao"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "uuid": {
+                                                            "type": "string"
+                                                        },
+                                                        "igreja": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "uuid": {
+                                                                    "type": "string"
+                                                                },
+                                                                "nome": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "uuid",
+                                                                "nome"
+                                                            ]
+                                                        },
+                                                        "vinculo": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "situacao": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "campos": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        },
+                                                        "foto_url": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "completude": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "percentual": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "obrigatorios": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "faltando": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "percentual",
+                                                                "obrigatorios",
+                                                                "faltando"
+                                                            ]
+                                                        },
+                                                        "contatos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uuid": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "tipo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "valor": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "e_whatsapp": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "principal": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "uuid",
+                                                                    "tipo",
+                                                                    "valor",
+                                                                    "e_whatsapp",
+                                                                    "principal"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "enderecos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "uuid",
+                                                        "igreja",
+                                                        "vinculo",
+                                                        "situacao",
+                                                        "campos",
+                                                        "foto_url",
+                                                        "completude",
+                                                        "contatos",
+                                                        "enderecos"
+                                                    ]
+                                                },
+                                                "meta": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "acoes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "categorias": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "acoes",
+                                                        "categorias"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "data",
+                                                "meta"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "get": {
+                "operationId": "pessoas.mostrar",
+                "tags": [
+                    "Pessoas"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "igreja": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "uuid": {
+                                                            "type": "string"
+                                                        },
+                                                        "nome": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "uuid",
+                                                        "nome"
+                                                    ]
+                                                },
+                                                "vinculo": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "situacao": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "campos": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                },
+                                                "foto_url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "completude": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "percentual": {
+                                                            "type": "integer"
+                                                        },
+                                                        "obrigatorios": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "faltando": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "percentual",
+                                                        "obrigatorios",
+                                                        "faltando"
+                                                    ]
+                                                },
+                                                "contatos": {
+                                                    "type": [
+                                                        "array",
+                                                        "null"
+                                                    ],
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "uuid": {
+                                                                "type": "string"
+                                                            },
+                                                            "tipo": {
+                                                                "type": "string"
+                                                            },
+                                                            "valor": {
+                                                                "type": "string"
+                                                            },
+                                                            "e_whatsapp": {
+                                                                "type": "boolean"
+                                                            },
+                                                            "principal": {
+                                                                "type": "boolean"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "uuid",
+                                                            "tipo",
+                                                            "valor",
+                                                            "e_whatsapp",
+                                                            "principal"
+                                                        ]
+                                                    }
+                                                },
+                                                "enderecos": {
+                                                    "type": [
+                                                        "array",
+                                                        "null"
+                                                    ],
+                                                    "items": {
+                                                        "type": "object",
+                                                        "additionalProperties": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "igreja",
+                                                "vinculo",
+                                                "situacao",
+                                                "campos",
+                                                "foto_url",
+                                                "completude",
+                                                "contatos",
+                                                "enderecos"
+                                            ]
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "acoes": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "categorias": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "acoes",
+                                                "categorias"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "pessoa_inexistente"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/foto": {
+            "post": {
+                "operationId": "ficha.foto",
+                "tags": [
+                    "Ficha"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tipo_conteudo": {
+                                        "type": "string",
+                                        "enum": [
+                                            "image/png",
+                                            "image/jpeg",
+                                            "image/webp"
+                                        ]
+                                    },
+                                    "tamanho": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 5242880
+                                    }
+                                },
+                                "required": [
+                                    "tipo_conteudo",
+                                    "tamanho"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "url": {
+                                                    "type": "string"
+                                                },
+                                                "metodo": {
+                                                    "type": "string",
+                                                    "const": "PUT"
+                                                },
+                                                "cabecalhos": {
+                                                    "type": "string"
+                                                },
+                                                "caminho": {
+                                                    "type": "string"
+                                                },
+                                                "expira_em": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "url",
+                                                "metodo",
+                                                "cabecalhos",
+                                                "caminho",
+                                                "expira_em"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/igrejas": {
+            "get": {
+                "operationId": "igrejas.listar",
+                "tags": [
+                    "Igrejas"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "igrejas.criar",
+                "tags": [
+                    "Igrejas"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 120
+                                    },
+                                    "regional": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "nome"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/igrejas/{igreja}": {
+            "put": {
+                "operationId": "igrejas.editar",
+                "tags": [
+                    "Igrejas"
+                ],
+                "parameters": [
+                    {
+                        "name": "igreja",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 120
+                                    },
+                                    "regional": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/listas/{lista}": {
+            "get": {
+                "operationId": "listas.listar",
+                "tags": [
+                    "Listas"
+                ],
+                "parameters": [
+                    {
+                        "name": "lista",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "listas.criar",
+                "tags": [
+                    "Listas"
+                ],
+                "parameters": [
+                    {
+                        "name": "lista",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "maxLength": 80
+                                    },
+                                    "ordem": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 100000
+                                    }
+                                },
+                                "required": [
+                                    "nome"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/listas/{lista}/{item}": {
+            "put": {
+                "operationId": "listas.editar",
+                "tags": [
+                    "Listas"
+                ],
+                "parameters": [
+                    {
+                        "name": "lista",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "item",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "maxLength": 80
+                                    },
+                                    "ordem": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "maximum": 100000
+                                    },
+                                    "ativo": {
+                                        "type": "boolean"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/me": {
+            "get": {
+                "operationId": "me.mostrar",
+                "summary": "Conta, organiza\u00e7\u00e3o ativa, organiza\u00e7\u00f5es com acesso, capacidades do alcance, eleva\u00e7\u00e3o e 2FA",
+                "tags": [
+                    "Me"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "description": "Formato do bootstrap da sess\u00e3o em `contrato-permissoes.md`: ids p\u00fablicos (uuid) e `autorizacao`\nsempre presente \u2014 sem ela, o front trata como falha de contrato, nunca como acesso total.",
+                                            "properties": {
+                                                "conta": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id"
+                                                    ],
+                                                    "additionalProperties": {}
+                                                },
+                                                "organizacao_ativa": {
+                                                    "type": [
+                                                        "object",
+                                                        "null"
+                                                    ],
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "nome": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "id",
+                                                        "nome"
+                                                    ]
+                                                },
+                                                "organizacoes": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                },
+                                                "autorizacao": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "capacidades": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "permissao": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "escopo_tipo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "escopo_ids": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "permissao",
+                                                                    "escopo_tipo",
+                                                                    "escopo_ids"
+                                                                ]
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "capacidades"
+                                                    ]
+                                                },
+                                                "elevacao": {
+                                                    "anyOf": [
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "ativa": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "expira_em": {}
+                                                            },
+                                                            "required": [
+                                                                "ativa",
+                                                                "expira_em"
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "ativa": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "expira_em": {
+                                                                    "type": "null"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "ativa",
+                                                                "expira_em"
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                "dois_fatores": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "canal": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "obrigatorio": {
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "canal",
+                                                        "obrigatorio"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "conta",
+                                                "organizacao_ativa",
+                                                "organizacoes",
+                                                "autorizacao",
+                                                "elevacao",
+                                                "dois_fatores"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/me/organizacao-ativa": {
+            "put": {
+                "operationId": "me.escolherOrganizacao",
+                "summary": "Troca a organiza\u00e7\u00e3o ativa. S\u00f3 vale organiza\u00e7\u00e3o com acesso ativo da conta (OIK-ADR-0003 \u00a712)",
+                "tags": [
+                    "Me"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "organizacao": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "organizacao"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "organizacao_sem_acesso"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/painel/configuracao/obrigatorios": {
+            "get": {
+                "operationId": "obrigatorios.mostrar",
+                "tags": [
+                    "Obrigatorios"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "obrigatorios.definir",
+                "tags": [
+                    "Obrigatorios"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "vinculo": {
+                                        "$ref": "#/components/schemas/Vinculo"
+                                    },
+                                    "campos": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/CampoFicha"
+                                        },
+                                        "uniqueItems": true
+                                    }
+                                },
+                                "required": [
+                                    "vinculo",
+                                    "campos"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {}
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/organizacao": {
+            "get": {
+                "operationId": "organizacao.mostrar",
+                "tags": [
+                    "Organizacao"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "nome": {
+                                                    "type": "string"
+                                                },
+                                                "fuso": {
+                                                    "type": "string"
+                                                },
+                                                "cor_primaria": {
+                                                    "type": "string"
+                                                },
+                                                "modo_matricula": {
+                                                    "type": "string"
+                                                },
+                                                "limite_whatsapp_mensal": {
+                                                    "type": "string"
+                                                },
+                                                "email_contato": {
+                                                    "type": "string"
+                                                },
+                                                "logo": {
+                                                    "type": "string"
+                                                },
+                                                "logo_url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "nome",
+                                                "fuso",
+                                                "cor_primaria",
+                                                "modo_matricula",
+                                                "limite_whatsapp_mensal",
+                                                "email_contato",
+                                                "logo",
+                                                "logo_url"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "operationId": "organizacao.atualizar",
+                "tags": [
+                    "Organizacao"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "minLength": 2,
+                                        "maxLength": 120
+                                    },
+                                    "fuso": {
+                                        "type": "string"
+                                    },
+                                    "cor_primaria": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "pattern": "^#[0-9A-Fa-f]{6}$"
+                                    },
+                                    "modo_matricula": {
+                                        "$ref": "#/components/schemas/ModoMatricula"
+                                    },
+                                    "limite_whatsapp_mensal": {
+                                        "type": [
+                                            "integer",
+                                            "null"
+                                        ],
+                                        "minimum": 0,
+                                        "maximum": 10000000
+                                    },
+                                    "email_contato": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "email",
+                                        "maxLength": 254
+                                    },
+                                    "logo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 255
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/organizacao/logo": {
+            "post": {
+                "operationId": "organizacao.logo",
+                "tags": [
+                    "Organizacao"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tipo_conteudo": {
+                                        "type": "string",
+                                        "enum": [
+                                            "image/png",
+                                            "image/jpeg",
+                                            "image/webp"
+                                        ]
+                                    },
+                                    "tamanho": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 1048576
+                                    }
+                                },
+                                "required": [
+                                    "tipo_conteudo",
+                                    "tamanho"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/permissoes": {
+            "get": {
+                "operationId": "papeis.permissoes",
+                "tags": [
+                    "Papeis"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/papeis": {
+            "get": {
+                "operationId": "papeis.listar",
+                "tags": [
+                    "Papeis"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "papeis.criar",
+                "tags": [
+                    "Papeis"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "maxLength": 80
+                                    },
+                                    "permissoes": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Permissao"
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                },
+                                "required": [
+                                    "nome",
+                                    "permissoes"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/papeis/{papel}": {
+            "put": {
+                "operationId": "papeis.editar",
+                "tags": [
+                    "Papeis"
+                ],
+                "parameters": [
+                    {
+                        "name": "papel",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "maxLength": 80
+                                    },
+                                    "permissoes": {
+                                        "type": "array",
+                                        "items": {
+                                            "$ref": "#/components/schemas/Permissao"
+                                        },
+                                        "minItems": 1,
+                                        "uniqueItems": true
+                                    }
+                                },
+                                "required": [
+                                    "permissoes"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/acessos/{acesso}/atribuicoes": {
+            "post": {
+                "operationId": "papeis.atribuir",
+                "tags": [
+                    "Papeis"
+                ],
+                "parameters": [
+                    {
+                        "name": "acesso",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "papel": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "escopo_tipo": {
+                                        "$ref": "#/components/schemas/EscopoTipo"
+                                    },
+                                    "escopo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "papel",
+                                    "escopo_tipo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/acessos/{acesso}/atribuicoes/{atribuicao}": {
+            "delete": {
+                "operationId": "papeis.removerAtribuicao",
+                "tags": [
+                    "Papeis"
+                ],
+                "parameters": [
+                    {
+                        "name": "acesso",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "atribuicao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/painel/busca": {
+            "get": {
+                "operationId": "pessoas.buscar",
+                "tags": [
+                    "Pessoas"
+                ],
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 3,
+                            "maxLength": 120
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/auth/senha/esqueci": {
+            "post": {
+                "operationId": "recuperacaoSenha.esqueci",
+                "tags": [
+                    "RecuperacaoSenha"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "identificador": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    }
+                                },
+                                "required": [
+                                    "identificador"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "429": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "muitas_tentativas"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Muitas tentativas. Aguarde para tentar de novo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/auth/senha/redefinir": {
+            "post": {
+                "operationId": "recuperacaoSenha.redefinir",
+                "tags": [
+                    "RecuperacaoSenha"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "token": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "senha": {
+                                        "type": "string",
+                                        "maxLength": 1024
+                                    }
+                                },
+                                "required": [
+                                    "token",
+                                    "senha"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/saude": {
+            "get": {
+                "operationId": "observabilidade.saude",
+                "description": "Estado do banco e espera, em segundos, do job mais antigo de cada fila. Responde 503 com\n`banco: indisponivel` quando o banco n\u00e3o responde.",
+                "summary": "Sa\u00fade da API",
+                "tags": [
+                    "Saude"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "vivo": {
+                                            "type": "boolean"
+                                        },
+                                        "banco": {
+                                            "type": "string",
+                                            "enum": [
+                                                "ok",
+                                                "indisponivel"
+                                            ]
+                                        },
+                                        "versao": {
+                                            "type": "string"
+                                        },
+                                        "filas": {
+                                            "type": "object",
+                                            "additionalProperties": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "vivo",
+                                        "banco",
+                                        "versao",
+                                        "filas"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/solicitacoes-permissao": {
+            "get": {
+                "operationId": "solicitacoes.listar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "visao",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "proprias",
+                                "aprovaveis"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "solicitacoes.criar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "permissoes": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "chave": {
+                                                    "$ref": "#/components/schemas/Permissao"
+                                                },
+                                                "categoria_sensivel": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "maxLength": 20
+                                                },
+                                                "escopo_tipo": {
+                                                    "$ref": "#/components/schemas/EscopoTipo"
+                                                },
+                                                "escopo_id": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "format": "uuid"
+                                                }
+                                            },
+                                            "required": [
+                                                "chave",
+                                                "escopo_tipo"
+                                            ]
+                                        },
+                                        "minItems": 1,
+                                        "maxItems": 20
+                                    },
+                                    "duracao_horas": {
+                                        "type": "integer"
+                                    },
+                                    "justificativa": {
+                                        "type": "string",
+                                        "maxLength": 1000
+                                    }
+                                },
+                                "required": [
+                                    "permissoes",
+                                    "duracao_horas",
+                                    "justificativa"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "permissoes": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "permissoes"
+                                            ],
+                                            "additionalProperties": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/solicitacoes-permissao/{solicitacao}/cancelar": {
+            "post": {
+                "operationId": "solicitacoes.cancelar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "solicitacao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "permissoes": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "permissoes"
+                                                    ],
+                                                    "additionalProperties": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/solicitacoes-permissao/{solicitacao}/aprovar": {
+            "post": {
+                "operationId": "solicitacoes.aprovar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "solicitacao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "versao": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "permissoes": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "permissoes"
+                                                    ],
+                                                    "additionalProperties": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/solicitacoes-permissao/{solicitacao}/recusar": {
+            "post": {
+                "operationId": "solicitacoes.recusar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "solicitacao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "justificativa": {
+                                        "type": "string",
+                                        "maxLength": 1000
+                                    },
+                                    "versao": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                    }
+                                },
+                                "required": [
+                                    "justificativa"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "permissoes": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "permissoes"
+                                                    ],
+                                                    "additionalProperties": {}
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/concessoes-permissao/{concessao}/revogar": {
+            "post": {
+                "operationId": "solicitacoes.revogar",
+                "tags": [
+                    "Solicitacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "concessao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "motivo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 1000
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/conta/verificacao/{tipo}": {
+            "post": {
+                "operationId": "verificacaoContato.pedir",
+                "tags": [
+                    "VerificacaoContato"
+                ],
+                "parameters": [
+                    {
+                        "name": "tipo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "429": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "muitas_tentativas"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Muitas tentativas. Aguarde para tentar de novo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/conta/verificacao/{tipo}/confirmar": {
+            "post": {
+                "operationId": "verificacaoContato.confirmar",
+                "tags": [
+                    "VerificacaoContato"
+                ],
+                "parameters": [
+                    {
+                        "name": "tipo",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "codigo": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "codigo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "429": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "muitas_tentativas"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "const": "Muitas tentativas. Aguarde para tentar de novo."
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/vinculo": {
+            "post": {
+                "operationId": "vinculo.vinculo",
+                "tags": [
+                    "Vinculo"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "vinculo": {
+                                        "$ref": "#/components/schemas/Vinculo"
+                                    },
+                                    "motivo": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "matricula": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 40
+                                    }
+                                },
+                                "required": [
+                                    "vinculo",
+                                    "motivo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "uuid": {
+                                                            "type": "string"
+                                                        },
+                                                        "igreja": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "uuid": {
+                                                                    "type": "string"
+                                                                },
+                                                                "nome": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "uuid",
+                                                                "nome"
+                                                            ]
+                                                        },
+                                                        "vinculo": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "situacao": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "campos": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        },
+                                                        "foto_url": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "completude": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "percentual": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "obrigatorios": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "faltando": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "percentual",
+                                                                "obrigatorios",
+                                                                "faltando"
+                                                            ]
+                                                        },
+                                                        "contatos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uuid": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "tipo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "valor": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "e_whatsapp": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "principal": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "uuid",
+                                                                    "tipo",
+                                                                    "valor",
+                                                                    "e_whatsapp",
+                                                                    "principal"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "enderecos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "uuid",
+                                                        "igreja",
+                                                        "vinculo",
+                                                        "situacao",
+                                                        "campos",
+                                                        "foto_url",
+                                                        "completude",
+                                                        "contatos",
+                                                        "enderecos"
+                                                    ]
+                                                },
+                                                "meta": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "acoes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "categorias": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "acoes",
+                                                        "categorias"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "data",
+                                                "meta"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/situacao": {
+            "post": {
+                "operationId": "vinculo.situacao",
+                "tags": [
+                    "Vinculo"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "situacao": {
+                                        "$ref": "#/components/schemas/Situacao"
+                                    },
+                                    "motivo": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "situacao",
+                                    "motivo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "uuid": {
+                                                            "type": "string"
+                                                        },
+                                                        "igreja": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "uuid": {
+                                                                    "type": "string"
+                                                                },
+                                                                "nome": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "uuid",
+                                                                "nome"
+                                                            ]
+                                                        },
+                                                        "vinculo": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "situacao": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "campos": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        },
+                                                        "foto_url": {
+                                                            "type": [
+                                                                "string",
+                                                                "null"
+                                                            ]
+                                                        },
+                                                        "completude": {
+                                                            "type": [
+                                                                "object",
+                                                                "null"
+                                                            ],
+                                                            "properties": {
+                                                                "percentual": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "obrigatorios": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "faltando": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "percentual",
+                                                                "obrigatorios",
+                                                                "faltando"
+                                                            ]
+                                                        },
+                                                        "contatos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uuid": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "tipo": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "valor": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "e_whatsapp": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "principal": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "uuid",
+                                                                    "tipo",
+                                                                    "valor",
+                                                                    "e_whatsapp",
+                                                                    "principal"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "enderecos": {
+                                                            "type": [
+                                                                "array",
+                                                                "null"
+                                                            ],
+                                                            "items": {
+                                                                "type": "object",
+                                                                "additionalProperties": {
+                                                                    "type": [
+                                                                        "string",
+                                                                        "null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "uuid",
+                                                        "igreja",
+                                                        "vinculo",
+                                                        "situacao",
+                                                        "campos",
+                                                        "foto_url",
+                                                        "completude",
+                                                        "contatos",
+                                                        "enderecos"
+                                                    ]
+                                                },
+                                                "meta": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "acoes": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "categorias": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "acoes",
+                                                        "categorias"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "data",
+                                                "meta"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CampoFicha": {
+                "type": "string",
+                "enum": [
+                    "nome",
+                    "nascimento",
+                    "sexo",
+                    "foto_path",
+                    "estado_civil",
+                    "data_casamento",
+                    "cpf",
+                    "rg",
+                    "rg_pais",
+                    "celular",
+                    "e_whatsapp",
+                    "telefone",
+                    "email",
+                    "cep",
+                    "logradouro",
+                    "numero",
+                    "complemento",
+                    "bairro",
+                    "cidade",
+                    "estado",
+                    "pais",
+                    "necessidades_especiais",
+                    "tipo_sanguineo",
+                    "aceitou_jesus",
+                    "conversao_data",
+                    "conversao_canal",
+                    "batismo_data",
+                    "batizado_por",
+                    "igreja_origem",
+                    "e_lider",
+                    "e_pastor",
+                    "novo_convertido",
+                    "escolaridade",
+                    "profissao",
+                    "nacionalidade",
+                    "naturalidade"
+                ],
+                "title": "CampoFicha"
+            },
+            "EscopoTipo": {
+                "type": "string",
+                "enum": [
+                    "organizacao",
+                    "regional",
+                    "igreja"
+                ],
+                "title": "EscopoTipo"
+            },
+            "EventoAuditoria": {
+                "type": "string",
+                "enum": [
+                    "pessoa.criada",
+                    "pessoa.atualizada",
+                    "pessoa.excluida",
+                    "pessoa.recuperada",
+                    "pessoa.purgada",
+                    "pessoa.mesclada",
+                    "pessoa.mesclagem_desfeita",
+                    "pessoa.transferencia_solicitada",
+                    "pessoa.transferencia_aprovada",
+                    "pessoa.transferencia_recusada",
+                    "pessoa.importacao_concluida",
+                    "pessoa.importacao_desfeita",
+                    "pessoas.lista_valor_criado",
+                    "pessoas.lista_valor_atualizado",
+                    "pessoas.obrigatorios_atualizados",
+                    "exportacao.pedida",
+                    "exportacao.concluida",
+                    "exportacao.negada",
+                    "acesso.convite_emitido",
+                    "acesso.concedido",
+                    "acesso.revogado",
+                    "autorizacao.papel_criado",
+                    "autorizacao.papel_atualizado",
+                    "autorizacao.atribuicao_concedida",
+                    "autorizacao.atribuicao_revogada",
+                    "authz.escalation_blocked",
+                    "authz.last_admin_blocked",
+                    "suporte.autorizacao_criada",
+                    "suporte.autorizacao_revogada",
+                    "suporte.autorizacao_expirada",
+                    "auth.elevacao",
+                    "authz.permission_requested",
+                    "authz.permission_request_cancelled",
+                    "authz.permission_request_approved",
+                    "authz.permission_request_rejected",
+                    "authz.permission_grant_revoked",
+                    "authz.permission_grant_expired",
+                    "organizacao.configurada",
+                    "organizacao.igreja_criada",
+                    "organizacao.igreja_atualizada"
+                ],
+                "title": "EventoAuditoria"
+            },
+            "LoginRequest": {
+                "type": "object",
+                "properties": {
+                    "identificador": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    },
+                    "remember": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "identificador",
+                    "password"
+                ],
+                "title": "LoginRequest"
+            },
+            "ModoMatricula": {
+                "type": "string",
+                "enum": [
+                    "manual",
+                    "automatica"
+                ],
+                "title": "ModoMatricula"
+            },
+            "Permissao": {
+                "type": "string",
+                "enum": [
+                    "organizacao.configurar",
+                    "igrejas.gerir",
+                    "acessos.gerir",
+                    "papeis.gerir",
+                    "auditoria.ver",
+                    "avisos.whatsapp.gerir",
+                    "pessoas.configurar",
+                    "permissoes.solicitacoes.aprovar",
+                    "pessoas.ver",
+                    "pessoas.criar",
+                    "pessoas.editar",
+                    "pessoas.excluir",
+                    "pessoas.exportar",
+                    "pessoas.mesclar",
+                    "pessoas.transferencias.solicitar",
+                    "pessoas.transferencias.aprovar",
+                    "pessoas.sensiveis.saude.ver",
+                    "pessoas.sensiveis.saude.editar",
+                    "pessoas.sensiveis.documentos.ver",
+                    "pessoas.sensiveis.documentos.editar",
+                    "pessoas.sensiveis.contatos.ver",
+                    "pessoas.sensiveis.contatos.editar",
+                    "pessoas.sensiveis.fe.ver",
+                    "pessoas.sensiveis.fe.editar"
+                ],
+                "title": "Permissao"
+            },
+            "Situacao": {
+                "type": "string",
+                "description": "Situa\u00e7\u00e3o da pessoa (RN-06, RN-07): sem valor gravado, est\u00e1 ativa. A inativa\u00e7\u00e3o n\u00e3o muda o v\u00ednculo.\n",
+                "enum": [
+                    "ativa",
+                    "inativa"
+                ],
+                "title": "Situacao"
+            },
+            "Vinculo": {
+                "type": "string",
+                "description": "V\u00ednculos da pessoa com a igreja (RN-03) e a m\u00e1quina de estados (RN-07; plan.md \u00a76): s\u00f3 avan\u00e7a Visitante \u2192 Frequentador \u2192 Membro, sem pular e sem voltar. Quem deixa de participar \u00e9 inativado (Situacao), e a reativa\u00e7\u00e3o volta ao mesmo v\u00ednculo. S\u00f3 `membro` tem matr\u00edcula.\n",
+                "enum": [
+                    "visitante",
+                    "frequentador",
+                    "membro"
+                ],
+                "title": "Vinculo"
+            }
+        },
+        "responses": {
+            "ValidationException": {
+                "description": "Validation error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Errors overview."
+                                },
+                                "errors": {
+                                    "type": "object",
+                                    "description": "A detailed description of each field that failed validation.",
+                                    "additionalProperties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "required": [
+                                "message",
+                                "errors"
+                            ]
+                        }
+                    }
+                }
+            },
+            "AuthenticationException": {
+                "description": "Unauthenticated",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

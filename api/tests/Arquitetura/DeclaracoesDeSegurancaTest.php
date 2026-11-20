@@ -7,7 +7,9 @@ use Tests\TestCase;
 uses(TestCase::class);
 
 it('exige permissão e evento de auditoria em toda Action de escrita', function (): void {
-    $arquivos = glob(app_path('Modules/*/Application/Actions/*Action.php')) ?: [];
+    // Actions ficam em `Application/Actions/` ou numa pasta de assunto (`Application/Configuracao/`).
+    $arquivos = glob(app_path('Modules/*/Application/*/*Action.php')) ?: [];
+    expect($arquivos)->toContain(app_path('Modules/Pessoas/Application/Configuracao/CriarItemListaAction.php'));
 
     foreach ($arquivos as $arquivo) {
         $conteudo = file_get_contents($arquivo);

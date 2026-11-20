@@ -192,7 +192,8 @@ describe('Login do painel', () => {
     await usuario.click(screen.getByRole('button', { name: 'Entrar' }))
 
     expect(await screen.findByText('(11) •••••-4321')).toBeInTheDocument()
-    expect(corpos).toEqual([{ identificador: '+5511987654321', senha: 'oikora123' }])
+    // `entrada: painel` já abre a elevação no login (U-32, T-16).
+    expect(corpos).toEqual([{ identificador: '+5511987654321', senha: 'oikora123', entrada: 'painel' }])
   })
 
   it('esqueci a senha confirma o envio sem revelar se a conta existe', async () => {

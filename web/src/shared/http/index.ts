@@ -1,2 +1,10 @@
-export { ErroHttp, renovarCsrf, requisitar } from './cliente'
-export type { CorpoErroApi, MetodoHttp } from './cliente'
+export {
+  configurarSessao,
+  criarClienteTipado,
+  enviarComSessao,
+  ErroHttp,
+  renovarCsrf,
+  requisitar,
+  traceDaResposta,
+} from './cliente'
+export type { ConfiguracaoSessao, CorpoErroApi, MetodoHttp } from './cliente'

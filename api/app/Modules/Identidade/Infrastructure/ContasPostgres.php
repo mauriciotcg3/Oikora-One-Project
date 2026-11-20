@@ -162,6 +162,19 @@ final class ContasPostgres implements Contas
         return $resumos;
     }
 
+    public function perfil(int $contaId): ?array
+    {
+        $conta = $this->daPropriaConta($contaId);
+
+        return $conta === null ? null : [
+            'uuid' => (string) $conta->uuid,
+            'email' => $conta->email,
+            'email_verificado' => $conta->email_verificado_em !== null,
+            'celular' => $conta->celular,
+            'celular_verificado' => $conta->celular_verificado_em !== null,
+        ];
+    }
+
     /**
      * Lê a conta dentro de uma transação com `app.conta_id`, única forma de passar pela RLS de
      * identidade antes do contexto de organização (OIK-ADR-0011 §3).

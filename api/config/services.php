@@ -16,6 +16,29 @@ return [
 
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
+        // Códigos de identidade (T-11): token do servidor e remetente verificado.
+        'token' => env('POSTMARK_SERVER_TOKEN'),
+        'remetente' => env('POSTMARK_REMETENTE'),
+        // Avisos (T-18): endereço da plataforma que assina "Nome da Igreja via Oikora".
+        'remetente_avisos' => env('POSTMARK_REMETENTE_AVISOS'),
+        'stream' => env('POSTMARK_STREAM', 'outbound'),
+    ],
+
+    // Número da plataforma, só para códigos de identidade (OIK-ADR-0008 §10).
+    'meta_whatsapp' => [
+        'token' => env('META_WHATSAPP_TOKEN'),
+        'numero_id' => env('META_WHATSAPP_NUMERO_ID'),
+        'versao' => env('META_GRAPH_VERSAO', 'v23.0'),
+        'idioma' => env('META_WHATSAPP_IDIOMA', 'pt_BR'),
+        'template_codigo' => env('META_WHATSAPP_TEMPLATE_CODIGO'),
+    ],
+
+    // SMS de reserva de código, só +55 (OIK-ADR-0008 §11): serviço de mensagens ou número remetente.
+    'twilio' => [
+        'conta_sid' => env('TWILIO_CONTA_SID'),
+        'token' => env('TWILIO_TOKEN'),
+        'servico_sid' => env('TWILIO_SERVICO_SID'),
+        'remetente' => env('TWILIO_REMETENTE'),
     ],
 
     'resend' => [
