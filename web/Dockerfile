@@ -1,5 +1,5 @@
 # Ambiente de desenvolvimento do web/ (OIK-ADR-0011 §4). Build a partir da raiz do workspace.
-FROM node:26.13.0-slim
+FROM node:26.13.1-slim
 
 RUN npm install -g pnpm@12.16.1
 
