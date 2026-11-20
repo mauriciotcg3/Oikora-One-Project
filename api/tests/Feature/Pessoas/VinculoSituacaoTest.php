@@ -108,6 +108,21 @@ it('grava o evento com o motivo e a reativação volta ao mesmo vínculo', funct
         ->assertUnprocessable()->assertJsonPath('codigo', 'situacao_inalterada');
 });
 
+it('bloqueia o estado da pessoa enquanto valida e grava uma transição', function (): void {
+    $pessoa = pessoaComVinculo($this, 'visitante');
+
+    $sql = sqlDe(fn () => $this
+        ->postJson("/api/v1/painel/pessoas/{$pessoa}/vinculo", [
+            'vinculo' => 'frequentador',
+            'motivo' => $this->motivos['motivo_vinculo'],
+        ])
+        ->assertOk());
+
+    expect(collect($sql)->contains(
+        fn (string $consulta): bool => str_contains(strtolower($consulta), 'for update'),
+    ))->toBeTrue();
+});
+
 it('exige matrícula livre na organização para passar a Membro no modo manual', function (): void {
     $pessoa = pessoaComVinculo($this, 'frequentador');
     $naLixeira = pessoaComVinculo($this, 'membro', ['matricula' => 'M-100', 'excluida_em' => now()]);

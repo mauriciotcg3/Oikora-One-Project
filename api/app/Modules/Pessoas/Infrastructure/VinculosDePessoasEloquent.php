@@ -13,7 +13,11 @@ final class VinculosDePessoasEloquent implements VinculosDePessoas
 {
     public function estado(int $id): array
     {
-        $pessoa = Pessoa::query()->select(['id', 'vinculo', 'situacao', 'matricula', 'novo_convertido'])->whereKey($id)->firstOrFail();
+        $pessoa = Pessoa::query()
+            ->select(['id', 'vinculo', 'situacao', 'matricula', 'novo_convertido'])
+            ->whereKey($id)
+            ->lockForUpdate()
+            ->firstOrFail();
         $vinculo = $pessoa->getAttribute('vinculo');
         $situacao = $pessoa->getAttribute('situacao');
         $matricula = $pessoa->getAttribute('matricula');
