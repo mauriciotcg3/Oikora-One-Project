@@ -224,7 +224,7 @@ Origem: OIK-ADR-0014; FR-037 e NFR-006 a NFR-008 de `docs/product/0001-fundacao-
 - [ ] **CA-47** (ADR-0010 §5) A entrada `painel` permanece ≤ 350 KB gzip; DataGrid e telas de Auditoria carregam por rota.
 
 **Pontos em aberto acrescentados**
-- ❓ **OPEN-UI-01 — filtro e destaque de "resultado" (falha).** A auditoria é gravada na mesma transação do negócio e uma falha a desfaz (RN-01, CA-12, ADR-0005 §2); tentativas que falham não chegam à trilha. Mostrar falhas exige registrar fora da transação, o que altera a ADR-0005 §2 e pede ADR antes da T-55 cobrir "resultado".
-- ❓ **OPEN-UI-02 — salvar e retomar jornada longa.** Nenhuma ADR define onde o rascunho vive (servidor × navegador, com risco de dado pessoal no armazenamento local). A T-52 entrega etapas, validação e confirmação; salvar/retomar fica fora até a decisão.
+- **OPEN-UI-01 — resultado e falhas na auditoria:** decidido pela OIK-ADR-0015 (Aceito, opção A, 2026-11-20): `resultado`, `codigo_falha` e `trace_id` na auditoria, falha gravada em transação própria após o desfazer. Entram as falhas de regra e de execução das ações do §5, com retenção de cinco anos; códigos na T-54.
+- **OPEN-UI-02 — salvar e retomar jornada:** decidido pela OIK-ADR-0016 (Aceito, opção A, 2026-11-20): rascunho no servidor por conta e organização, sem segredos. Expira em 30 dias; a primeira jornada é a conexão do WhatsApp (T-21/T-39).
 - ❓ **OPEN-UI-03 — catálogo visual (Storybook ou similar).** Seria nova ferramenta; a T-56 usa Markdown e exemplos verificados por teste até haver decisão.
 - ❓ **OPEN-UI-04 — métricas de funil das jornadas.** A ADR-0014 veda nova coleta de comportamento sem ADR; só logs e `traceparent` já existentes.

@@ -21,7 +21,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 | W6 | T-19, T-22, T-29, T-34 |
 | W7 | T-20, T-23, T-30, T-32, T-35, T-38, T-40, T-49, T-50, T-51, T-52, T-53 |
 | W8 | T-21, T-31, T-33, T-36, T-48, T-54 |
-| W9 | T-39, T-41, T-42, T-43, T-44, T-55, T-56 |
+| W9 | T-39, T-41, T-42, T-43, T-44, T-55, T-56, T-57 |
 | W10 | T-45 |
 
 ---
@@ -1203,7 +1203,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Issue:** #73
 - **Onda:** W7
 - **Depende de:** T-50
-- **Objetivo:** criar o padrão de jornada guiada (etapas, validação junto ao campo, foco no primeiro erro, confirmação antes de ação irreversível) sobre `shared/forms`; salvar e retomar fica fora (OPEN-UI-02).
+- **Objetivo:** criar o padrão de jornada guiada (etapas, validação junto ao campo, foco no primeiro erro, confirmação antes de ação irreversível) sobre `shared/forms`; salvar e retomar fica fora (OIK-ADR-0016, T-57).
 - **Context Pack:** `context/T-52.md`
 - **Arquivos de entrada:** T-50 concluída; `shared/forms`; skill `frontend-form`.
 - **Arquivos de saída:** `web/src/shared/ui/{JornadaGuiada,ConfirmacaoIrreversivel}/**`, `web/src/shared/forms/**` (acréscimos), `web/src/shared/ui/__tests__/jornada.test.tsx`.
@@ -1245,7 +1245,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Issue:** #75
 - **Onda:** W8
 - **Depende de:** T-05, T-22, T-32, T-46, T-47
-- **Objetivo:** estender `GET /painel/auditoria` com filtro `igreja`, busca textual por evento/alvo, nome do ator e `trace_id`, sem valores de campo; resultado/falha fica em OPEN-UI-01.
+- **Objetivo:** estender `GET /painel/auditoria` com filtro `igreja`, busca textual por evento/alvo, nome do ator e `trace_id`, sem valores de campo; inclui `resultado`, `codigo_falha` e gravação da falha em transação própria (OIK-ADR-0015).
 - **Context Pack:** `context/T-54.md`
 - **Arquivos de entrada:** `docs/modules/auditoria.md`; T-46 e T-22 concluídas (regeneração do contrato).
 - **Arquivos de saída:** `api/app/Modules/Auditoria/**`, `api/tests/Feature/Auditoria/**`, `api/openapi.json`, `packages/api-contrato/src/esquema.ts`, `docs/modules/auditoria.md`.
@@ -1266,7 +1266,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Issue:** #76
 - **Onda:** W9
 - **Depende de:** T-51, T-53, T-54
-- **Objetivo:** criar `features/Auditoria` com menu próprio, busca, filtros na URL, destaque, trilha de um alvo, resumo compreensível e detalhe técnico progressivo, integrados ao `GET /painel/auditoria`; 'resultado' só após decisão de OPEN-UI-01.
+- **Objetivo:** criar `features/Auditoria` com menu próprio, busca, filtros na URL, destaque, trilha de um alvo, resumo compreensível e detalhe técnico progressivo, integrados ao `GET /painel/auditoria`; filtro e destaque de 'resultado' conforme a OIK-ADR-0015 (T-54).
 - **Context Pack:** `context/T-55.md`
 - **Arquivos de entrada:** T-51, T-53 e T-54 concluídas; `docs/modules/auditoria.md`; FR-037, NFR-008.
 - **Arquivos de saída:** `web/src/features/Auditoria/**`, `web/src/app/painel/roteador.tsx`.
@@ -1301,6 +1301,28 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; links locais do documento existentes.
 - **Regra de negócio associada:** nenhuma.
+- **Status:** Pendente
+
+## T-57 — Rascunhos de jornada guiada (API) e integração na jornada
+- **Issue:** #78
+- **Onda:** W9
+- **Depende de:** T-52, T-05
+- **Objetivo:** criar `rascunhos_jornada` com endpoints de ler, gravar com `versao` e descartar, expiração por job, e ligar o salvar e retomar à `JornadaGuiada` (OIK-ADR-0016).
+- **Context Pack:** `context/T-57.md`
+- **Arquivos de entrada:** OIK-ADR-0016; T-52 concluída; expiração de 30 dias e cifra só dos campos sensíveis (OIK-ADR-0016).
+- **Arquivos de saída:** `api/app/Modules/Jornadas/**`, `api/tests/Feature/Jornadas/**`, `web/src/shared/ui/JornadaGuiada/rascunho.ts`, `web/src/shared/ui/__tests__/rascunhoJornada.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `api/tests/Feature/Jornadas/RascunhoTest.php`; `web/src/shared/ui/__tests__/rascunhoJornada.test.tsx`
+- **Casos cobertos:**
+  1. Gravar e ler devolve a etapa e os dados; outra conta ou outra organização não lê.
+  2. Gravar com `versao` antiga devolve 409 e o cliente recarrega.
+  3. Credenciais e segredos são recusados no rascunho; campos sensíveis ficam cifrados.
+  4. O job remove os expirados; concluir ou descartar remove o rascunho.
+  5. Na tela, recarregar a página retoma na etapa salva com os campos preenchidos.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green; contrato regenerado; gate do front e `composer gate` verdes.
+- **Regra de negócio associada:** rascunho sem segredos e com expiração.
 - **Status:** Pendente
 
 ---
