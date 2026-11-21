@@ -22,6 +22,11 @@ it('expande organização e regional e soma atribuições de igreja', function (
         {
             return true;
         }
+
+        public function acessosComPermissao(int $organizacaoId, string $permissao): array
+        {
+            return [];
+        }
     };
     $igrejas = new class implements CatalogoIgrejas
     {
@@ -84,6 +89,11 @@ it('autoriza dentro e nega fora do alcance para toda permissão catalogada', fun
         public function temPapel(int $organizacaoId, int $acessoId): bool
         {
             return true;
+        }
+
+        public function acessosComPermissao(int $organizacaoId, string $permissao): array
+        {
+            return [];
         }
     };
     $igrejas = new class implements CatalogoIgrejas

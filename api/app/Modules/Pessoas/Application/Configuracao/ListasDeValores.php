@@ -39,4 +39,12 @@ interface ListasDeValores
      * @return array<int, string>
      */
     public function nomes(array $ids): array;
+
+    /**
+     * Identificador público dos itens já usados, ativos ou não (respostas e eventos sem texto livre).
+     *
+     * @param  list<int>  $ids
+     * @return array<int, string>
+     */
+    public function uuids(array $ids): array;
 }

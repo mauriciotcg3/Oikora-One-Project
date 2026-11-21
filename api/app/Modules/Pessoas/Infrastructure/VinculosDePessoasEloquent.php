@@ -46,7 +46,7 @@ final class VinculosDePessoasEloquent implements VinculosDePessoas
         $pessoa->forceFill(['situacao' => $situacao->value])->save();
     }
 
-    public function registrarEvento(int $organizacaoId, int $id, string $tipo, int $motivoId, array $dados, int $autorAcessoId): void
+    public function registrarEvento(int $organizacaoId, int $id, string $tipo, ?int $motivoId, array $dados, int $autorAcessoId): void
     {
         DB::table('eventos_linha_do_tempo')->insert([
             'uuid' => (string) Str::uuid(),

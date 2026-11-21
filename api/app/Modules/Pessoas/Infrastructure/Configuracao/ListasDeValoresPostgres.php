@@ -97,6 +97,20 @@ final class ListasDeValoresPostgres implements ListasDeValores
         return $nomes;
     }
 
+    public function uuids(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $uuids = [];
+        foreach (DB::table('listas_valores')->whereIn('id', $ids)->get(['id', 'uuid']) as $linha) {
+            $uuids[(int) $linha->id] = (string) $linha->uuid;
+        }
+
+        return $uuids;
+    }
+
     /** @return ItemLista */
     private function porId(int $id): array
     {
