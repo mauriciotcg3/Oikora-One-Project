@@ -22,4 +22,7 @@ interface ContatosDaPessoa
 
     /** Descadastra o celular WhatsApp que mandou "SAIR". Devolve quantos contatos mudaram. */
     public function descadastrarWhatsApp(string $celularE164): int;
+
+    /** Registra que o endereço do canal falhou definitivamente. */
+    public function marcarFalhaDeEntrega(int $pessoaId, string $canal): bool;
 }

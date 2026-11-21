@@ -60,6 +60,13 @@ final readonly class ContatosDaPessoaPostgres implements ContatosDaPessoa
             ->update(['descadastrado_em' => now(), 'updated_at' => now()]);
     }
 
+    public function marcarFalhaDeEntrega(int $pessoaId, string $canal): bool
+    {
+        return $this->contatosDoCanal($canal)
+            ->where('pessoa_id', $pessoaId)
+            ->update(['entrega_falhou_em' => now(), 'updated_at' => now()]) > 0;
+    }
+
     /** @return Builder<PessoaContato> */
     private function contatosDoCanal(string $canal): Builder
     {
