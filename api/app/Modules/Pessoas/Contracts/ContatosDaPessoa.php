@@ -22,4 +22,18 @@ interface ContatosDaPessoa
 
     /** Descadastra o celular WhatsApp que mandou "SAIR". Devolve quantos contatos mudaram. */
     public function descadastrarWhatsApp(string $celularE164): int;
+
+    /** Registra que o endereço do canal falhou definitivamente. */
+    public function marcarFalhaDeEntrega(int $pessoaId, string $canal): bool;
+
+    /**
+     * Pessoa da organização para o convite ao painel (T-22), fora da lixeira, com o e-mail e o celular
+     * principais. Lida como rotina de sistema: quem convida é governança, não precisa ver a ficha.
+     *
+     * @return array{id: int, uuid: string, nome: string, email: string|null, celular: string|null}|null
+     */
+    public function paraConvite(string $pessoaUuid): ?array;
+
+    /** Nome da Pessoa, para os dados mínimos do convite. */
+    public function nome(int $pessoaId): ?string;
 }

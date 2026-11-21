@@ -682,6 +682,224 @@
                 }
             }
         },
+        "/painel/convites": {
+            "post": {
+                "operationId": "convites.convidar",
+                "tags": [
+                    "Convites"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "pessoa": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "papel": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "escopo_tipo": {
+                                        "$ref": "#/components/schemas/EscopoTipo"
+                                    },
+                                    "escopo": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "pessoa",
+                                    "papel",
+                                    "escopo_tipo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/convites/{convite}": {
+            "delete": {
+                "operationId": "convites.revogarConvite",
+                "tags": [
+                    "Convites"
+                ],
+                "parameters": [
+                    {
+                        "name": "convite",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/painel/acessos/{acesso}": {
+            "delete": {
+                "operationId": "convites.revogarAcesso",
+                "tags": [
+                    "Convites"
+                ],
+                "parameters": [
+                    {
+                        "name": "acesso",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/convites/{token}": {
+            "get": {
+                "operationId": "convites.mostrar",
+                "tags": [
+                    "Convites"
+                ],
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/convites/{token}/aceitar": {
+            "post": {
+                "operationId": "convites.aceitar",
+                "tags": [
+                    "Convites"
+                ],
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "senha": {
+                                        "type": "string"
+                                    },
+                                    "senha_confirmation": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "senha",
+                                    "senha_confirmation"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/descadastro": {
             "post": {
                 "operationId": "avisos.descadastro",
@@ -2951,6 +3169,454 @@
                 }
             }
         },
+        "/painel/pessoas/{pessoa}/linha-do-tempo": {
+            "get": {
+                "operationId": "registros.linhaDoTempo",
+                "tags": [
+                    "Registros"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "registros.registrar",
+                "tags": [
+                    "Registros"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "ocorrido_em": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "descricao": {
+                                        "type": "string",
+                                        "maxLength": 2000
+                                    }
+                                },
+                                "required": [
+                                    "ocorrido_em",
+                                    "descricao"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/relacionamentos": {
+            "get": {
+                "operationId": "registros.relacionamentos",
+                "tags": [
+                    "Registros"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "registros.relacionar",
+                "tags": [
+                    "Registros"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "relacionada": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "tipo": {
+                                        "$ref": "#/components/schemas/TipoRelacionamento"
+                                    },
+                                    "descricao": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 120
+                                    }
+                                },
+                                "required": [
+                                    "relacionada",
+                                    "tipo"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/relacionamentos/{relacionamento}": {
+            "delete": {
+                "operationId": "registros.removerRelacionamento",
+                "tags": [
+                    "Registros"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "relacionamento",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/funcoes": {
+            "get": {
+                "operationId": "registros.funcoes",
+                "tags": [
+                    "Registros"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "registros.atribuirFuncao",
+                "tags": [
+                    "Registros"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "funcao": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "desde": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "ate": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "date"
+                                    }
+                                },
+                                "required": [
+                                    "funcao",
+                                    "desde"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/funcoes/{funcao}": {
+            "patch": {
+                "operationId": "registros.encerrarFuncao",
+                "tags": [
+                    "Registros"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "funcao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "ate": {
+                                        "type": "string",
+                                        "format": "date"
+                                    }
+                                },
+                                "required": [
+                                    "ate"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/tipo-membro": {
+            "put": {
+                "operationId": "registros.tipoMembro",
+                "tags": [
+                    "Registros"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tipo_membro": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "tipo_membro"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/saude": {
             "get": {
                 "operationId": "observabilidade.saude",
@@ -3406,6 +4072,162 @@
                     "204": {
                         "description": "No content"
                     },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/transferencias": {
+            "get": {
+                "operationId": "transferencias.listar",
+                "tags": [
+                    "Transferencias"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "operationId": "transferencias.solicitar",
+                "tags": [
+                    "Transferencias"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "pessoa": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "igreja_destino": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "pessoa",
+                                    "igreja_destino"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/transferencias/{transferencia}/aprovar": {
+            "post": {
+                "operationId": "transferencias.aprovar",
+                "tags": [
+                    "Transferencias"
+                ],
+                "parameters": [
+                    {
+                        "name": "transferencia",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/transferencias/{transferencia}/recusar": {
+            "post": {
+                "operationId": "transferencias.recusar",
+                "tags": [
+                    "Transferencias"
+                ],
+                "parameters": [
+                    {
+                        "name": "transferencia",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "justificativa": {
+                                        "type": "string",
+                                        "maxLength": 1000
+                                    }
+                                },
+                                "required": [
+                                    "justificativa"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
                     "200": {
                         "description": "",
                         "content": {
@@ -3995,6 +4817,122 @@
                     }
                 }
             }
+        },
+        "/webhooks/meta": {
+            "get": {
+                "operationId": "webhook.confirmarMeta",
+                "tags": [
+                    "Webhook"
+                ],
+                "parameters": [
+                    {
+                        "name": "hub[mode]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "default": ""
+                        }
+                    },
+                    {
+                        "name": "hub[verify_token]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "default": ""
+                        }
+                    },
+                    {
+                        "name": "hub[challenge]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "default": ""
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/webhooks/{provedor}": {
+            "post": {
+                "operationId": "webhook.receber",
+                "tags": [
+                    "Webhook"
+                ],
+                "parameters": [
+                    {
+                        "name": "provedor",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": "An error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error overview.",
+                                            "examples": [
+                                                ""
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "message"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -4072,6 +5010,7 @@
                     "exportacao.concluida",
                     "exportacao.negada",
                     "acesso.convite_emitido",
+                    "acesso.convite_revogado",
                     "acesso.concedido",
                     "acesso.revogado",
                     "autorizacao.papel_criado",
@@ -4162,6 +5101,22 @@
                 ],
                 "title": "Situacao"
             },
+            "TipoRelacionamento": {
+                "type": "string",
+                "description": "Tipos de relacionamento, lista fixa no c\u00f3digo (U-24). Cada rela\u00e7\u00e3o grava a inversa: \"pai/m\u00e3e\" de A para B \u00e9 \"filho(a)\" de B para A. \"Respons\u00e1vel legal \u2194 dependente\" liga a crian\u00e7a ao adulto que responde por ela (ASSUMPTION-005). \"Outro\" exige descri\u00e7\u00e3o.\n",
+                "enum": [
+                    "conjuge",
+                    "pai_mae",
+                    "filho",
+                    "irmao",
+                    "avo",
+                    "neto",
+                    "responsavel_legal",
+                    "dependente",
+                    "outro"
+                ],
+                "title": "TipoRelacionamento"
+            },
             "Vinculo": {
                 "type": "string",
                 "description": "V\u00ednculos da pessoa com a igreja (RN-03) e a m\u00e1quina de estados (RN-07; plan.md \u00a76): s\u00f3 avan\u00e7a Visitante \u2192 Frequentador \u2192 Membro, sem pular e sem voltar. Quem deixa de participar \u00e9 inativado (Situacao), e a reativa\u00e7\u00e3o volta ao mesmo v\u00ednculo. S\u00f3 `membro` tem matr\u00edcula.\n",
@@ -4206,6 +5161,25 @@
             },
             "AuthenticationException": {
                 "description": "Unauthenticated",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string",
+                                    "description": "Error overview."
+                                }
+                            },
+                            "required": [
+                                "message"
+                            ]
+                        }
+                    }
+                }
+            },
+            "ModelNotFoundException": {
+                "description": "Not found",
                 "content": {
                     "application/json": {
                         "schema": {

@@ -134,6 +134,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/convites": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["convites.convidar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/convites/{convite}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["convites.revogarConvite"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/acessos/{acesso}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["convites.revogarAcesso"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/convites/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["convites.mostrar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/convites/{token}/aceitar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["convites.aceitar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/descadastro": {
         parameters: {
             query?: never;
@@ -504,6 +584,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/pessoas/{pessoa}/linha-do-tempo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["registros.linhaDoTempo"];
+        put?: never;
+        post: operations["registros.registrar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}/relacionamentos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["registros.relacionamentos"];
+        put?: never;
+        post: operations["registros.relacionar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}/relacionamentos/{relacionamento}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["registros.removerRelacionamento"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}/funcoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["registros.funcoes"];
+        put?: never;
+        post: operations["registros.atribuirFuncao"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}/funcoes/{funcao}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["registros.encerrarFuncao"];
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}/tipo-membro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["registros.tipoMembro"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/saude": {
         parameters: {
             query?: never;
@@ -605,6 +781,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/transferencias": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["transferencias.listar"];
+        put?: never;
+        post: operations["transferencias.solicitar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/transferencias/{transferencia}/aprovar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["transferencias.aprovar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/transferencias/{transferencia}/recusar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["transferencias.recusar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/conta/verificacao/{tipo}": {
         parameters: {
             query?: never;
@@ -669,6 +893,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/webhooks/meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["webhook.confirmarMeta"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/webhooks/{provedor}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["webhook.receber"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -687,7 +943,7 @@ export interface components {
          * EventoAuditoria
          * @enum {string}
          */
-        EventoAuditoria: "pessoa.criada" | "pessoa.atualizada" | "pessoa.excluida" | "pessoa.recuperada" | "pessoa.purgada" | "pessoa.mesclada" | "pessoa.mesclagem_desfeita" | "pessoa.transferencia_solicitada" | "pessoa.transferencia_aprovada" | "pessoa.transferencia_recusada" | "pessoa.importacao_concluida" | "pessoa.importacao_desfeita" | "pessoas.lista_valor_criado" | "pessoas.lista_valor_atualizado" | "pessoas.obrigatorios_atualizados" | "exportacao.pedida" | "exportacao.concluida" | "exportacao.negada" | "acesso.convite_emitido" | "acesso.concedido" | "acesso.revogado" | "autorizacao.papel_criado" | "autorizacao.papel_atualizado" | "autorizacao.atribuicao_concedida" | "autorizacao.atribuicao_revogada" | "authz.escalation_blocked" | "authz.last_admin_blocked" | "suporte.autorizacao_criada" | "suporte.autorizacao_revogada" | "suporte.autorizacao_expirada" | "auth.elevacao" | "authz.permission_requested" | "authz.permission_request_cancelled" | "authz.permission_request_approved" | "authz.permission_request_rejected" | "authz.permission_grant_revoked" | "authz.permission_grant_expired" | "organizacao.configurada" | "organizacao.igreja_criada" | "organizacao.igreja_atualizada";
+        EventoAuditoria: "pessoa.criada" | "pessoa.atualizada" | "pessoa.excluida" | "pessoa.recuperada" | "pessoa.purgada" | "pessoa.mesclada" | "pessoa.mesclagem_desfeita" | "pessoa.transferencia_solicitada" | "pessoa.transferencia_aprovada" | "pessoa.transferencia_recusada" | "pessoa.importacao_concluida" | "pessoa.importacao_desfeita" | "pessoas.lista_valor_criado" | "pessoas.lista_valor_atualizado" | "pessoas.obrigatorios_atualizados" | "exportacao.pedida" | "exportacao.concluida" | "exportacao.negada" | "acesso.convite_emitido" | "acesso.convite_revogado" | "acesso.concedido" | "acesso.revogado" | "autorizacao.papel_criado" | "autorizacao.papel_atualizado" | "autorizacao.atribuicao_concedida" | "autorizacao.atribuicao_revogada" | "authz.escalation_blocked" | "authz.last_admin_blocked" | "suporte.autorizacao_criada" | "suporte.autorizacao_revogada" | "suporte.autorizacao_expirada" | "auth.elevacao" | "authz.permission_requested" | "authz.permission_request_cancelled" | "authz.permission_request_approved" | "authz.permission_request_rejected" | "authz.permission_grant_revoked" | "authz.permission_grant_expired" | "organizacao.configurada" | "organizacao.igreja_criada" | "organizacao.igreja_atualizada";
         /** LoginRequest */
         LoginRequest: {
             identificador: string;
@@ -710,6 +966,12 @@ export interface components {
          * @enum {string}
          */
         Situacao: "ativa" | "inativa";
+        /**
+         * TipoRelacionamento
+         * @description Tipos de relacionamento, lista fixa no código (U-24). Cada relação grava a inversa: "pai/mãe" de A para B é "filho(a)" de B para A. "Responsável legal ↔ dependente" liga a criança ao adulto que responde por ela (ASSUMPTION-005). "Outro" exige descrição.
+         * @enum {string}
+         */
+        TipoRelacionamento: "conjuge" | "pai_mae" | "filho" | "irmao" | "avo" | "neto" | "responsavel_legal" | "dependente" | "outro";
         /**
          * Vinculo
          * @description Vínculos da pessoa com a igreja (RN-03) e a máquina de estados (RN-07; plan.md §6): só avança Visitante → Frequentador → Membro, sem pular e sem voltar. Quem deixa de participar é inativado (Situacao), e a reativação volta ao mesmo vínculo. Só `membro` tem matrícula.
@@ -736,6 +998,18 @@ export interface components {
         };
         /** @description Unauthenticated */
         AuthenticationException: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": {
+                    /** @description Error overview. */
+                    message: string;
+                };
+            };
+        };
+        /** @description Not found */
+        ModelNotFoundException: {
             headers: {
                 [name: string]: unknown;
             };
@@ -1077,6 +1351,165 @@ export interface operations {
                 content?: never;
             };
             401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "convites.convidar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    pessoa: string;
+                    /** Format: uuid */
+                    papel: string;
+                    escopo_tipo: components["schemas"]["EscopoTipo"];
+                    /** Format: uuid */
+                    escopo?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "convites.revogarConvite": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                convite: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "convites.revogarAcesso": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                acesso: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "convites.mostrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "convites.aceitar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    senha: string;
+                    senha_confirmation: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             422: components["responses"]["ValidationException"];
         };
     };
@@ -2196,6 +2629,307 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "registros.linhaDoTempo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "registros.registrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: date-time */
+                    ocorrido_em: string;
+                    descricao: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "registros.relacionamentos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "registros.relacionar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    relacionada: string;
+                    tipo: components["schemas"]["TipoRelacionamento"];
+                    descricao?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "registros.removerRelacionamento": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+                relacionamento: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "registros.funcoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "registros.atribuirFuncao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    funcao: string;
+                    /** Format: date */
+                    desde: string;
+                    /** Format: date */
+                    ate?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "registros.encerrarFuncao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+                funcao: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: date */
+                    ate: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "registros.tipoMembro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    tipo_membro: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "observabilidade.saude": {
         parameters: {
             query?: never;
@@ -2426,6 +3160,105 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "transferencias.listar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                    };
+                };
+            };
+        };
+    };
+    "transferencias.solicitar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    pessoa: string;
+                    /** Format: uuid */
+                    igreja_destino: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "transferencias.aprovar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transferencia: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+        };
+    };
+    "transferencias.recusar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transferencia: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    justificativa: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "verificacaoContato.pedir": {
         parameters: {
             query?: never;
@@ -2622,6 +3455,79 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "webhook.confirmarMeta": {
+        parameters: {
+            query?: {
+                "hub[mode]"?: string;
+                "hub[verify_token]"?: string;
+                "hub[challenge]"?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description An error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "webhook.receber": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provedor: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An error */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /**
+                         * @description Error overview.
+                         * @example
+                         */
+                        message: string;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
 }

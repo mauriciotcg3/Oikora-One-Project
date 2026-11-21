@@ -31,4 +31,13 @@ interface BuscaDenominacao
      * @return list<array{uuid: string, nome: string, igreja_id: int, vinculo: string|null, na_lixeira: bool, motivos: list<string>}>
      */
     public function duplicados(CriteriosDuplicidade $criterios, ?int $pessoaId = null, int $limite = 10): array;
+
+    /**
+     * Projeção restrita (identificador público, nome, igreja e vínculo) por id interno, dentro ou fora do
+     * alcance: relacionada de um relacionamento, autor na linha do tempo, pessoa de uma transferência.
+     *
+     * @param  list<int>  $ids
+     * @return array<int, array{uuid: string, nome: string, igreja_id: int, vinculo: string|null}>
+     */
+    public function resumos(array $ids): array;
 }

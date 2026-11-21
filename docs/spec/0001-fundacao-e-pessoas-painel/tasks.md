@@ -464,7 +464,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Codificada em W6 (2026-11-20): `GET|POST /api/v1/webhooks/meta` e `POST /api/v1/webhooks/{postmark|twilio}` sem sessão, com limite de taxa e validação de Meta HMAC-SHA256, Postmark HTTP Basic e Twilio HMAC-SHA1; entrada responde antes do processamento e envia só evento normalizado à fila `webhooks`. `ProcessarWebhook` localiza o tenant por id externo em porta estreita fora da RLS, instala o contexto na transação e atualiza `envios` sem regressão; bounce/falha definitiva marca `entrega_falhou_em`, spam descadastra e id desconhecido não produz efeito. Payload bruto não é persistido. `WebhooksTest`: 9 Green / 26 asserções; Avisos: 66 Green / 218 asserções; PHPStan sem erros.
 
 ## T-20 — Avisos: caixa de avisos, uso e limite de WhatsApp
 - **Issue:** #20
@@ -532,7 +532,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-02, CA-09).
 - **Regra de negócio associada:** RN-02, RN-12 — atualizar `docs/modules/identidade.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W6 (2026-11-20): `POST /painel/convites` (`ConvidarAction`: `acessos.gerir` no escopo da organização; Pessoa fora da lixeira com e-mail ou celular, senão 422 `pessoa_sem_contato`; `pessoa_ja_tem_acesso`; um convite válido por Pessoa, `convite_pendente`; papel e escopo pela anti-escalada da Autorização, `escalada_bloqueada` auditado), token aleatório de 48 caracteres guardado em SHA-256, 72h, aviso `convite.painel` à Pessoa; `DELETE /painel/convites/{id}` e `DELETE /painel/acessos/{id}` (trava `ultimo_administrador`, `authz.last_admin_blocked`); `GET /convites/{token}` (dados mínimos) e `POST /convites/{token}/aceitar` (`AceitarConvite`: com sessão liga a conta logada; sem sessão cria a conta com a senha própria e os contatos da ficha, ou 409 `entre_para_aceitar` se um deles já é de outra conta; cria acesso e atribuição; `convite_invalido` para usado, revogado ou vencido). Vias estreitas `identidade_organizacao_do_convite` e `identidade_criar_conta` (`SECURITY DEFINER`). Comando `convites:expirar` diário às 03h30. Contract novo `Autorizacao\Contracts\ConcessaoDeAcesso`; `ContatosDaPessoa::paraConvite|nome`. Auditoria `acesso.convite_emitido|convite_revogado|concedido|revogado` sem contato da Pessoa. `ConviteTest` 8 Green.
 
 ## T-23 — Provisionamento da organização
 - **Issue:** #23
@@ -691,7 +691,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-17, CA-18).
 - **Regra de negócio associada:** nenhuma RN numerada (FR-011–013) — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W6 (2026-11-20): `GET|POST /painel/pessoas/{id}/linha-do-tempo` (registro manual `registro_manual` com data retroativa até hoje e descrição; lista em ordem de `ocorrido_em`, mais recente primeiro, com motivo pelo nome do item e autor pelo acesso e pelo nome da Pessoa — novo método `pessoas()` no Contract `AcessosDaOrganizacao`); `GET|POST|DELETE /painel/pessoas/{id}/relacionamentos[/{id}]` com `Domain/TipoRelacionamento` (U-24) e inversa gravada na mesma Action com `par_uuid`, "outro" exige descrição, tipo fixo não repete, relacionada pode ser de outra igreja da organização; `GET|POST|PATCH /painel/pessoas/{id}/funcoes[/{id}]` (só itens ativos da lista `funcao`, `ate` ≥ `desde`, também no banco); `PUT /painel/pessoas/{id}/tipo-membro` (item ativo de `tipo_membro` ou null; evento `tipo_membro_alterado` com de/para pelos uuids dos itens). Migration `relacionamentos` e `pessoa_funcoes` sob RLS com FKs compostas. Auditoria `pessoa.atualizada` só com nomes de campo. `LinhaDoTempoTest` 4, `RelacionamentosTest` 5 e `FuncoesTest` 4 Green.
 
 ## T-30 — Lista de pessoas com filtros e paginação
 - **Issue:** #30
@@ -804,7 +804,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-05, CA-22).
 - **Regra de negócio associada:** RN-04, RN-08 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W6 (2026-11-20): `GET|POST /painel/transferencias`, `POST /painel/transferencias/{id}/aprovar|recusar`. `SolicitarTransferenciaAction` (`pessoas.transferencias.solicitar` na igreja de destino; pessoa localizada pela busca na denominação; `mesma_igreja`; um pendente por pessoa → 422 `transferencia_pendente`, também por único parcial no banco), `AprovarTransferenciaAction` e `RecusarTransferenciaAction` (`pessoas.transferencias.aprovar` na origem, pedido bloqueado `FOR UPDATE`; já decidido → 422 `transferencia_ja_decidida`; recusa exige justificativa). Aprovar muda `igreja_id` como rotina de sistema, mantém vínculo e matrícula e grava o evento `transferencia` (de/para pelos uuids das igrejas); o alcance segue a igreja atual. Avisos `servico.transferencia_solicitada` às contas com aprovar na origem (Contract novo `Autorizacao\Contracts\QuemPode` + `AcessosDaOrganizacao::contasAtivas`) e `servico.transferencia_decidida` a quem pediu. Auditoria `pessoa.transferencia_*` com `transferencia_id` e igrejas (justificativa fica só no pedido). `BuscaDenominacao::resumos` passa a dar a projeção restrita por id. `TransferenciaTest` 6 Green.
 
 ## T-35 — Lixeira, removedor de Pessoas e purga
 - **Issue:** #35

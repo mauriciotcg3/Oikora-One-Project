@@ -1,0 +1,7 @@
+{
+  "RecordType": "Delivery",
+  "MessageID": "postmark-delivery-123",
+  "Recipient": "pessoa@exemplo.test",
+  "DeliveredAt": "2026-11-20T12:00:00Z",
+  "Details": "Test delivery"
+}

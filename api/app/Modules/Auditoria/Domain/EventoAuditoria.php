@@ -23,6 +23,7 @@ enum EventoAuditoria: string
     case ExportacaoConcluida = 'exportacao.concluida';
     case ExportacaoNegada = 'exportacao.negada';
     case ConviteEmitido = 'acesso.convite_emitido';
+    case ConviteRevogado = 'acesso.convite_revogado';
     case AcessoConcedido = 'acesso.concedido';
     case AcessoRevogado = 'acesso.revogado';
     case PapelCriado = 'autorizacao.papel_criado';
@@ -53,7 +54,12 @@ enum EventoAuditoria: string
             self::ExportacaoNegada => ['filtro', 'categorias', 'motivo_codigo'],
             self::PessoaMesclada, self::PessoaMesclagemDesfeita => ['pessoa_origem_id', 'pessoa_destino_id'],
             self::ImportacaoConcluida, self::ImportacaoDesfeita => ['importacao_id', 'contagem'],
-            self::TransferenciaRecusada, self::UltimoAdministradorBloqueado => ['motivo_codigo'],
+            self::UltimoAdministradorBloqueado => ['motivo_codigo'],
+            // Convite e acesso (OIK-ADR-0003 §5): papel e escopo concedidos; o contato da pessoa fica fora.
+            self::ConviteEmitido, self::ConviteRevogado => ['convite_id', 'papel_id', 'escopo_tipo', 'escopo_id'],
+            self::AcessoConcedido => ['convite_id', 'papel_id', 'escopo_tipo', 'escopo_id', 'conta_nova'],
+            // Transferência (FLOW-009): igrejas de origem e destino; a justificativa é texto livre e fica no pedido.
+            self::TransferenciaSolicitada, self::TransferenciaAprovada, self::TransferenciaRecusada => ['transferencia_id', 'igreja_origem_id', 'igreja_destino_id'],
             // Permissões e escopo não são dado pessoal (OIK-ADR-0005 §5): antes e depois ficam na auditoria.
             self::PapelCriado => ['permissoes_depois'],
             self::PapelAtualizado => ['permissoes_antes', 'permissoes_depois', 'nome_alterado'],
