@@ -77,9 +77,73 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["presentation.listaPessoas"];
         put?: never;
         post: operations["cadastroRapido.cadastrar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/avisos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["caixaAvisos.listar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/avisos/nao-lidos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["caixaAvisos.naoLidos"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/avisos/lidos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["caixaAvisos.marcarTodos"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/avisos/{aviso}/lido": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["caixaAvisos.marcarLido"];
         delete?: never;
         options?: never;
         head?: never;
@@ -127,6 +191,22 @@ export interface paths {
         };
         get?: never;
         put: operations["conta.trocarSenha"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/acessos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["convites.acessos"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -262,6 +342,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/duplicados": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["duplicados.listar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/duplicados/nao-duplicados": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["duplicados.naoDuplicadas"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/mesclagens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["duplicados.mesclar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/painel/elevacao": {
         parameters: {
             query?: never;
@@ -288,7 +416,7 @@ export interface paths {
         get: operations["pessoas.mostrar"];
         put?: never;
         post?: never;
-        delete?: never;
+        delete: operations["lixeira.excluir"];
         options?: never;
         head?: never;
         patch: operations["ficha.editar"];
@@ -368,6 +496,38 @@ export interface paths {
         get?: never;
         put: operations["listas.editar"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/lixeira": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["lixeira.listar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/lixeira/{pessoa}/recuperar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["lixeira.recuperar"];
         delete?: never;
         options?: never;
         head?: never;
@@ -545,6 +705,22 @@ export interface paths {
         };
         get: operations["pessoas.buscar"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/conta/preferencias-aviso": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["preferenciasAviso.mostrar"];
+        put: operations["preferenciasAviso.definir"];
         post?: never;
         delete?: never;
         options?: never;
@@ -967,6 +1143,12 @@ export interface components {
          */
         Situacao: "ativa" | "inativa";
         /**
+         * TipoAviso
+         * @description Catálogo de tipos de aviso desta Spec (OIK-ADR-0008 §1, §12; plan.md §3.6). Códigos não passam por aqui: têm a via estreita da fila `codigos`. Cada tipo define categoria, obrigatoriedade, canais e ordem, janela diurna e reenvio pelo próximo canal (RN-21).
+         * @enum {string}
+         */
+        TipoAviso: "convite.painel" | "servico.transferencia_solicitada" | "servico.transferencia_decidida" | "servico.exportacao_pronta" | "servico.limite_whatsapp_alerta" | "servico.limite_whatsapp_atingido";
+        /**
          * TipoRelacionamento
          * @description Tipos de relacionamento, lista fixa no código (U-24). Cada relação grava a inversa: "pai/mãe" de A para B é "filho(a)" de B para A. "Responsável legal ↔ dependente" liga a criança ao adulto que responde por ela (ASSUMPTION-005). "Outro" exige descrição.
          * @enum {string}
@@ -1157,6 +1339,60 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "presentation.listaPessoas": {
+        parameters: {
+            query?: {
+                pagina?: number;
+                por_pagina?: "25" | "50" | "100";
+                ordem?: "nome" | "-nome" | "nascimento" | "-nascimento" | "entrada_em" | "-entrada_em" | "cadastro" | "-cadastro";
+                igreja?: string;
+                vinculo?: components["schemas"]["Vinculo"];
+                situacao?: components["schemas"]["Situacao"];
+                tipo_membro?: string;
+                funcao?: string;
+                ficha_incompleta?: boolean;
+                aniversariantes_mes?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                        meta: {
+                            pagina: number;
+                            por_pagina: number;
+                            total: number;
+                            criterio: {
+                                descricao: string;
+                                oficial: boolean;
+                                filtros: unknown[];
+                            };
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "cadastroRapido.cadastrar": {
         parameters: {
             query?: never;
@@ -1193,6 +1429,117 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "caixaAvisos.listar": {
+        parameters: {
+            query?: {
+                pagina?: number;
+                por_pagina?: "25" | "50" | "100";
+                nao_lidos?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                        meta: {
+                            pagina: number;
+                            por_pagina: number;
+                            total: number;
+                            nao_lidos: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "caixaAvisos.naoLidos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        nao_lidos: number;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "caixaAvisos.marcarTodos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        marcados: number;
+                        /** @constant */
+                        nao_lidos: 0;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "caixaAvisos.marcarLido": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                aviso: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "aviso_nao_encontrado";
+                    };
+                };
+            };
         };
     };
     "conta.confirmarSenha": {
@@ -1352,6 +1699,39 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "convites.acessos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                        convites: unknown[];
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
         };
     };
     "convites.convidar": {
@@ -1665,6 +2045,152 @@ export interface operations {
             };
         };
     };
+    "duplicados.listar": {
+        parameters: {
+            query?: {
+                pagina?: number;
+                por_pagina?: "25" | "50" | "100";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            pessoas: [
+                                {
+                                    uuid: string;
+                                    nome: string;
+                                    nascimento: string | null;
+                                    vinculo: string | null;
+                                    igreja: {
+                                        uuid: string;
+                                        nome: string;
+                                    } | null;
+                                },
+                                {
+                                    uuid: string;
+                                    nome: string;
+                                    nascimento: string | null;
+                                    vinculo: string | null;
+                                    igreja: {
+                                        uuid: string;
+                                        nome: string;
+                                    } | null;
+                                }
+                            ];
+                            criterios: string;
+                            meta: {
+                                acoes: [
+                                    "mesclar",
+                                    "nao_duplicadas"
+                                ] | string[];
+                            };
+                        }[];
+                        meta: {
+                            pagina: number;
+                            por_pagina: number;
+                            total: number;
+                            /** @constant */
+                            criterio: "Pares com nome completo e nascimento, CPF ou e-mail iguais (RN-23), fora da lixeira e sem os marcados como pessoas diferentes";
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "duplicados.naoDuplicadas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    pessoa: string;
+                    /** Format: uuid */
+                    outra: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "duplicados.mesclar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    mantida: string;
+                    /** Format: uuid */
+                    absorvida: string;
+                    valores?: ("mantida" | "absorvida")[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "presentation.elevacao": {
         parameters: {
             query?: never;
@@ -1798,6 +2324,37 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "lixeira.excluir": {
+        parameters: {
+            query: {
+                motivo: string;
+            };
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            422: components["responses"]["ValidationException"];
         };
     };
     "ficha.editar": {
@@ -2078,6 +2635,75 @@ export interface operations {
                 };
             };
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "lixeira.listar": {
+        parameters: {
+            query?: {
+                pagina?: number;
+                por_pagina?: "25" | "50" | "100";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                        meta: {
+                            pagina: number;
+                            por_pagina: number;
+                            total: number;
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "lixeira.recuperar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     "me.mostrar": {
@@ -2562,6 +3188,60 @@ export interface operations {
                     };
                 };
             };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "preferenciasAviso.mostrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "preferenciasAviso.definir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    tipo: components["schemas"]["TipoAviso"];
+                    /** @enum {string} */
+                    canal: "email" | "whatsapp";
+                    ligado: boolean;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
             422: components["responses"]["ValidationException"];
         };
     };

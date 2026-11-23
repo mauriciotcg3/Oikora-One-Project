@@ -12,4 +12,12 @@ interface QuemPode
 {
     /** @return list<int> ids de acesso */
     public function naIgreja(Permissao $permissao, int $igrejaId): array;
+
+    /**
+     * Quem tem a permissão no escopo da organização inteira (ex.: avisar o administrador do limite de
+     * WhatsApp). Não depende de ator: roda também em job, com a organização no contexto.
+     *
+     * @return list<int> ids de acesso
+     */
+    public function naOrganizacao(Permissao $permissao, int $organizacaoId): array;
 }

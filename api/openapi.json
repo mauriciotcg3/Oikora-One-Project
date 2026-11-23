@@ -399,6 +399,395 @@
                         "$ref": "#/components/responses/ValidationException"
                     }
                 }
+            },
+            "get": {
+                "operationId": "presentation.listaPessoas",
+                "tags": [
+                    "ListaPessoas"
+                ],
+                "parameters": [
+                    {
+                        "name": "pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000
+                        }
+                    },
+                    {
+                        "name": "por_pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                "25",
+                                "50",
+                                "100"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "ordem",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "nome",
+                                "-nome",
+                                "nascimento",
+                                "-nascimento",
+                                "entrada_em",
+                                "-entrada_em",
+                                "cadastro",
+                                "-cadastro"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "igreja",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "vinculo",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/Vinculo"
+                        }
+                    },
+                    {
+                        "name": "situacao",
+                        "in": "query",
+                        "schema": {
+                            "$ref": "#/components/schemas/Situacao"
+                        }
+                    },
+                    {
+                        "name": "tipo_membro",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "funcao",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "ficha_incompleta",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "aniversariantes_mes",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "por_pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "criterio": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "descricao": {
+                                                            "type": "string"
+                                                        },
+                                                        "oficial": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "filtros": {
+                                                            "type": "array",
+                                                            "items": {}
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "descricao",
+                                                        "oficial",
+                                                        "filtros"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "pagina",
+                                                "por_pagina",
+                                                "total",
+                                                "criterio"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/avisos": {
+            "get": {
+                "operationId": "caixaAvisos.listar",
+                "tags": [
+                    "CaixaAvisos"
+                ],
+                "parameters": [
+                    {
+                        "name": "pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000
+                        }
+                    },
+                    {
+                        "name": "por_pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                "25",
+                                "50",
+                                "100"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "nao_lidos",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "por_pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "nao_lidos": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                }
+                                            },
+                                            "required": [
+                                                "pagina",
+                                                "por_pagina",
+                                                "total",
+                                                "nao_lidos"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/avisos/nao-lidos": {
+            "get": {
+                "operationId": "caixaAvisos.naoLidos",
+                "tags": [
+                    "CaixaAvisos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "nao_lidos": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        }
+                                    },
+                                    "required": [
+                                        "nao_lidos"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/avisos/lidos": {
+            "post": {
+                "operationId": "caixaAvisos.marcarTodos",
+                "tags": [
+                    "CaixaAvisos"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "marcados": {
+                                            "type": "integer",
+                                            "minimum": 0
+                                        },
+                                        "nao_lidos": {
+                                            "type": "integer",
+                                            "const": 0
+                                        }
+                                    },
+                                    "required": [
+                                        "marcados",
+                                        "nao_lidos"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/avisos/{aviso}/lido": {
+            "post": {
+                "operationId": "caixaAvisos.marcarLido",
+                "tags": [
+                    "CaixaAvisos"
+                ],
+                "parameters": [
+                    {
+                        "name": "aviso",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "aviso_nao_encontrado"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
             }
         },
         "/conta/confirmar-senha": {
@@ -678,6 +1067,59 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/painel/acessos": {
+            "get": {
+                "operationId": "convites.acessos",
+                "tags": [
+                    "Convites"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        },
+                                        "convites": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "convites"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1151,6 +1593,365 @@
                 }
             }
         },
+        "/painel/duplicados": {
+            "get": {
+                "operationId": "duplicados.listar",
+                "tags": [
+                    "Duplicados"
+                ],
+                "parameters": [
+                    {
+                        "name": "pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000
+                        }
+                    },
+                    {
+                        "name": "por_pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                "25",
+                                "50",
+                                "100"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "pessoas": {
+                                                        "type": "array",
+                                                        "prefixItems": [
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uuid": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "nome": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "nascimento": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ]
+                                                                    },
+                                                                    "vinculo": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ]
+                                                                    },
+                                                                    "igreja": {
+                                                                        "type": [
+                                                                            "object",
+                                                                            "null"
+                                                                        ],
+                                                                        "properties": {
+                                                                            "uuid": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "nome": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "uuid",
+                                                                            "nome"
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "uuid",
+                                                                    "nome",
+                                                                    "nascimento",
+                                                                    "vinculo",
+                                                                    "igreja"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "uuid": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "nome": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "nascimento": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ]
+                                                                    },
+                                                                    "vinculo": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ]
+                                                                    },
+                                                                    "igreja": {
+                                                                        "type": [
+                                                                            "object",
+                                                                            "null"
+                                                                        ],
+                                                                        "properties": {
+                                                                            "uuid": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "nome": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "uuid",
+                                                                            "nome"
+                                                                        ]
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "uuid",
+                                                                    "nome",
+                                                                    "nascimento",
+                                                                    "vinculo",
+                                                                    "igreja"
+                                                                ]
+                                                            }
+                                                        ],
+                                                        "minItems": 2,
+                                                        "maxItems": 2
+                                                    },
+                                                    "criterios": {
+                                                        "type": "string"
+                                                    },
+                                                    "meta": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "acoes": {
+                                                                "anyOf": [
+                                                                    {
+                                                                        "type": "array",
+                                                                        "prefixItems": [
+                                                                            {
+                                                                                "type": "string",
+                                                                                "const": "mesclar"
+                                                                            },
+                                                                            {
+                                                                                "type": "string",
+                                                                                "const": "nao_duplicadas"
+                                                                            }
+                                                                        ],
+                                                                        "minItems": 2,
+                                                                        "maxItems": 2
+                                                                    },
+                                                                    {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "minItems": 0,
+                                                                        "maxItems": 0
+                                                                    }
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "acoes"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "pessoas",
+                                                    "criterios",
+                                                    "meta"
+                                                ]
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "por_pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "criterio": {
+                                                    "type": "string",
+                                                    "const": "Pares com nome completo e nascimento, CPF ou e-mail iguais (RN-23), fora da lixeira e sem os marcados como pessoas diferentes"
+                                                }
+                                            },
+                                            "required": [
+                                                "pagina",
+                                                "por_pagina",
+                                                "total",
+                                                "criterio"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/duplicados/nao-duplicados": {
+            "post": {
+                "operationId": "duplicados.naoDuplicadas",
+                "tags": [
+                    "Duplicados"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "pessoa": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "outra": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    }
+                                },
+                                "required": [
+                                    "pessoa",
+                                    "outra"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/mesclagens": {
+            "post": {
+                "operationId": "duplicados.mesclar",
+                "tags": [
+                    "Duplicados"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "mantida": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "absorvida": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "valores": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "enum": [
+                                                "mantida",
+                                                "absorvida"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "mantida",
+                                    "absorvida"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/painel/elevacao": {
             "post": {
                 "operationId": "presentation.elevacao",
@@ -1511,6 +2312,50 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "lixeira.excluir",
+                "tags": [
+                    "Lixeira"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "motivo",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 3,
+                            "maxLength": 500
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
@@ -2155,6 +3000,133 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/lixeira": {
+            "get": {
+                "operationId": "lixeira.listar",
+                "tags": [
+                    "Lixeira"
+                ],
+                "parameters": [
+                    {
+                        "name": "pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10000
+                        }
+                    },
+                    {
+                        "name": "por_pagina",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                "25",
+                                "50",
+                                "100"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "por_pagina": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "required": [
+                                                "pagina",
+                                                "por_pagina",
+                                                "total"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/lixeira/{pessoa}/recuperar": {
+            "post": {
+                "operationId": "lixeira.recuperar",
+                "tags": [
+                    "Lixeira"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
                     }
                 }
             }
@@ -3066,6 +4038,101 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/conta/preferencias-aviso": {
+            "get": {
+                "operationId": "preferenciasAviso.mostrar",
+                "tags": [
+                    "PreferenciasAviso"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "preferenciasAviso.definir",
+                "tags": [
+                    "PreferenciasAviso"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tipo": {
+                                        "$ref": "#/components/schemas/TipoAviso"
+                                    },
+                                    "canal": {
+                                        "type": "string",
+                                        "enum": [
+                                            "email",
+                                            "whatsapp"
+                                        ]
+                                    },
+                                    "ligado": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "tipo",
+                                    "canal",
+                                    "ligado"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {}
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
             }
@@ -5100,6 +6167,19 @@
                     "inativa"
                 ],
                 "title": "Situacao"
+            },
+            "TipoAviso": {
+                "type": "string",
+                "description": "Cat\u00e1logo de tipos de aviso desta Spec (OIK-ADR-0008 \u00a71, \u00a712; plan.md \u00a73.6). C\u00f3digos n\u00e3o passam por aqui: t\u00eam a via estreita da fila `codigos`. Cada tipo define categoria, obrigatoriedade, canais e ordem, janela diurna e reenvio pelo pr\u00f3ximo canal (RN-21).\n",
+                "enum": [
+                    "convite.painel",
+                    "servico.transferencia_solicitada",
+                    "servico.transferencia_decidida",
+                    "servico.exportacao_pronta",
+                    "servico.limite_whatsapp_alerta",
+                    "servico.limite_whatsapp_atingido"
+                ],
+                "title": "TipoAviso"
             },
             "TipoRelacionamento": {
                 "type": "string",

@@ -1,6 +1,15 @@
-import { createRootRoute, createRoute, createRouter, Outlet, useNavigate, type RouterHistory } from '@tanstack/react-router'
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  lazyRouteComponent,
+  Outlet,
+  useNavigate,
+  useParams,
+  type RouterHistory,
+} from '@tanstack/react-router'
 import type { ReactNode } from 'react'
-import { PaginaLogin } from '../../features/Identidade'
+import { CadastroDoisFatores, PaginaConvite, PaginaLogin } from '../../features/Identidade'
 import { InicioPainel } from './InicioPainel'
 
 // Rotas da entrada `painel` (OIK-ADR-0006 §3), servidas sob /painel.
@@ -21,10 +30,39 @@ function TelaLogin(): ReactNode {
   return <PaginaLogin aoEntrar={aoEntrar} />
 }
 
+function TelaConvite(): ReactNode {
+  const { token } = useParams({ from: '/convites/$token' })
+  const voltar = encodeURIComponent(`/painel/convites/${token}`)
+  return <PaginaConvite token={token} linkLogin={`/painel/login?voltar=${voltar}`} />
+}
+
+function TelaCadastroDoisFatores(): ReactNode {
+  const navegar = useNavigate()
+  return <CadastroDoisFatores aoConcluir={() => void navegar({ to: '/' })} />
+}
+
 const raiz = createRootRoute({ component: Outlet })
 const rotaInicio = createRoute({ getParentRoute: () => raiz, path: '/', component: InicioPainel })
 const rotaLogin = createRoute({ getParentRoute: () => raiz, path: 'login', component: TelaLogin })
-const arvore = raiz.addChildren([rotaInicio, rotaLogin])
+const rotaConvite = createRoute({ getParentRoute: () => raiz, path: 'convites/$token', component: TelaConvite })
+const rotaDoisFatores = createRoute({ getParentRoute: () => raiz, path: 'dois-fatores', component: TelaCadastroDoisFatores })
+// Telas de gestão carregadas sob demanda (FE-PERF-002), pelo index de cada feature.
+const rotaAcessos = createRoute({
+  getParentRoute: () => raiz,
+  path: 'acessos',
+  component: lazyRouteComponent(() => import('../../features/Autorizacao'), 'TelaAcessos'),
+})
+const rotaPapeis = createRoute({
+  getParentRoute: () => raiz,
+  path: 'papeis',
+  component: lazyRouteComponent(() => import('../../features/Autorizacao'), 'TelaPapeis'),
+})
+const rotaAuditoria = createRoute({
+  getParentRoute: () => raiz,
+  path: 'auditoria',
+  component: lazyRouteComponent(() => import('../../features/Auditoria'), 'TelaAuditoria'),
+})
+const arvore = raiz.addChildren([rotaInicio, rotaLogin, rotaConvite, rotaDoisFatores, rotaAcessos, rotaPapeis, rotaAuditoria])
 
 export function criarRoteador(historia?: RouterHistory) {
   return createRouter({ routeTree: arvore, basepath: '/painel', history: historia })

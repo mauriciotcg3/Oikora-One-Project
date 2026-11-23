@@ -63,6 +63,7 @@ Define o catálogo fechado de permissões e calcula, a cada chamada, em quais ig
 
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-23 | Contract `PapeisProntos` (Administrador e Secretaria do provisionamento) e `QuemPode::naOrganizacao` (sem ator, para jobs). | OIK-SPEC-0001 T-23, T-20 |
 | 2026-11-08 | Criação do catálogo, persistência de papéis/atribuições, alcance, Policy e guard arquitetural. | OIK-SPEC-0001 T-13 |
 | 2026-11-10 | Gestão de papéis e atribuições com travas e auditoria; grupo de middleware `painel` (`ResolverAtor`) e Contract `AlcanceAtual` por requisição. | OIK-SPEC-0001 T-15 |
 | 2026-11-17 | Elevação (`elevacao.painel`) e exigência de papel no grupo `painel`; Contract `PapeisDaConta` (RN-16 e capacidades do `/me`). | OIK-SPEC-0001 T-16 |

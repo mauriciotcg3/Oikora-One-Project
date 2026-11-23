@@ -1,0 +1,27 @@
+// Namespace `auditoria` (OIK-ADR-0006 §13): consulta da auditoria (T-40).
+export const auditoriaPtBR = {
+  titulo: 'Auditoria',
+  filtros: 'Filtros da auditoria',
+  de: 'De',
+  ate: 'Até',
+  evento: 'Evento',
+  filtrar: 'Filtrar',
+  erro: 'Não foi possível carregar a auditoria. Tente de novo.',
+  total_one: '{{count}} registro',
+  total_other: '{{count}} registros',
+  quando: 'Quando',
+  alvo: 'Sobre',
+  igreja: 'Igreja',
+  campos: 'Campos alterados',
+  eventos: {
+    pessoa_criada: 'Pessoa cadastrada',
+    pessoa_atualizada: 'Ficha atualizada',
+    pessoa_excluida: 'Pessoa excluída',
+    pessoa_recuperada: 'Pessoa recuperada',
+    pessoa_mesclada: 'Pessoas mescladas',
+    acesso_convite_emitido: 'Convite enviado',
+    acesso_revogado: 'Acesso revogado',
+    autorizacao_papel_criado: 'Papel criado',
+    autorizacao_papel_atualizado: 'Papel alterado',
+  },
+} as const

@@ -78,4 +78,31 @@ final class AcessosDaOrganizacaoPostgres implements AcessosDaOrganizacao
             ->values()
             ->all());
     }
+
+    public function ativoDaPessoa(int $pessoaId): ?int
+    {
+        $id = DB::table('acessos')->where('pessoa_id', $pessoaId)->where('estado', 'ativo')->value('id');
+
+        return $id === null ? null : (int) $id;
+    }
+
+    public function religarPessoa(int $acessoId, int $pessoaId): void
+    {
+        DB::table('acessos')->where('id', $acessoId)->update(['pessoa_id' => $pessoaId, 'updated_at' => now()]);
+    }
+
+    public function revogarDaPessoa(int $pessoaId): ?int
+    {
+        $id = $this->ativoDaPessoa($pessoaId);
+        if ($id !== null) {
+            DB::table('acessos')->where('id', $id)->update(['estado' => 'revogado', 'revogado_em' => now(), 'updated_at' => now()]);
+        }
+
+        return $id;
+    }
+
+    public function pessoaTeveAcesso(int $pessoaId): bool
+    {
+        return DB::table('acessos')->where('pessoa_id', $pessoaId)->exists();
+    }
 }

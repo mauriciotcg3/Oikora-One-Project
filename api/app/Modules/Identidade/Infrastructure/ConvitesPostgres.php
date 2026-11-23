@@ -22,7 +22,7 @@ final class ConvitesPostgres implements Convites
             ->exists();
     }
 
-    public function emitir(int $organizacaoId, int $pessoaId, int $papelId, string $escopoTipo, ?int $escopoId, string $tokenHash, DateTimeImmutable $expiraEm, int $emissorAcessoId): array
+    public function emitir(int $organizacaoId, int $pessoaId, int $papelId, string $escopoTipo, ?int $escopoId, string $tokenHash, DateTimeImmutable $expiraEm, ?int $emissorAcessoId): array
     {
         $uuid = (string) Str::uuid();
         $id = DB::table('convites')->insertGetId([
