@@ -8,6 +8,7 @@ use App\Modules\Identidade\Application\Actions\ConvidarAction;
 use App\Modules\Identidade\Application\Actions\Resultado;
 use App\Modules\Identidade\Application\Actions\RevogarAcessoAction;
 use App\Modules\Identidade\Application\Actions\RevogarConviteAction;
+use App\Modules\Identidade\Application\ListarAcessos;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,6 +24,17 @@ use Illuminate\Validation\ValidationException;
  */
 final class ConvitesController
 {
+    public function acessos(ListarAcessos $listar): JsonResponse
+    {
+        if (! $listar->permitido()) {
+            return new JsonResponse(['codigo' => 'authz.denied'], 403);
+        }
+
+        $resultado = $listar->executar();
+
+        return new JsonResponse(['data' => $resultado['acessos'], 'convites' => $resultado['convites']]);
+    }
+
     public function convidar(Request $request, ConvidarAction $acao): JsonResponse
     {
         $dados = $request->validate([

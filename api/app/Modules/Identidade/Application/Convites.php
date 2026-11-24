@@ -17,7 +17,7 @@ interface Convites
     public function pendente(int $pessoaId): bool;
 
     /** @return array{id: int, uuid: string} */
-    public function emitir(int $organizacaoId, int $pessoaId, int $papelId, string $escopoTipo, ?int $escopoId, string $tokenHash, DateTimeImmutable $expiraEm, int $emissorAcessoId): array;
+    public function emitir(int $organizacaoId, int $pessoaId, int $papelId, string $escopoTipo, ?int $escopoId, string $tokenHash, DateTimeImmutable $expiraEm, ?int $emissorAcessoId): array;
 
     /**
      * Lê e bloqueia o convite até o fim da transação.

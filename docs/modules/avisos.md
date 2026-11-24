@@ -25,6 +25,8 @@ Entrega mensagens para fora do sistema. Códigos de identidade (2FA e recuperaç
 | — | Erro temporário tem até 2 tentativas em 2 minutos, com o mesmo código. E-mail esgotado vira `falhou_definitivo`. | `Application/Jobs/EnviarCodigo.php` | OIK-ADR-0008 §3 |
 | — | O payload do job leva só o id. Código e destino são lidos na hora, pelo Contract de Identidade. | `Application/Jobs/EnviarCodigo.php` | OIK-ADR-0008 §3 |
 | — | Cada adapter real classifica o erro do provedor: timeout, 429, 5xx e limites de taxa da Meta são temporários; número sem WhatsApp, e-mail inválido ou inativo, template rejeitado, credencial inválida e conta sem pagamento são definitivos. Credencial ausente é definitiva (`provedor_nao_configurado`), sem chamar a rede. | `Infrastructure/Canais/{Postmark,MetaWhatsApp,Twilio}/*Codigos.php` | OIK-SPEC-0001 T-11; OIK-ADR-0008 §3 |
+| — | Caixa de avisos (`GET /avisos`, `GET /avisos/nao-lidos`, `POST /avisos/{id}/lido`, `POST /avisos/lidos`): só os avisos da conta na organização ativa, paginados (25/50/100); o texto é montado na leitura (`TextosDaCaixa`, só com o nome da organização). Preferências em `GET|PUT /conta/preferencias-aviso`. | `CaixaAvisosController`; `PreferenciasAvisoController` | OIK-SPEC-0001 T-20; OIK-ADR-0008 §7, §13 |
+| — | `uso_mensageria` soma cada envio aceito por mês (fuso da organização), canal e categoria, com custo pela tabela `oikora.avisos.precos` (zero por ora). Com `limite_whatsapp_mensal`, 80% avisa quem tem `organizacao.configurar` no escopo da organização (`servico.limite_whatsapp_alerta`) e 100% avisa o corte (`servico.limite_whatsapp_atingido`), um por mês; daí serviço e automáticas saem por e-mail e convite continua. Os avisos do limite só usam e-mail. Sem limite, não há corte. | `UsoDeMensageria`; `LimiteDeWhatsApp`; `CaixaDeSaida` | OIK-SPEC-0001 T-20; OIK-ADR-0008 §16 |
 
 ## Interfaces / contratos expostos
 | Contract | Uso |
@@ -63,11 +65,12 @@ Cada canal de código implementa `CanalDeEmail`, `CanalDeWhatsApp` ou `CanalDeSm
 - ⚠️ O limite de SMS por IP do OIK-ADR-0008 §11 falta: o job não conhece o IP de quem pediu.
 - ⚠️ Sem `whatsapp_numeros` (T-21), nenhuma organização tem número ativo: na prática, convite e serviço saem só por e-mail. A confirmação de entrega já entra pelo webhook; associar mensagens recebidas como "SAIR" ao número da organização depende da T-21.
 - ⚠️ Os templates `convite_painel` e `servico_*` da Meta ainda precisam ser aprovados por número de organização.
-- ⚠️ Preferências (`preferencias_aviso`) têm só a regra; a rota `GET|PUT /conta/preferencias-aviso` fica para a tela de conta.
+- ✅ (2026-11-23) Rota `GET|PUT /conta/preferencias-aviso` entregue na T-20. Antes: preferências só com a regra; a rota ficava para a tela de conta.
 
 ## Changelog
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-23 | Caixa de avisos, preferências, `uso_mensageria` e limite mensal de WhatsApp; Contract `AvisosDaPessoa` para o removedor. | OIK-SPEC-0001 T-20, T-35 |
 | 2026-11-07 | Criação do módulo, com a entrega de códigos e adapters falsos. | OIK-SPEC-0001 T-11 (recorte) |
 | 2026-11-10 | Caixa de saída transacional (`avisos`, `envios` particionada), catálogo `TipoAviso`, tentativas, supressão em migração e `envios:varrer`. | OIK-SPEC-0001 T-17 |
 | 2026-11-17 | Adapters reais de código (Postmark, Meta WhatsApp, Twilio) com classificação de erro e log por chamada; escolha por `oikora.codigos.provedores`. | OIK-SPEC-0001 T-11 |

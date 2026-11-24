@@ -486,7 +486,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova (limite em aberto, U-04).
-- **Status:** Pendente
+- **Status:** Codificada em W7 (2026-11-23): `GET /avisos` (paginada 25/50/100, só da conta na organização ativa, `meta.nao_lidos`), `GET /avisos/nao-lidos`, `POST /avisos/{id}/lido` (404 para aviso de outra conta) e `POST /avisos/lidos`; texto montado na leitura (`Application/TextosDaCaixa`, também usado no e-mail), banco sem conteúdo; `GET|PUT /conta/preferencias-aviso`. Migration `uso_mensageria` (mês no fuso da organização, canal, categoria, quantidade, custo pela tabela `oikora.avisos.precos`, zero por ora; RLS). `UsoDeMensageria` soma cada envio aceito; `LimiteDeWhatsApp` corta serviço e automáticas com o limite atingido (convite continua; envio já criado passa ao e-mail como `limite_whatsapp`). 80% e 100% geram `servico.limite_whatsapp_alerta|atingido` (um por mês, só e-mail e caixa) para quem tem `organizacao.configurar` na organização (`QuemPode::naOrganizacao`, novo). `CaixaAvisosTest` 5 e `LimiteWhatsappTest` 5 Green.
 
 ## T-21 — Avisos: ligar o número de WhatsApp da organização
 - **Issue:** #21
@@ -553,7 +553,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; seeders de dados fictícios usam o comando.
 - **Regra de negócio associada:** RN-17 (papéis prontos) — atualizar `docs/modules/organizacao.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W7 (2026-11-23): `php artisan oikora:organizacao:provisionar {identificador}` (`--nome`, `--igreja`, `--admin-nome`, `--admin-email`, `--admin-celular`, `--fuso`, `--em-migracao`, `--operador`, `--motivo`) pela conexão `pgsql_plataforma` numa transação com trava por identificador: organização `ativa`/`em_migracao`, papéis prontos (Contract novo `Autorizacao\Contracts\PapeisProntos`), primeira igreja, Pessoa do administrador (Contract novo `Pessoas\Contracts\PessoasDoProvisionamento`) e convite Administrador/escopo organização sem emissor (Contract novo `Identidade\Contracts\ConviteDoProvisionamento`; aviso suprimido em migração), mais `auditoria_plataforma`. Migration: `organizacoes.identificador` único e `convites.emitido_por_acesso_id` anulável. Seeder de dev usa o comando. `ProvisionarOrganizacaoTest` 6 Green.
 
 ## T-24 — Configuração da organização e igrejas (API)
 - **Issue:** #24
@@ -713,7 +713,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-19, parte da lista; CA-03, parte da lista).
 - **Regra de negócio associada:** RN-14 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W7 (2026-11-23): `GET /painel/pessoas` (`pagina`, `por_pagina` 25/50/100, `ordem` nome/nascimento/entrada/cadastro, filtros `igreja`, `vinculo`, `situacao`, `tipo_membro`, `funcao` ativa, `ficha_incompleta` pelos obrigatórios do vínculo, `aniversariantes_mes` 1–12), pelo filtro de alcance e sem a lixeira; contatos principais só quando quem lê tem `contatos.ver` em alguma igreja (a consulta nem seleciona sem) e só nas linhas dessas igrejas; `meta.criterio` com descrição, filtros e `oficial` (situação ativa ± vínculo/igreja, RN-14). Desvio: o parâmetro é `por_pagina` (como na auditoria), não `per_page`. `ListaPessoasTest` 7 Green.
 
 ## T-31 — Exportação XLSX/CSV por job
 - **Issue:** #31
@@ -760,7 +760,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-21).
 - **Regra de negócio associada:** RN-11 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W7 (2026-11-23): `GET /painel/duplicados` (pares RN-23 visíveis, sem lixeira e sem não-duplicados, com critérios e `meta.acoes`), `POST /painel/duplicados/nao-duplicados` e `POST /painel/mesclagens` (`MesclarPessoasAction`: `pessoas.mesclar` nas duas igrejas; sensível da absorvida exige `…editar` da categoria; 422 `mesclagem_contas_conflitantes`). Snapshot cifrado em `operacoes_desfaziveis` (Contract novo `Auditoria\Contracts\OperacoesDesfaziveis`, 90 dias), filhos movidos, acesso religado quando só a absorvida tem (`AcessosDaOrganizacao::ativoDaPessoa|religarPessoa`), absorvida excluída por `mesclagem` sem CPF/hash/matrícula, eventos nas duas, auditoria com nomes de campo. `GET /painel/mesclagens/{id}` fica com a T-33. `MesclagemTest` 9 Green.
 
 ## T-33 — Desfazer mesclagem
 - **Issue:** #33
@@ -828,7 +828,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-07).
 - **Regra de negócio associada:** RN-19 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Codificada em W7 (2026-11-23): `DELETE /painel/pessoas/{id}` (motivo), `GET /painel/lixeira` e `POST /painel/lixeira/{id}/recuperar` (≤ 30 dias, `pessoas.excluir`; absorvida de mesclagem fora). `RemovedorPessoas` (`config/lgpd.php`, `OIKORA_LGPD_MODO_EXCLUSAO`): `anonimizar` e `apagar`, snapshots expirados, acesso revogado, avisos sem destino (Contract novo `Avisos\Contracts\AvisosDaPessoa`), `exclusoes_executadas`; quem teve acesso é anonimizado mesmo no `apagar`; produção sem modo → `lgpd.erasure.blocked_no_policy`. `pessoas:purgar-lixeira` diário às 04h distribui `PurgarLixeira` por organização com contexto e ignora absorvidas com operação `executada`. `LixeiraTest` 5 e `RemovedorPessoasTest` 5 Green.
 
 ## T-36 — Novos convertidos e datas comemorativas
 - **Issue:** #36
@@ -900,7 +900,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; textos só no namespace i18n da feature.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Codificada em W7 (2026-11-23): login, código, recuperação e esqueci já existiam (W4); novos `CadastroDoisFatores` (confirma senha, canal e-mail/WhatsApp, 10 códigos mostrados uma vez com "guardei"), `PaginaConvite` (inválido/expirado, senha nova sem sessão, aceitar com sessão, `entre_para_aceitar` leva ao login) e `SeletorOrganizacao` (só com dois ou mais acessos; troca invalida o cache). Rotas `/painel/convites/$token` e `/painel/dois-fatores`; a inicial desvia para o 2FA quando exigido. Textos no namespace `identidade`. `contaEConvite.test.tsx` 7 + `login.test.tsx` 9 Green. Pendente: o link do aviso aponta para `/convites/{token}` na raiz da `APP_URL`; o painel serve em `/painel/convites/{token}`.
 
 ## T-39 — Telas de organização, igrejas, listas, obrigatórios e WhatsApp
 - **Issue:** #39
@@ -943,7 +943,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Codificada em W7 (2026-11-23): features `Autorizacao` (`TelaAcessos`: lista, revogar com confirmação, convidar com busca, papel e escopo, 422 no campo; `TelaPapeis`: catálogo do servidor agrupado, sensíveis por categoria, mensagens de `escalada_bloqueada`, `administrador_sem_governanca`, `ultimo_administrador`) e `Auditoria` (`TelaAuditoria`: período e evento, só nomes de campo), carregadas sob demanda em `/painel/acessos`, `/painel/papeis` e `/painel/auditoria`. Na API, `GET /painel/acessos` (estava no plan.md §7 sem task): acessos, papéis e convites válidos com `acessos.gerir` na organização (`ListaAcessosTest` 2 Green). `acessosEPapeis.test.tsx` 5 e `consulta.test.tsx` 1 Green.
 
 ## T-41 — Telas de lista de pessoas, cadastro rápido e busca
 - **Issue:** #41

@@ -52,5 +52,6 @@ Registra fatos relevantes da aplicação na mesma transação da alteração de 
 
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-23 | `operacoes_desfaziveis` (snapshot cifrado com a chave de campos, 90 dias, `afetados` só com ids) e Contract `OperacoesDesfaziveis` (`registrar`, `porUuid`, `encerrar`, `protegidos`, `expirarDaPessoa`); metadados `operacao_id` e `acesso_movido` em `pessoa.mesclada`. | OIK-SPEC-0001 T-32, T-35 |
 | 2026-11-08 | Criação do registro transacional, catálogo, partições, retenção e guard arquitetural. | OIK-SPEC-0001 T-07 |
 | 2026-11-17 | Consulta paginada `GET /painel/auditoria` com filtros e alcance; eventos de configuração da organização e das igrejas. | OIK-SPEC-0001 T-46, T-24 |

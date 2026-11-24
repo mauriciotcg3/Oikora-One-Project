@@ -4,13 +4,17 @@ use App\Modules\Pessoas\Domain\ListaValores;
 use App\Modules\Pessoas\Presentation\CadastroRapidoController;
 use App\Modules\Pessoas\Presentation\Configuracao\ListasController;
 use App\Modules\Pessoas\Presentation\Configuracao\ObrigatoriosController;
+use App\Modules\Pessoas\Presentation\DuplicadosController;
 use App\Modules\Pessoas\Presentation\FichaController;
+use App\Modules\Pessoas\Presentation\ListaPessoasController;
+use App\Modules\Pessoas\Presentation\LixeiraController;
 use App\Modules\Pessoas\Presentation\PessoasController;
 use App\Modules\Pessoas\Presentation\RegistrosController;
 use App\Modules\Pessoas\Presentation\TransferenciasController;
 use App\Modules\Pessoas\Presentation\VinculoController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('pessoas', ListaPessoasController::class);
 Route::get('pessoas/duplicidade', [CadastroRapidoController::class, 'duplicidade']);
 Route::post('pessoas', [CadastroRapidoController::class, 'cadastrar']);
 Route::get('pessoas/{pessoa}', [PessoasController::class, 'mostrar'])->whereUuid('pessoa');
@@ -28,6 +32,14 @@ Route::post('pessoas/{pessoa}/funcoes', [RegistrosController::class, 'atribuirFu
 Route::patch('pessoas/{pessoa}/funcoes/{funcao}', [RegistrosController::class, 'encerrarFuncao'])->whereUuid(['pessoa', 'funcao']);
 Route::put('pessoas/{pessoa}/tipo-membro', [RegistrosController::class, 'tipoMembro'])->whereUuid('pessoa');
 Route::get('busca', [PessoasController::class, 'buscar']);
+
+Route::delete('pessoas/{pessoa}', [LixeiraController::class, 'excluir'])->whereUuid('pessoa');
+Route::get('lixeira', [LixeiraController::class, 'listar']);
+Route::post('lixeira/{pessoa}/recuperar', [LixeiraController::class, 'recuperar'])->whereUuid('pessoa');
+
+Route::get('duplicados', [DuplicadosController::class, 'listar']);
+Route::post('duplicados/nao-duplicados', [DuplicadosController::class, 'naoDuplicadas']);
+Route::post('mesclagens', [DuplicadosController::class, 'mesclar']);
 
 Route::get('transferencias', [TransferenciasController::class, 'listar']);
 Route::post('transferencias', [TransferenciasController::class, 'solicitar']);

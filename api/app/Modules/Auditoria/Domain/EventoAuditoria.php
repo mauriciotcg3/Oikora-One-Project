@@ -52,7 +52,7 @@ enum EventoAuditoria: string
         return match ($this) {
             self::ExportacaoPedida, self::ExportacaoConcluida => ['filtro', 'categorias', 'contagem'],
             self::ExportacaoNegada => ['filtro', 'categorias', 'motivo_codigo'],
-            self::PessoaMesclada, self::PessoaMesclagemDesfeita => ['pessoa_origem_id', 'pessoa_destino_id'],
+            self::PessoaMesclada, self::PessoaMesclagemDesfeita => ['pessoa_origem_id', 'pessoa_destino_id', 'operacao_id', 'acesso_movido'],
             self::ImportacaoConcluida, self::ImportacaoDesfeita => ['importacao_id', 'contagem'],
             self::UltimoAdministradorBloqueado => ['motivo_codigo'],
             // Convite e acesso (OIK-ADR-0003 §5): papel e escopo concedidos; o contato da pessoa fica fora.

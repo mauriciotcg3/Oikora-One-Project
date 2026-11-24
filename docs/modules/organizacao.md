@@ -15,6 +15,7 @@ Dono da organização (o cliente, com estado, fuso e marca), das regionais e das
 | — | Logo: PNG, JPEG ou WebP até 1 MB, enviado pelo navegador direto ao armazenamento por URL assinada (5 min); só vale quando o caminho emitido para a organização volta no `PUT` e o arquivo existe. A leitura também é por URL assinada. | `PedirEnvioDoLogo`; `Shared/Arquivos/ArquivosNoDisco` | OIK-ADR-0011 §7 |
 | — | Igrejas: criar e editar pedem `igrejas.gerir` com escopo organização; não existe exclusão. A regional, opcional, precisa ser da organização. | `CriarIgrejaAction`; `EditarIgrejaAction`; `IgrejasController` | P FR-001; OIK-SPEC-0001 T-24 |
 | — | Toda mudança é auditada só com os nomes dos campos: `organizacao.configurada` (com modo de matrícula antes e depois), `organizacao.igreja_criada`, `organizacao.igreja_atualizada`. Nome e contato, texto livre, ficam fora. | `Governanca::auditar` | OIK-ADR-0005 §2 |
+| RN-17 | Provisionamento (`php artisan oikora:organizacao:provisionar {identificador}`), pela conexão `pgsql_plataforma` numa transação: organização `ativa` (ou `em_migracao` com `--em-migracao`), papéis prontos Administrador (todas as permissões) e Secretaria (Pessoas sem `pessoas.configurar`, sensíveis documentos, contatos e fé), primeira igreja, Pessoa do administrador e convite dele (Administrador, escopo organização, sem emissor). Grava `auditoria_plataforma` (comando, operador, motivo, organização). O identificador é único: repetir não cria nada. O seeder de dev usa o comando. | `ProvisionarOrganizacao` (Application e Console) | OIK-SPEC-0001 T-23 |
 
 ## Interfaces / contratos expostos
 - **Painel (`/api/v1/painel`):** `GET|PUT /organizacao`, `POST /organizacao/logo` (`tipo_conteudo`, `tamanho`; 201 com `url`, `metodo`, `cabecalhos`, `caminho`, `expira_em`), `GET|POST /igrejas`, `PUT /igrejas/{id}`.
@@ -47,5 +48,6 @@ Dono da organização (o cliente, com estado, fuso e marca), das regionais e das
 ## Changelog
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-23 | Provisionamento da organização; `organizacoes.identificador`; `ConsultaOrganizacoes::limiteWhatsappMensal`. | OIK-SPEC-0001 T-23, T-20 |
 | 2026-11-07 | `organizacoes`, `regionais` e `igrejas` sob RLS; Contracts `ConsultaOrganizacoes` e `CatalogoIgrejas`. | OIK-SPEC-0001 T-03, T-08 |
 | 2026-11-17 | Configuração da organização (com `email_contato`), logo por URL assinada, cadastro e edição de igrejas com auditoria; `PerfilDeEnvio` para Avisos. | OIK-SPEC-0001 T-24 (e T-18) |

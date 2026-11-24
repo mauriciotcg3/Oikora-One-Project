@@ -22,6 +22,7 @@ final readonly class CaixaDeSaida
         private DestinosDeAviso $destinos,
         private NumerosWhatsApp $numeros,
         private PreferenciasDeAviso $preferencias,
+        private LimiteDeWhatsApp $limite,
     ) {}
 
     /**
@@ -90,7 +91,7 @@ final readonly class CaixaDeSaida
 
     private function disponivel(int $organizacaoId, TipoAviso $tipo, string $canal, ?int $contaId, ?int $pessoaId): bool
     {
-        if ($canal === 'whatsapp' && $this->numeros->daOrganizacao($organizacaoId) === null) {
+        if ($canal === 'whatsapp' && ($this->numeros->daOrganizacao($organizacaoId) === null || $this->limite->bloqueia($organizacaoId, $tipo))) {
             return false;
         }
 

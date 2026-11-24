@@ -45,4 +45,19 @@ interface AcessosDaOrganizacao
      * @return array<int, int> acesso → conta
      */
     public function contasAtivas(array $ids): array;
+
+    /** Acesso ativo ligado à Pessoa (uma Pessoa por conta, BR-002), ou null. */
+    public function ativoDaPessoa(int $pessoaId): ?int;
+
+    /**
+     * Liga o acesso a outra Pessoa (mesclagem: a mantida herda o acesso da absorvida, e desfazer
+     * devolve). Só muda `pessoa_id`; a conta e as atribuições continuam as mesmas.
+     */
+    public function religarPessoa(int $acessoId, int $pessoaId): void;
+
+    /** Revoga o acesso ativo da Pessoa (removedor LGPD, OIK-ADR-0005 §8). @return int|null o acesso revogado */
+    public function revogarDaPessoa(int $pessoaId): ?int;
+
+    /** A Pessoa já teve acesso (ativo ou revogado) nesta organização. */
+    public function pessoaTeveAcesso(int $pessoaId): bool;
 }

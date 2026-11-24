@@ -34,6 +34,8 @@ final readonly class EntregarAviso
         private ReenviarPeloProximoCanal $reenvio,
         private LinksDeDescadastro $links,
         private ContatosDaPessoa $contatos,
+        private LimiteDeWhatsApp $limite,
+        private UsoDeMensageria $uso,
     ) {}
 
     public function executar(int $envioId): ?int
@@ -71,6 +73,13 @@ final readonly class EntregarAviso
 
         if ($canal === 'whatsapp' && $this->numeros->daOrganizacao($organizacaoId) === null) {
             $this->falharDefinitivo($envio, 'sem_numero_whatsapp');
+
+            return null;
+        }
+
+        // Limite atingido depois de o envio nascer: serviço passa para o próximo canal (OIK-ADR-0008 §16).
+        if ($canal === 'whatsapp' && $this->limite->bloqueia($organizacaoId, $tipo)) {
+            $this->falharDefinitivo($envio, 'limite_whatsapp');
 
             return null;
         }
@@ -123,6 +132,7 @@ final readonly class EntregarAviso
             'enviado_em' => now(),
             'erro_codigo' => null,
         ]);
+        $this->uso->contabilizar($organizacaoId, $canal, $tipo);
         Log::info('envio.enviado', ['canal' => $canal, 'tentativa' => $tentativa]);
 
         return null;

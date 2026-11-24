@@ -12,3 +12,4 @@ Artisan::command('inspire', function () {
 Schedule::command('envios:varrer')->everyMinute()->onOneServer()->withoutOverlapping();
 Schedule::command('avisos:criar-particoes')->monthlyOn(20, '03:00')->onOneServer();
 Schedule::command('convites:expirar')->dailyAt('03:30')->onOneServer();
+Schedule::command('pessoas:purgar-lixeira')->dailyAt('04:00')->onOneServer();

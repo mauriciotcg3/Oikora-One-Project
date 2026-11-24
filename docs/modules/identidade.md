@@ -104,6 +104,7 @@ Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `para
 ## Changelog
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-23 | `GET /painel/acessos` (acessos, papéis e convites válidos, com `acessos.gerir` na organização); Contract `ConviteDoProvisionamento` (convite sem emissor); `AcessosDaOrganizacao::ativoDaPessoa|religarPessoa|revogarDaPessoa|pessoaTeveAcesso`. Telas de cadastro do 2FA, aceite de convite e seletor de organização. | OIK-SPEC-0001 T-23, T-32, T-35, T-38, T-40 |
 | 2026-11-20 | Convite ao painel (emitir, ler, aceitar com ou sem conta, revogar, expirar) e revogação de acesso com a trava do último Administrador. | OIK-SPEC-0001 T-22 |
 | 2026-11-17 | Organização ativa na sessão, `/me`, troca de organização, elevação do painel (2h/12h, entrada `painel`) e RN-16 pelo papel Administrador. | OIK-SPEC-0001 T-16 |
 | 2026-11-13 | T-10 fechada: casos do login, limite, eventos, sessão, RLS de identidade e unicidade de `acessos` conferidos (27 testes); RN-12 registrada. | OIK-SPEC-0001 T-10 |

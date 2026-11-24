@@ -8,6 +8,7 @@ use App\Modules\Organizacao\Contracts\ConsultaOrganizacoes;
 use App\Modules\Organizacao\Infrastructure\CadastroDaOrganizacaoEloquent;
 use App\Modules\Organizacao\Infrastructure\CatalogoIgrejasPostgres;
 use App\Modules\Organizacao\Infrastructure\ConsultaOrganizacoesPostgres;
+use App\Modules\Organizacao\Presentation\Console\ProvisionarOrganizacao;
 use App\Shared\Tenancy\Contracts\OrganizacaoDisponivel;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -27,5 +28,9 @@ final class OrganizacaoServiceProvider extends ServiceProvider
     {
         // Grupo `painel` definido por Autorizacao: sessão, elevação, organização (RLS) e ator.
         Route::middleware('painel')->prefix('api/v1/painel')->group(__DIR__.'/Presentation/rotas-painel.php');
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([ProvisionarOrganizacao::class]);
+        }
     }
 }

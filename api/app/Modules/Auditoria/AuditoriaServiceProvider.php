@@ -2,13 +2,20 @@
 
 namespace App\Modules\Auditoria;
 
+use App\Modules\Auditoria\Contracts\OperacoesDesfaziveis;
 use App\Modules\Auditoria\Infrastructure\Console\AplicarRetencaoAuditoria;
 use App\Modules\Auditoria\Infrastructure\Console\CriarParticoesAuditoria;
+use App\Modules\Auditoria\Infrastructure\OperacoesDesfaziveisPostgres;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 final class AuditoriaServiceProvider extends ServiceProvider
 {
+    public function register(): void
+    {
+        $this->app->bind(OperacoesDesfaziveis::class, OperacoesDesfaziveisPostgres::class);
+    }
+
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__.'/Infrastructure/Database/Migrations');
