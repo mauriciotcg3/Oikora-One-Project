@@ -21,5 +21,5 @@ interface VinculosDePessoas
     public function alterarSituacao(int $id, Situacao $situacao): void;
 
     /** @param  array<string, string|null>  $dados  valores codificados (de/para), nunca texto livre */
-    public function registrarEvento(int $organizacaoId, int $id, string $tipo, int $motivoId, array $dados, int $autorAcessoId): void;
+    public function registrarEvento(int $organizacaoId, int $id, string $tipo, ?int $motivoId, array $dados, int $autorAcessoId): void;
 }

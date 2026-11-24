@@ -1,10 +1,10 @@
 # Módulo: Identidade
 
-**Última atualização:** 2026-11-07
-**Arquivos principais:** `api/app/Modules/Identidade/**`, `api/config/oikora.php`, `api/config/fortify.php`, `api/database/migrations/2026_11_07_000003_create_identidade_tables.php`, `api/database/migrations/2026_11_07_000004_add_codigo_cifrado_to_codigos_verificacao.php`
+**Última atualização:** 2026-11-20
+**Arquivos principais:** `api/app/Modules/Identidade/**`, `api/config/oikora.php`, `api/config/fortify.php`, `api/database/migrations/2026_11_07_000003_create_identidade_tables.php`, `api/database/migrations/2026_11_07_000004_add_codigo_cifrado_to_codigos_verificacao.php`, `api/database/migrations/2026_11_20_000003_create_convites_table.php`
 
 ## Visão geral
-Cuida da conta global da pessoa e da entrada no sistema. Hoje faz o login por e-mail ou celular com senha, o segundo fator (código por mensagem, TOTP e códigos de recuperação), a recuperação e a troca de senha, a confirmação de senha de 15 minutos, a verificação de contato, a sessão de 30 dias, o logout, o limite de tentativas e o registro dos eventos de autenticação.
+Cuida da conta global da pessoa e da entrada no sistema. Hoje faz o login por e-mail ou celular com senha, o segundo fator (código por mensagem, TOTP e códigos de recuperação), a recuperação e a troca de senha, a confirmação de senha de 15 minutos, a verificação de contato, a sessão de 30 dias, o logout, o limite de tentativas, o registro dos eventos de autenticação, o convite ao painel (emitir, aceitar, revogar, expirar) e a revogação de acesso.
 
 ## Regras de negócio ativas
 | ID | Regra | Onde está implementada | Origem |
@@ -29,8 +29,11 @@ Cuida da conta global da pessoa e da entrada no sistema. Hoje faz o login por e-
 | — | Conta bloqueada recebe 403 `conta_bloqueada`, só depois de a senha conferir. | `Application/Entrar.php` | plan.md §7 |
 | — | A sessão dura 30 dias e é renovada com o uso. | `api/config/session.php` | OIK-ADR-0003 §9; U-30 |
 | — | Senha nova exige no mínimo 8 caracteres e não pode estar vazada. | `IdentidadeServiceProvider.php`, `Presentation/RecuperacaoSenhaController.php` | OIK-ADR-0003 §4; U-29 |
-| RN-12 | Ninguém define a senha de outra pessoa: a senha só muda pela própria sessão (`PUT /conta/senha`, com senha confirmada) ou pelo token de recuperação enviado ao identificador verificado da própria conta. Não há rota de painel que grave senha alheia. O convite de uso único (72h, revogável) entra na T-22. | `Presentation/ContaController.php`, `Application/RedefinirSenha.php` | OIK-ADR-0003 §5; RN-12 |
+| RN-12 | Ninguém define a senha de outra pessoa: a senha só muda pela própria sessão (`PUT /conta/senha`, com senha confirmada) ou pelo token de recuperação enviado ao identificador verificado da própria conta. Não há rota de painel que grave senha alheia. No aceite do convite, quem não tem conta define a própria senha. | `Presentation/ContaController.php`, `Application/RedefinirSenha.php`, `Application/AceitarConvite.php` | OIK-ADR-0003 §5; RN-12 |
 | — | Uma conta tem no máximo um acesso ativo por organização, e uma Pessoa também. | índices únicos parciais de `acessos` | OIK-ADR-0003 §2 |
+| RN-02 | O acesso nasce só do convite emitido pela organização, nunca de e-mail igual. Quem aceita sem sessão ganha conta nova com os contatos da ficha; se um desses contatos já é de outra conta, o aceite responde 409 `entre_para_aceitar` e a pessoa entra na conta dela para aceitar. Pessoa ou conta que já tem acesso ativo na organização → 409. | `Application/AceitarConvite.php`, `Application/Actions/ConvidarAction.php` | OIK-ADR-0003 §2, §5; CA-02 |
+| RN-12 | Convite ao painel: Pessoa + papel + escopo, com a anti-escalada da atribuição (`escalada_bloqueada`); só com `acessos.gerir` no escopo da organização; Pessoa sem e-mail e sem celular → 422; um convite válido por Pessoa (`convite_pendente`). Link de uso único com token aleatório de 48 caracteres, guardado só em hash SHA-256, válido por 72h; usado, revogado ou vencido → `convite_invalido`. O comando diário `convites:expirar` (03h30) marca `expirado`. Aceitar cria o acesso e a atribuição do convite. | `Application/Actions/ConvidarAction.php`, `Application/Actions/RevogarConviteAction.php`, `Application/AceitarConvite.php`, `Infrastructure/Console/ExpirarConvites.php` | OIK-ADR-0003 §5; P BR-010 |
+| — | Revogar o acesso (`DELETE /painel/acessos/{id}`) vale na próxima requisição daquela conta (a organização é revalidada a cada pedido) e nunca tira o último Administrador ativo (`ultimo_administrador`, com `authz.last_admin_blocked`). | `Application/Actions/RevogarAcessoAction.php` | OIK-ADR-0003 §11; OIK-ADR-0004 §3; CA-09 |
 | RN-16 | 2FA obrigatório para quem tem o papel de sistema Administrador em alguma organização (acesso ativo); opcional para os demais. Administrador sem 2FA cadastrado não eleva (`dois_fatores_cadastro_necessario`); quem tem 2FA, obrigatório ou não, precisa do código para elevar. | `Infrastructure/DoisFatoresPeloPapel.php`, `Application/ElevarPainel.php` | OIK-ADR-0003 §7; CA-10 |
 | — | A organização ativa fica na sessão e é revalidada a cada requisição contra os acessos ativos. Com um único acesso, é escolhida sozinha; com mais de um, a pessoa escolhe por `PUT /me/organizacao-ativa`. Acesso revogado depois do login: a próxima requisição responde 403 `acesso_revogado`, sem gravar contexto. | `Infrastructure/ResolvedorOrganizacaoSessao.php`, `Application/MinhaConta.php` | OIK-ADR-0003 §12; CA-09 |
 | — | Rotas `/api/v1/painel/*` exigem elevação viva: expira com 2h sem uso ou 12h no total (`elevacao_necessaria`). O login com `entrada: painel` já abre a elevação (senha + 2FA quando a conta o tem). A elevação regenera o id da sessão. | `Presentation/ElevacaoPainel.php`, `Presentation/ElevacaoNoLogin.php`, `Application/SessaoDoPainel.php` | OIK-ADR-0003 §9; U-32 |
@@ -54,14 +57,19 @@ Cuida da conta global da pessoa e da entrada no sistema. Hoje faz o login por e-
 | `GET /api/v1/me` | 200 com `conta`, `organizacao_ativa` (ou null), `organizacoes`, `capacidades` (`permissao`, `organizacao`), `elevacao` (`ativa`, `expira_em`) e `dois_fatores` (`canal`, `obrigatorio`); 401 |
 | `PUT /api/v1/me/organizacao-ativa` (`organizacao`: uuid) | 204 escolhida; 401; 403 `organizacao_sem_acesso`; 422 |
 | `POST /api/v1/painel/elevacao` (`senha`, `codigo` ou `codigo_recuperacao`) | 204 elevado, com sessão nova; 401; 403 `dois_fatores_necessario` (com `canal` e `destino`), `dois_fatores_cadastro_necessario`, `conta_bloqueada`, `canal_indisponivel` ou erro de organização; 422 senha ou código; 429 `muitas_tentativas` |
+| `POST /api/v1/painel/convites` (`pessoa`, `papel`, `escopo_tipo`, `escopo` exceto em `organizacao`) | 201 com `uuid`, `estado` e `expira_em`; 403 `authz.denied` ou `escalada_bloqueada`; 422 por campo (`pessoa_inexistente`, `pessoa_sem_contato`, `papel_inexistente`, `escopo_inexistente`) ou `pessoa_ja_tem_acesso`, `convite_pendente` |
+| `DELETE /api/v1/painel/convites/{id}` | 204 revogado; 403; 404 `convite_inexistente`; 422 `convite_nao_pendente` |
+| `DELETE /api/v1/painel/acessos/{id}` | 204 revogado; 403; 404 `acesso_inexistente`; 422 `acesso_revogado` ou `ultimo_administrador` |
+| `GET /api/v1/convites/{token}` | 200 com `organizacao.nome`, `pessoa.nome`, `papel.nome` e `expira_em`; 404 `convite_invalido` |
+| `POST /api/v1/convites/{token}/aceitar` (sem sessão: `senha` e `senha_confirmation`) | 201 com `acesso`, `conta_nova` e `organizacao`; 409 `entre_para_aceitar`, `conta_ja_tem_acesso` ou `pessoa_ja_tem_acesso`; 422 `convite_invalido` ou senha inválida; 429 |
 | Rotas `/api/v1/painel/*` | 403 `elevacao_necessaria`, `organizacao_nao_escolhida`, `acesso_revogado`, `acesso_inexistente` ou `sem_atribuicao`; 409 `organizacao_trocada` quando `X-Organizacao-Esperada` diverge |
 
-Funções do banco para uso antes do contexto: `identidade_localizar_conta(texto)`, `identidade_identificador_em_uso(texto)` e `identidade_acessos_ativos_da_conta(conta)` (organizações com acesso ativo). Autorização publica `autorizacao_conta_tem_papel_sistema(conta, sistema)` para a RN-16.
+Funções do banco para uso antes do contexto: `identidade_localizar_conta(texto)`, `identidade_identificador_em_uso(texto)`, `identidade_acessos_ativos_da_conta(conta)` (organizações com acesso ativo), `identidade_organizacao_do_convite(hash)` e `identidade_criar_conta(email, celular, hash da senha)` (só o aceite usa). Autorização publica `autorizacao_conta_tem_papel_sistema(conta, sistema)` para a RN-16.
 
-Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `paraEnvio`, `registrarEnvio`).
+Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `paraEnvio`, `registrarEnvio`). `Contracts/AcessosDaOrganizacao` ganhou `pessoas(ids)` (Pessoa de cada acesso, para o autor na linha do tempo) e `contasAtivas(ids)` (conta de cada acesso ativo, para avisos de serviço).
 
 ## Dependências
-- **Depende de:** `Shared/Tenancy`, `Shared/Observabilidade`, Laravel Fortify, `giggsey/libphonenumber-for-php`, Contract `EnvioCodigo` de Avisos.
+- **Depende de:** `Shared/Tenancy`, `Shared/Observabilidade`, Laravel Fortify, `giggsey/libphonenumber-for-php`, Contract `EnvioCodigo` de Avisos; Contracts `Avisos` (convite), `ContatosDaPessoa::paraConvite` (Pessoas) e `ConcessaoDeAcesso` (Autorização: anti-escalada, atribuição no aceite, trava do último Administrador).
 - **É usado por:** feature `web/src/features/Identidade`; módulo Avisos, pelo Contract `CodigosDeIdentidade`.
 
 ## Decisões arquiteturais relevantes
@@ -89,10 +97,14 @@ Contract publicado para Avisos: `Contracts/CodigosDeIdentidade` (`emitir`, `para
 - ⚠️ Atrás de proxy, o limite por IP vê o IP do proxy até a configuração de proxies confiáveis.
 - ⚠️ A T-10 previa 200 no login; o código responde 204, conforme o contrato do front.
 - ⚠️ Logout não grava evento em `eventos_autenticacao`.
+- ⚠️ O link do convite (com o token) fica em `avisos.destino` até o envio, porque a caixa de saída é assíncrona e reenvia pelo próximo canal; no próprio convite só fica o hash. A tabela está sob RLS e o token vale 72h e uma vez.
+- ⚠️ O aceite sem sessão não verifica o contato nem abre sessão: a pessoa entra depois pelo login normal.
+- ⚠️ `GET /painel/acessos` (lista de acessos e convites) ainda não existe; fica para a T-40 (telas).
 
 ## Changelog
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-20 | Convite ao painel (emitir, ler, aceitar com ou sem conta, revogar, expirar) e revogação de acesso com a trava do último Administrador. | OIK-SPEC-0001 T-22 |
 | 2026-11-17 | Organização ativa na sessão, `/me`, troca de organização, elevação do painel (2h/12h, entrada `painel`) e RN-16 pelo papel Administrador. | OIK-SPEC-0001 T-16 |
 | 2026-11-13 | T-10 fechada: casos do login, limite, eventos, sessão, RLS de identidade e unicidade de `acessos` conferidos (27 testes); RN-12 registrada. | OIK-SPEC-0001 T-10 |
 | 2026-11-08 | Integridade referencial de `acessos.pessoa_id` ligada ao cadastro de pessoas. | OIK-SPEC-0001 T-09 |

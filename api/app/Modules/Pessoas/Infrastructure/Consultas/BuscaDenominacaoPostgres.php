@@ -70,6 +70,26 @@ final readonly class BuscaDenominacaoPostgres implements BuscaDenominacao
         return $id === null ? null : (int) $id;
     }
 
+    public function resumos(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $resumos = [];
+        foreach ($this->semAlcance()->whereKey($ids)->get(['id', 'uuid', 'nome', 'igreja_id', 'vinculo']) as $pessoa) {
+            $vinculo = $pessoa->getAttribute('vinculo');
+            $resumos[(int) $pessoa->getKey()] = [
+                'uuid' => (string) $pessoa->getAttribute('uuid'),
+                'nome' => (string) $pessoa->getAttribute('nome'),
+                'igreja_id' => (int) $pessoa->getAttribute('igreja_id'),
+                'vinculo' => is_string($vinculo) ? $vinculo : null,
+            ];
+        }
+
+        return $resumos;
+    }
+
     public function cpfEmUso(string $cpf, ?int $exceto = null): bool
     {
         return $this->semAlcance()

@@ -4,11 +4,15 @@ namespace App\Modules\Autorizacao;
 
 use App\Modules\Autorizacao\Application\AlcanceDaRequisicao;
 use App\Modules\Autorizacao\Application\AtribuicoesDePermissao;
+use App\Modules\Autorizacao\Application\ConcessaoDeAcessoPorPapel;
 use App\Modules\Autorizacao\Application\Papeis;
+use App\Modules\Autorizacao\Application\QuemPodePeloAlcance;
 use App\Modules\Autorizacao\Application\Solicitacoes\PapelDoAprovador;
 use App\Modules\Autorizacao\Application\Solicitacoes\SolicitacoesDePermissao;
 use App\Modules\Autorizacao\Contracts\AlcanceAtual;
+use App\Modules\Autorizacao\Contracts\ConcessaoDeAcesso;
 use App\Modules\Autorizacao\Contracts\PapeisDaConta;
+use App\Modules\Autorizacao\Contracts\QuemPode;
 use App\Modules\Autorizacao\Infrastructure\AtribuicoesDePermissaoPostgres;
 use App\Modules\Autorizacao\Infrastructure\PapeisDaContaPostgres;
 use App\Modules\Autorizacao\Infrastructure\PapeisPostgres;
@@ -28,6 +32,8 @@ final class AutorizacaoServiceProvider extends ServiceProvider
         $this->app->bind(PapeisDaConta::class, PapeisDaContaPostgres::class);
         $this->app->bind(SolicitacoesDePermissao::class, SolicitacoesDePermissaoPostgres::class);
         $this->app->bind(PapelDoAprovador::class, PapelDoAprovadorPostgres::class);
+        $this->app->bind(QuemPode::class, QuemPodePeloAlcance::class);
+        $this->app->bind(ConcessaoDeAcesso::class, ConcessaoDeAcessoPorPapel::class);
 
         // Uma instância por requisição ou job: o alcance nunca atravessa contextos.
         $this->app->scoped(AlcanceDaRequisicao::class);

@@ -95,4 +95,17 @@ return [
         'pedidos_por_identificador' => (int) env('OIKORA_RECUPERACAO_PEDIDOS_IDENTIFICADOR', 5),
         'pedidos_por_ip' => (int) env('OIKORA_RECUPERACAO_PEDIDOS_IP', 30),
     ],
+    'webhooks' => [
+        'meta' => [
+            'app_secret' => env('META_APP_SECRET'),
+            'verify_token' => env('META_WEBHOOK_VERIFY_TOKEN'),
+        ],
+        'postmark' => [
+            'usuario' => env('POSTMARK_WEBHOOK_USUARIO'),
+            'senha' => env('POSTMARK_WEBHOOK_SENHA'),
+        ],
+        'twilio' => [
+            'auth_token' => env('TWILIO_TOKEN'),
+        ],
+    ],
 ];

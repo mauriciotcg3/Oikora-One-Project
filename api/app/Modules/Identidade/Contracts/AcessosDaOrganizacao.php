@@ -28,4 +28,21 @@ interface AcessosDaOrganizacao
      * @return array<int, string>
      */
     public function uuids(array $ids): array;
+
+    /**
+     * Pessoa ligada a cada acesso da organização em contexto (ex.: autor na linha do tempo). Acesso
+     * revogado continua apontando para a mesma Pessoa.
+     *
+     * @param  list<int>  $ids
+     * @return array<int, int>
+     */
+    public function pessoas(array $ids): array;
+
+    /**
+     * Conta de cada acesso ativo (ex.: destinatário de aviso de serviço). Revogado fica de fora.
+     *
+     * @param  list<int>  $ids
+     * @return array<int, int> acesso → conta
+     */
+    public function contasAtivas(array $ids): array;
 }

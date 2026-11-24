@@ -1,0 +1,6 @@
+{
+  "RecordType": "SpamComplaint",
+  "MessageID": "postmark-spam-123",
+  "Email": "pessoa@exemplo.test",
+  "BouncedAt": "2026-11-20T12:00:00Z"
+}
