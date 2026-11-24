@@ -13,7 +13,7 @@ export function TelaAuditoria(): ReactNode {
   const campos = useMemo<readonly CampoDeFiltro[]>(() => [
     { chave: 'de', rotulo: t('de') }, { chave: 'ate', rotulo: t('ate') }, { chave: 'evento', rotulo: t('evento') },
     { chave: 'ator', rotulo: t('ator') }, { chave: 'alvo_tipo', rotulo: t('tipoAlvo') }, { chave: 'alvo', rotulo: t('alvo') },
-    { chave: 'igreja', rotulo: t('igreja') },
+    { chave: 'igreja', rotulo: t('igreja') }, { chave: 'busca', rotulo: t('busca') },
     { chave: 'resultado', rotulo: t('resultado'), opcoes: [{ valor: 'sucesso', rotulo: t('sucesso') }, { valor: 'falha', rotulo: t('falha') }] },
   ], [t])
   const filtros = useFiltrosDaUrl(campos)

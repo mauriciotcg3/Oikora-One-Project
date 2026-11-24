@@ -87,7 +87,7 @@ final readonly class ConsultarAuditoria
             ->when($filtro->alvoTipo !== null, fn (Builder $q) => $q->where('alvo_tipo', $filtro->alvoTipo))
             ->when($filtro->alvoId !== null, fn (Builder $q) => $q->where('alvo_id', $filtro->alvoId))
             ->when($filtro->busca !== null, fn (Builder $q) => $q->where(function (Builder $busca) use ($filtro): void {
-                $termo = '%'.$filtro->busca.'%';
+                $termo = '%'.str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], (string) $filtro->busca).'%';
                 $busca->where('evento', 'ilike', $termo)
                     ->orWhere('alvo_tipo', 'ilike', $termo)
                     ->orWhere('alvo_id', 'ilike', $termo);

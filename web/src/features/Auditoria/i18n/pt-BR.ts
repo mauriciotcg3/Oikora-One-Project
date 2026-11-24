@@ -1,6 +1,6 @@
 export const auditoriaPtBR = {
   titulo: 'Auditoria', tituloTrilha: 'Trilha de {{tipo}} {{alvo}}', filtros: 'Filtros da auditoria',
-  de: 'De', ate: 'Até', evento: 'Evento', ator: 'Ator', tipoAlvo: 'Tipo do alvo', alvo: 'Alvo', igreja: 'Igreja', resultado: 'Resultado',
+  de: 'De', ate: 'Até', evento: 'Evento', ator: 'Ator', tipoAlvo: 'Tipo do alvo', alvo: 'Alvo', igreja: 'Igreja', busca: 'Buscar por evento ou alvo', resultado: 'Resultado',
   aplicar: 'Aplicar filtros', limpar: 'Limpar filtros', todos: 'Todos',
   erroTitulo: 'Auditoria indisponível', erro: 'Não foi possível carregar a auditoria. Tente de novo.', tentar: 'Tentar de novo',
   quando: 'Quando', campos: 'Campos alterados', metadados: 'Metadados', canal: 'Canal', codigoFalha: 'Código da falha',

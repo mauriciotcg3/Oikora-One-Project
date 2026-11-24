@@ -1,6 +1,6 @@
 # Oikora UI Standard
 
-Este documento é o contrato prático da interface do painel. O MUI fornece os primitivos; o Oikora define linguagem, composição, estados e comportamento. A galeria local em `/__ui` é o catálogo executável em desenvolvimento.
+Este documento é o contrato prático da interface do painel. O MUI fornece os primitivos; o Oikora define linguagem, composição, estados e comportamento. A galeria local em `/painel/galeria` é o catálogo executável em desenvolvimento.
 
 Decisões de origem: [experiência da interface](../adr/0014-padrao-de-experiencia-da-interface.md), [frontend web](../adr/0006-frontend-web.md) e [rascunhos de jornada no servidor](../adr/0016-rascunhos-de-jornada-no-servidor.md).
 

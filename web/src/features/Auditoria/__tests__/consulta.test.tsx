@@ -38,7 +38,7 @@ beforeAll(async () => {
 }, 60_000)
 
 describe('consulta da auditoria', { timeout: 15_000 }, () => {
-  it('leva período, evento, ator, alvo, igreja e resultado para a URL e para a página pedida', async () => {
+  it('leva período, evento, ator, alvo, igreja, busca e resultado para a URL e para a página pedida', async () => {
     const consultas: URLSearchParams[] = []
     servidor.use(http.get(`${API}/painel/auditoria`, ({ request }) => {
       consultas.push(new URL(request.url).searchParams)
@@ -55,15 +55,17 @@ describe('consulta da auditoria', { timeout: 15_000 }, () => {
     await usuario.type(screen.getByLabelText('Tipo do alvo'), 'pessoa')
     await usuario.type(screen.getByLabelText('Alvo'), 'pe-1')
     await usuario.type(screen.getByLabelText('Igreja'), 'ig-x')
+    await usuario.type(screen.getByLabelText('Buscar por evento ou alvo'), 'pessoa')
     await usuario.click(screen.getByLabelText('Resultado'))
     await usuario.click(screen.getByRole('option', { name: 'Falha' }))
     await usuario.click(screen.getByRole('button', { name: 'Aplicar filtros' }))
 
     await waitFor(() => expect(roteador.state.location.search).toMatchObject({
       de: '2026-11-01', ate: '2026-11-30', evento: 'pessoa.atualizada', ator: 'ac-1',
-      alvo_tipo: 'pessoa', alvo: 'pe-1', igreja: 'ig-x', resultado: 'falha',
+      alvo_tipo: 'pessoa', alvo: 'pe-1', igreja: 'ig-x', busca: 'pessoa', resultado: 'falha',
     }))
     await waitFor(() => expect(consultas.at(-1)?.get('alvo')).toBe('pe-1'))
+    expect(consultas.at(-1)?.get('busca')).toBe('pessoa')
     expect(consultas.at(-1)?.get('pagina')).toBe('1')
     expect(consultas.at(-1)?.get('por_pagina')).toBe('25')
 

@@ -41,6 +41,9 @@ final class RascunhosJornada
         $sensiveis = array_intersect_key($dados, array_flip($tipo->camposSensiveis()));
 
         $resultado = DB::transaction(function () use ($tipo, $etapa, $publicos, $sensiveis, $versao, $organizacao, $conta): object {
+            // O SELECT FOR UPDATE não bloqueia uma linha ainda inexistente. O lock por chave
+            // serializa também os dois primeiros salvamentos e preserva o contrato de versão/409.
+            DB::select('select pg_advisory_xact_lock(hashtextextended(?, 0))', [implode(':', [$organizacao, $conta, $tipo->value])]);
             $consulta = DB::table('rascunhos_jornada')->where([
                 'organizacao_id' => $organizacao, 'conta_id' => $conta, 'tipo' => $tipo->value,
             ]);

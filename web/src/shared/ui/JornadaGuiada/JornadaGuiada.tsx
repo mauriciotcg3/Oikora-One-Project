@@ -78,8 +78,6 @@ export function JornadaGuiada<T extends FieldValues>({ formulario, etapas, texto
   const concluir = async (): Promise<void> => {
     try {
       await aoConcluir(formulario.getValues())
-      await persistencia?.descartar()
-      registrarEventoUi('ui.jornada_concluida', { etapas: etapas.length })
     } catch (erro) {
       const alvo = etapaComErro422(erro, etapas.map((e) => e.campos))
       if (alvo < 0) {
@@ -89,6 +87,15 @@ export function JornadaGuiada<T extends FieldValues>({ formulario, etapas, texto
       setIndice(alvo)
       const adiarFoco = { setError: formulario.setError, setFocus: (campo: Path<T>) => void (focoPendente.current = campo) }
       setErrosFora(aplicarErros422(erro, adiarFoco, etapas.flatMap((e) => e.campos)) ?? [])
+      return
+    }
+
+    registrarEventoUi('ui.jornada_concluida', { etapas: etapas.length })
+    try {
+      await persistencia?.descartar()
+    } catch {
+      // A ação de negócio já concluiu. Falhar a limpeza não pode induzir uma repetição destrutiva.
+      registrarEventoUi('ui.jornada_rascunho_descarte_falhou')
     }
   }
 

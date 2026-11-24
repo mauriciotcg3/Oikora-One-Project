@@ -91,6 +91,7 @@ it('filtra por igreja, busca segura em evento e alvo e resultado', function (): 
 
     linhaDeAuditoria($this->org, 'pessoa.criada', ['igreja_id' => $this->sede, 'alvo_id' => 'pessoa-localizada']);
     linhaDeAuditoria($this->org, 'pessoa.atualizada', ['igreja_id' => $this->filial, 'alvo_id' => 'outra-pessoa']);
+    linhaDeAuditoria($this->org, 'pessoa.atualizada', ['igreja_id' => $this->filial, 'alvo_id' => 'com__sublinhado']);
 
     $igreja = uuidDe('igrejas', $this->sede);
     $alvos = fn (string $consulta): array => array_column($this->getJson("/api/v1/painel/auditoria?{$consulta}")->assertOk()->json('data.*.alvo'), 'id');
@@ -98,7 +99,8 @@ it('filtra por igreja, busca segura em evento e alvo e resultado', function (): 
     expect($alvos("igreja={$igreja}"))->toBe(['pessoa-localizada'])
         ->and($alvos('busca=pessoa.criada'))->toBe(['pessoa-localizada'])
         ->and($alvos('busca=localizada'))->toBe(['pessoa-localizada'])
-        ->and($alvos('resultado=sucesso'))->toBe(['outra-pessoa', 'pessoa-localizada']);
+        ->and($alvos('busca=__'))->toBe(['com__sublinhado'])
+        ->and($alvos('resultado=sucesso'))->toBe(['com__sublinhado', 'outra-pessoa', 'pessoa-localizada']);
 
     $this->getJson('/api/v1/painel/auditoria?busca=%25')->assertUnprocessable();
 });

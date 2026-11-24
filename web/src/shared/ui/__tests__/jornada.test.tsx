@@ -10,10 +10,11 @@ import { Controller, useForm } from 'react-hook-form'
 import { describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 import { requisitar } from '../../http'
+import { criarPersistenciaJornada } from '../../jornadas'
 import { renderizarComProvedores } from '../../../test/renderizar'
 import { servidor } from '../../../test/servidor'
 import { ConfirmacaoIrreversivel } from '../ConfirmacaoIrreversivel'
-import { criarPersistenciaJornada, JornadaGuiada, type EtapaDaJornada, type PersistenciaJornada } from '../JornadaGuiada'
+import { JornadaGuiada, type EtapaDaJornada, type PersistenciaJornada } from '../JornadaGuiada'
 
 const esquema = z.object({
   nome: z.string().min(1, 'Informe o nome'),
@@ -31,7 +32,7 @@ const TEXTOS = {
   errosFora: 'Corrija também:',
 }
 
-function Jornada({ aoConcluir, persistencia }: { aoConcluir: (valores: Valores) => Promise<void>, persistencia?: PersistenciaJornada<Valores> }): ReactNode {
+function Jornada({ aoConcluir, persistencia, aoFalhar }: { aoConcluir: (valores: Valores) => Promise<void>, persistencia?: PersistenciaJornada<Valores>, aoFalhar?: (erro: unknown) => void }): ReactNode {
   const formulario = useForm<Valores>({
     resolver: zodResolver(esquema),
     defaultValues: { nome: '', email: '', cidade: '', igreja: '' },
@@ -56,7 +57,7 @@ function Jornada({ aoConcluir, persistencia }: { aoConcluir: (valores: Valores) 
     { chave: 'dados', titulo: 'Dados', campos: ['nome', 'email'], conteudo: <>{campo('nome', 'Nome')}{campo('email', 'E-mail')}</> },
     { chave: 'local', titulo: 'Local', campos: ['cidade', 'igreja'], conteudo: <>{campo('cidade', 'Cidade')}{campo('igreja', 'Igreja')}</> },
   ]
-  return <JornadaGuiada formulario={formulario} etapas={etapas} textos={TEXTOS} aoConcluir={aoConcluir} persistencia={persistencia} />
+  return <JornadaGuiada formulario={formulario} etapas={etapas} textos={TEXTOS} aoConcluir={aoConcluir} persistencia={persistencia} aoFalhar={aoFalhar} />
 }
 
 describe('Jornada guiada', () => {
@@ -128,6 +129,28 @@ describe('Jornada guiada', () => {
     expect(await screen.findByText('Etapa 2 de 2')).toBeInTheDocument()
     await usuario.click(screen.getByRole('button', { name: 'Voltar' }))
     expect(screen.getByLabelText('Nome')).toHaveValue('Maria')
+  })
+
+  it('não transforma conclusão bem-sucedida em falha quando só a limpeza do rascunho falha', async () => {
+    const aoConcluir = vi.fn(async () => undefined)
+    const aoFalhar = vi.fn()
+    const descartar = vi.fn(async () => { throw new Error('rede indisponível') })
+    const persistencia: PersistenciaJornada<Valores> = {
+      carregar: async () => null,
+      salvar: async (etapa, dados) => ({ tipo: 'conectar_whatsapp', etapa, dados, versao: 1, atualizado_em: '', expira_em: '' }),
+      descartar,
+    }
+    const usuario = userEvent.setup()
+    renderizarComProvedores(<Jornada aoConcluir={aoConcluir} aoFalhar={aoFalhar} persistencia={persistencia} />, {})
+
+    await usuario.type(screen.getByLabelText('Nome'), 'Maria')
+    await usuario.type(screen.getByLabelText('E-mail'), 'maria@exemplo.com')
+    await usuario.click(screen.getByRole('button', { name: 'Avançar' }))
+    await usuario.click(await screen.findByRole('button', { name: 'Concluir' }))
+
+    await waitFor(() => expect(aoConcluir).toHaveBeenCalledTimes(1))
+    expect(descartar).toHaveBeenCalledTimes(1)
+    expect(aoFalhar).not.toHaveBeenCalled()
   })
 })
 

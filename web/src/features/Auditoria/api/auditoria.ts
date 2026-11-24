@@ -27,6 +27,7 @@ export interface FiltroAuditoria {
   alvo_tipo?: string
   alvo?: string
   igreja?: string
+  busca?: string
   resultado?: string
   pagina: number
   por_pagina: number
