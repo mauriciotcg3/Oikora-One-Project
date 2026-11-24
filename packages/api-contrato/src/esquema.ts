@@ -728,6 +728,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/rascunhos/{tipo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["rascunhos.ler"];
+        put: operations["rascunhos.salvar"];
+        post?: never;
+        delete: operations["rascunhos.descartar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/senha/esqueci": {
         parameters: {
             query?: never;
@@ -1148,6 +1164,11 @@ export interface components {
          * @enum {string}
          */
         TipoAviso: "convite.painel" | "servico.transferencia_solicitada" | "servico.transferencia_decidida" | "servico.exportacao_pronta" | "servico.limite_whatsapp_alerta" | "servico.limite_whatsapp_atingido";
+        /**
+         * TipoJornada
+         * @enum {string}
+         */
+        TipoJornada: "conectar_whatsapp";
         /**
          * TipoRelacionamento
          * @description Tipos de relacionamento, lista fixa no código (U-24). Cada relação grava a inversa: "pai/mãe" de A para B é "filho(a)" de B para A. "Responsável legal ↔ dependente" liga a criança ao adulto que responde por ela (ASSUMPTION-005). "Outro" exige descrição.
@@ -3246,6 +3267,119 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "rascunhos.ler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The tipo ID */
+                tipo: components["schemas"]["TipoJornada"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            tipo: string;
+                            etapa: string;
+                            dados: [
+                                unknown,
+                                unknown
+                            ];
+                            versao: number;
+                            atualizado_em: string;
+                            expira_em: string;
+                        } | null;
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "rascunhos.salvar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The tipo ID */
+                tipo: components["schemas"]["TipoJornada"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    etapa: string;
+                    dados: (string | null)[];
+                    versao: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            tipo: string;
+                            etapa: string;
+                            dados: [
+                                unknown,
+                                unknown
+                            ];
+                            versao: number;
+                            atualizado_em: string;
+                            expira_em: string;
+                        };
+                    };
+                };
+            };
+            404: components["responses"]["ModelNotFoundException"];
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "rascunho_desatualizado";
+                        atual: string;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "rascunhos.descartar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The tipo ID */
+                tipo: components["schemas"]["TipoJornada"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "recuperacaoSenha.esqueci": {

@@ -13,7 +13,7 @@ import { requisitar } from '../../http'
 import { renderizarComProvedores } from '../../../test/renderizar'
 import { servidor } from '../../../test/servidor'
 import { ConfirmacaoIrreversivel } from '../ConfirmacaoIrreversivel'
-import { JornadaGuiada, type EtapaDaJornada } from '../JornadaGuiada'
+import { criarPersistenciaJornada, JornadaGuiada, type EtapaDaJornada, type PersistenciaJornada } from '../JornadaGuiada'
 
 const esquema = z.object({
   nome: z.string().min(1, 'Informe o nome'),
@@ -31,7 +31,7 @@ const TEXTOS = {
   errosFora: 'Corrija também:',
 }
 
-function Jornada({ aoConcluir }: { aoConcluir: (valores: Valores) => Promise<void> }): ReactNode {
+function Jornada({ aoConcluir, persistencia }: { aoConcluir: (valores: Valores) => Promise<void>, persistencia?: PersistenciaJornada<Valores> }): ReactNode {
   const formulario = useForm<Valores>({
     resolver: zodResolver(esquema),
     defaultValues: { nome: '', email: '', cidade: '', igreja: '' },
@@ -56,7 +56,7 @@ function Jornada({ aoConcluir }: { aoConcluir: (valores: Valores) => Promise<voi
     { chave: 'dados', titulo: 'Dados', campos: ['nome', 'email'], conteudo: <>{campo('nome', 'Nome')}{campo('email', 'E-mail')}</> },
     { chave: 'local', titulo: 'Local', campos: ['cidade', 'igreja'], conteudo: <>{campo('cidade', 'Cidade')}{campo('igreja', 'Igreja')}</> },
   ]
-  return <JornadaGuiada formulario={formulario} etapas={etapas} textos={TEXTOS} aoConcluir={aoConcluir} />
+  return <JornadaGuiada formulario={formulario} etapas={etapas} textos={TEXTOS} aoConcluir={aoConcluir} persistencia={persistencia} />
 }
 
 describe('Jornada guiada', () => {
@@ -103,6 +103,31 @@ describe('Jornada guiada', () => {
     expect(await screen.findByText('E-mail já cadastrado')).toBeInTheDocument()
     expect(screen.getByText('Etapa 1 de 2')).toBeInTheDocument()
     await waitFor(() => expect(screen.getByLabelText('E-mail')).toHaveFocus())
+  })
+
+  it('retoma etapa e campos depois de recarregar a página', async () => {
+    let estado: Record<string, unknown> | null = null
+    servidor.use(
+      http.get('*/api/v1/painel/rascunhos/conectar_whatsapp', () => HttpResponse.json({ data: estado })),
+      http.put('*/api/v1/painel/rascunhos/conectar_whatsapp', async ({ request }) => {
+        const corpo = await request.json() as { etapa: string, dados: Valores }
+        estado = { tipo: 'conectar_whatsapp', etapa: corpo.etapa, dados: corpo.dados, versao: 1, atualizado_em: '', expira_em: '' }
+        return HttpResponse.json({ data: estado })
+      }),
+    )
+    const usuario = userEvent.setup()
+    const persistencia = criarPersistenciaJornada<Valores>('conectar_whatsapp')
+    const primeira = renderizarComProvedores(<Jornada aoConcluir={vi.fn()} persistencia={persistencia} />, {})
+    await usuario.type(screen.getByLabelText('Nome'), 'Maria')
+    await usuario.type(screen.getByLabelText('E-mail'), 'maria@exemplo.com')
+    await usuario.click(screen.getByRole('button', { name: 'Avançar' }))
+    expect(await screen.findByText('Etapa 2 de 2')).toBeInTheDocument()
+    primeira.unmount()
+
+    renderizarComProvedores(<Jornada aoConcluir={vi.fn()} persistencia={criarPersistenciaJornada('conectar_whatsapp')} />, {})
+    expect(await screen.findByText('Etapa 2 de 2')).toBeInTheDocument()
+    await usuario.click(screen.getByRole('button', { name: 'Voltar' }))
+    expect(screen.getByLabelText('Nome')).toHaveValue('Maria')
   })
 })
 

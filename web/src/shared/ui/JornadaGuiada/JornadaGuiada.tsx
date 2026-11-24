@@ -6,6 +6,7 @@ import type { FieldValues, Path, UseFormReturn } from 'react-hook-form'
 import { aplicarErros422, etapaComErro422, ResumoErros, type ErroForaDaTela } from '../../forms'
 import { registrarEventoUi } from '../../observabilidade'
 import { ConfirmacaoIrreversivel, type ConfirmacaoIrreversivelProps } from '../ConfirmacaoIrreversivel'
+import type { PersistenciaJornada } from './rascunho'
 
 export interface EtapaDaJornada<T extends FieldValues> {
   chave: string
@@ -35,6 +36,8 @@ export interface JornadaGuiadaProps<T extends FieldValues> {
   aoFalhar?: (erro: unknown) => void
   /** Quando a conclusão é irreversível, pede confirmação antes de executar. */
   confirmacao?: Omit<ConfirmacaoIrreversivelProps, 'aberta' | 'aoConfirmar' | 'aoCancelar'>
+  /** Retomada opt-in conforme OIK-ADR-0016; nunca persiste sem configuração explícita. */
+  persistencia?: PersistenciaJornada<T>
 }
 
 /**
@@ -42,13 +45,26 @@ export interface JornadaGuiadaProps<T extends FieldValues> {
  * valores preservados ao voltar e confirmação opcional ao concluir (OIK-ADR-0014). Salvar e
  * retomar fica fora (OIK-ADR-0016).
  */
-export function JornadaGuiada<T extends FieldValues>({ formulario, etapas, textos, aoConcluir, aoFalhar, confirmacao }: JornadaGuiadaProps<T>): ReactNode {
+export function JornadaGuiada<T extends FieldValues>({ formulario, etapas, textos, aoConcluir, aoFalhar, confirmacao, persistencia }: JornadaGuiadaProps<T>): ReactNode {
   const [indice, setIndice] = useState(0)
   const [confirmando, setConfirmando] = useState(false)
   const [errosFora, setErrosFora] = useState<readonly ErroForaDaTela[]>([])
   const focoPendente = useRef<Path<T> | null>(null)
+  const etapasIniciais = useRef(etapas)
   const etapa = etapas[indice]
   const ultima = indice === etapas.length - 1
+
+  useEffect(() => {
+    if (!persistencia) return
+    let ativa = true
+    void persistencia.carregar().then((rascunho) => {
+      if (!ativa || rascunho === null) return
+      formulario.reset(rascunho.dados)
+      const retomada = etapasIniciais.current.findIndex((item) => item.chave === rascunho.etapa)
+      if (retomada >= 0) setIndice(retomada)
+    }).catch(aoFalhar)
+    return () => { ativa = false }
+  }, [aoFalhar, formulario, persistencia])
 
   // O foco do erro 422 espera a etapa certa estar na tela: o campo precisa estar montado.
   useEffect(() => {
@@ -62,6 +78,7 @@ export function JornadaGuiada<T extends FieldValues>({ formulario, etapas, texto
   const concluir = async (): Promise<void> => {
     try {
       await aoConcluir(formulario.getValues())
+      await persistencia?.descartar()
       registrarEventoUi('ui.jornada_concluida', { etapas: etapas.length })
     } catch (erro) {
       const alvo = etapaComErro422(erro, etapas.map((e) => e.campos))
@@ -83,7 +100,19 @@ export function JornadaGuiada<T extends FieldValues>({ formulario, etapas, texto
       return
     }
     if (!ultima) {
-      setIndice(indice + 1)
+      const proxima = indice + 1
+      const etapaSeguinte = etapas[proxima]
+      if (!etapaSeguinte) return
+      if (persistencia) {
+        try {
+          const salvo = await persistencia.salvar(etapaSeguinte.chave, formulario.getValues())
+          formulario.reset(salvo.dados)
+          const retomada = etapas.findIndex((item) => item.chave === salvo.etapa)
+          setIndice(retomada >= 0 ? retomada : proxima)
+        } catch (erro) {
+          aoFalhar?.(erro)
+        }
+      } else setIndice(proxima)
       return
     }
     if (confirmacao) setConfirmando(true)

@@ -1262,7 +1262,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-46); contrato regenerado e versionado; `composer gate` verde.
 - **Regra de negócio associada:** RN-15 ampliada.
-- **Status:** Pendente
+- **Status:** Concluída em 2026-11-23: filtros por igreja e busca, ator legível, `trace_id`, resultado/código de falha e registro transacional das falhas entregues; contrato regenerado e gates verdes conforme o checkpoint de WUI-2.
 
 ## T-55 — Auditoria (painel): consulta, trilha e detalhe técnico progressivo
 - **Issue:** #76
@@ -1284,7 +1284,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-45); gate verde; Auditoria em chunk por rota.
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Concluída em 2026-11-23: consulta com filtros e paginação na URL, trilha por alvo, resumo e detalhe técnico progressivo, estados de erro/permissão e carregamento da Auditoria em chunk de rota entregues; testes e gate do web verdes.
 
 ## T-56 — UI Standard: documentação e exemplos do padrão
 - **Issue:** #77
@@ -1303,7 +1303,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; links locais do documento existentes.
 - **Regra de negócio associada:** nenhuma.
-- **Status:** Pendente
+- **Status:** Concluída em 2026-11-23: padrão visual documentado em `docs/ui/oikora-ui-standard.md`, exemplos expostos na galeria e verificados contra os componentes exportados; links locais e gate do web verdes.
 
 ## T-57 — Rascunhos de jornada guiada (API) e integração na jornada
 - **Issue:** #78
@@ -1325,7 +1325,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; contrato regenerado; gate do front e `composer gate` verdes.
 - **Regra de negócio associada:** rascunho sem segredos e com expiração.
-- **Status:** Pendente
+- **Status:** Concluída em 2026-11-23: API com leitura, gravação otimista, conflito 409, descarte, cifra seletiva, RLS e expiração por job; `JornadaGuiada` salva, retoma, recarrega em conflito e descarta ao concluir. Contrato e gates de API/web verdes.
 
 ---
 

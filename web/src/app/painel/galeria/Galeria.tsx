@@ -16,6 +16,7 @@ import {
   AjudaContextual,
   ConfirmacaoIrreversivel,
   DetalheEmCamadas,
+  DetalhesTecnicos,
   EstadoAviso,
   EstadoCarregando,
   EstadoErro,
@@ -73,6 +74,7 @@ function Estados(): ReactNode {
       <EstadoErro titulo="Não foi possível salvar" texto="Tente de novo. Se continuar, fale com o suporte." rotuloTentar={`Tentar de novo${tentativas ? ` (${tentativas})` : ''}`} aoTentarDeNovo={() => setTentativas(tentativas + 1)} detalhes={DETALHES} />
       <EstadoIndisponivel titulo="Serviço indisponível" texto="Não conseguimos falar com o servidor agora." rotuloTentar="Tentar de novo" aoTentarDeNovo={() => undefined} detalhes={DETALHES} />
       <AjudaContextual rotulo="Ajuda sobre esta tela">Os estados explicam o que houve e o próximo passo; identificadores técnicos ficam sob demanda.</AjudaContextual>
+      <DetalhesTecnicos {...DETALHES} />
     </Stack>
   )
 }

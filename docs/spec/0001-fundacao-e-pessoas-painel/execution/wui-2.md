@@ -8,6 +8,7 @@
 
 - Dependências confirmadas: PR #80 fechado (inclui T-22), PR #81 fechado (inclui T-32) e issues #19, #22, #29 e #34 fechadas.
 - Branch `origin/feat/spec-0001-fundacao-pessoas` integrada; conflitos de `InicioPainel.tsx` e `roteador.tsx` resolvidos preservando o shell e a navegação por capacidades da WUI-1, além de login, convite, 2FA, seletor de organização, Acessos e Papéis da W7.
+- T-54, T-55, T-56 e T-57 concluídas na árvore de trabalho da branch `feat/t-50`, sem novo commit ou push nesta sessão.
 
 ## Decisões e desvios
 
@@ -19,6 +20,7 @@ A T-55 **estende a feature existente** `web/src/features/Auditoria`, entregue pe
 
 - O link de convite emitido pelo backend (`/convites/{token}`) não pertence às T-54–T-57. A rota pública do painel continua sendo `/painel/convites/{token}`; alinhar a URL gerada fica registrado como pendência, sem alteração nesta onda.
 - Além da resolução necessária do merge descrita acima, `app/painel/__tests__/shell.test.tsx` passou a consultar especificamente a navegação acessível “Menu do painel”. O seletor genérico confundia o menu responsivo com a navegação legítima de atalhos da página inicial trazida pela W7; o comportamento do shell não foi alterado.
+- As traduções da Auditoria são registradas junto com o carregamento lazy da feature. Isso evita que a importação estática do namespace pelo shell anule o chunk por rota, sem abrir uma entrada paralela à Public API da feature.
 
 ## Plano de banco e rollback (antes das migrations)
 
@@ -45,7 +47,12 @@ A T-55 **estende a feature existente** `web/src/features/Auditoria`, entregue pe
 - T-54 — OpenAPI e `packages/api-contrato` regenerados; geração estável, TypeScript e 2 testes do contrato Green.
 - T-54 — gate completo da API Green: Pint, PHPStan, Pest (476 passed, 1 skipped, 3214 assertions) e Deptrac (0 violações/0 erros).
 - Integração da branch — o primeiro gate do web reproduziu 1 falha no teste do shell: o seletor genérico de `navigation` capturava os atalhos da W7. Após restringi-lo ao nome acessível “Menu do painel”, teste focado 5/5 Green e gate completo do web Green (75/75 testes; painel 293,17 KB gzip, abaixo do limite de 350 KB).
+- T-55 — três cenários de aceite da consulta Green; filtros/paginação ficam na URL, detalhe progressivo e acesso negado verificados. O build mantém a Auditoria fora do chunk inicial e o DataGrid em chunk próprio.
+- T-56 — exemplos e documentação do UI Standard Green, com os componentes exportados cobertos e caminhos locais existentes.
+- T-57 — Red observado na API antes da implementação; depois 4 testes/40 assertions Green. No web, 6 testes da jornada Green, incluindo retomada após recarga e conflito que recarrega o servidor sem merge automático.
+- T-57 — OpenAPI e `packages/api-contrato` regenerados com GET/PUT/DELETE de `/painel/rascunhos/{tipo}`.
+- WUI-2 — gate completo da API Green: Pint, PHPStan, Pest (480 passed, 1 skipped, 3260 assertions) e Deptrac (0 violações/0 erros). Gate completo do web Green; pacote de contrato validado separadamente.
 
 ## Próximo passo
 
-- Em uma nova thread, executar o restante da WUI-2: T-55, T-56 e T-57.
+- WUI-2 concluída. Abrir uma nova thread antes de iniciar a próxima onda da OIK-SPEC-0001.
