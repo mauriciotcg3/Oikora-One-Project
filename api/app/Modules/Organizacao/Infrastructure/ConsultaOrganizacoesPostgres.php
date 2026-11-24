@@ -60,6 +60,13 @@ final class ConsultaOrganizacoesPostgres implements ConsultaOrganizacoes, Organi
         return is_string($modo) ? $modo : 'manual';
     }
 
+    public function limiteWhatsappMensal(int $organizacaoId): ?int
+    {
+        $limite = Organizacao::query()->whereKey($organizacaoId)->toBase()->value('limite_whatsapp_mensal');
+
+        return $limite === null ? null : (int) $limite;
+    }
+
     public function idPorUuid(string $uuid): ?int
     {
         $id = Organizacao::query()->where('uuid', $uuid)->whereIn('estado', ['ativa', 'em_migracao'])->value('id');

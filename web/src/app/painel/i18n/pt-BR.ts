@@ -3,6 +3,10 @@ export const painelPtBR = {
   inicio: {
     titulo: 'Painel da igreja',
     texto: 'Você entrou. As telas do painel chegam nas próximas tasks da OIK-SPEC-0001.',
+    atalhos: 'Gestão do painel',
+    acessos: 'Acessos e convites',
+    papeis: 'Papéis',
+    auditoria: 'Auditoria',
   },
   shell: {
     titulo: 'Oikora One',

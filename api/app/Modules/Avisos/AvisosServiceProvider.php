@@ -12,8 +12,10 @@ use App\Modules\Avisos\Application\EnviosExternos;
 use App\Modules\Avisos\Application\LinksDeDescadastro;
 use App\Modules\Avisos\Application\NumerosWhatsApp;
 use App\Modules\Avisos\Application\RegistrarAvisos;
+use App\Modules\Avisos\Application\RemoverAvisosDaPessoa;
 use App\Modules\Avisos\Application\WebhooksExternos;
 use App\Modules\Avisos\Contracts\Avisos;
+use App\Modules\Avisos\Contracts\AvisosDaPessoa;
 use App\Modules\Avisos\Contracts\EnvioCodigo;
 use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\MetaWhatsAppCodigos;
 use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\MetaWhatsAppFalso;
@@ -30,6 +32,8 @@ use App\Modules\Avisos\Infrastructure\LinkDeDescadastroAssinado;
 use App\Modules\Avisos\Infrastructure\NumerosWhatsAppIndisponiveis;
 use App\Modules\Avisos\Infrastructure\Webhooks\LocalizadorEnvioExterno;
 use App\Modules\Avisos\Infrastructure\Webhooks\WebhooksDosProvedores;
+use App\Modules\Avisos\Presentation\PreferenciasAvisoController;
+use App\Shared\Tenancy\Http\ContextoOrganizacao;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -50,6 +54,7 @@ class AvisosServiceProvider extends ServiceProvider
     {
         $this->app->bind(EnvioCodigo::class, EnvioCodigoPelaFila::class);
         $this->app->bind(Avisos::class, RegistrarAvisos::class);
+        $this->app->bind(AvisosDaPessoa::class, RemoverAvisosDaPessoa::class);
         $this->app->bind(DestinosDeAviso::class, DestinosPelaConta::class);
         $this->app->bind(LinksDeDescadastro::class, LinkDeDescadastroAssinado::class);
         // Número de WhatsApp da organização: `whatsapp_numeros` chega com a T-21; até lá, nenhum ativo.
@@ -80,6 +85,13 @@ class AvisosServiceProvider extends ServiceProvider
 
         // Sem sessão nem organização: a assinatura do link é a autorização (RFC 8058).
         Route::prefix('api/v1')->group(__DIR__.'/Presentation/rotas-publicas.php');
+
+        // Caixa e preferências (T-20): sessão e organização ativa (RLS), sem exigir a elevação do painel.
+        Route::middleware(['web', 'auth:web', ContextoOrganizacao::class])->group(function (): void {
+            Route::prefix('api/v1/avisos')->group(__DIR__.'/Presentation/rotas-caixa.php');
+            Route::get('api/v1/conta/preferencias-aviso', [PreferenciasAvisoController::class, 'mostrar']);
+            Route::put('api/v1/conta/preferencias-aviso', [PreferenciasAvisoController::class, 'definir']);
+        });
 
         if ($this->app->runningInConsole()) {
             $this->commands([VarrerEnvios::class, CriarParticoesEnvios::class]);

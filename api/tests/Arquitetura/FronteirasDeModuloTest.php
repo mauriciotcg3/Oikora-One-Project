@@ -15,6 +15,8 @@ const LINGUAGEM_PUBLICADA = [
     'App\\Modules\\Auditoria\\Application\\Auditoria',
     'App\\Modules\\Auditoria\\Application\\AuditaCom',
     'App\\Modules\\Auditoria\\Domain\\EventoAuditoria',
+    // Tipo da assinatura de `Avisos\Contracts\Avisos::registrar` (OIK-ADR-0008 §1): quem avisa diz qual aviso.
+    'App\\Modules\\Avisos\\Domain\\TipoAviso',
 ];
 
 it('só cruza módulos pelo Contracts ou pela linguagem publicada', function (): void {

@@ -13,6 +13,9 @@ enum TipoAviso: string
     case TransferenciaSolicitada = 'servico.transferencia_solicitada';
     case TransferenciaDecidida = 'servico.transferencia_decidida';
     case ExportacaoPronta = 'servico.exportacao_pronta';
+    // Limite mensal de WhatsApp (OIK-ADR-0008 §16): 80% e 100%, para quem configura a organização.
+    case LimiteWhatsappAlerta = 'servico.limite_whatsapp_alerta';
+    case LimiteWhatsappAtingido = 'servico.limite_whatsapp_atingido';
 
     public function categoria(): string
     {
@@ -36,6 +39,11 @@ enum TipoAviso: string
      */
     public function canais(): array
     {
+        // O aviso do limite não gasta a cota que ele mesmo anuncia: só e-mail (e a caixa).
+        if ($this === self::LimiteWhatsappAlerta || $this === self::LimiteWhatsappAtingido) {
+            return ['email'];
+        }
+
         return match ($this->categoria()) {
             'convite' => ['email', 'whatsapp'],
             default => ['whatsapp', 'email'],

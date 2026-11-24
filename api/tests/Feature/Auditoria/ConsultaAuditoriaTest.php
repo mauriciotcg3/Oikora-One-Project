@@ -85,6 +85,24 @@ it('restringe por período, evento, ator e alvo', function (): void {
     $this->getJson('/api/v1/painel/auditoria?evento=nao.existe')->assertUnprocessable();
 });
 
+it('filtra por igreja, busca segura em evento e alvo e resultado', function (): void {
+    entrarNoPainel($this->org, $this->sede, [Permissao::AuditoriaVer]);
+    DB::connection('pgsql_dono')->table('auditoria')->where('organizacao_id', $this->org)->delete();
+
+    linhaDeAuditoria($this->org, 'pessoa.criada', ['igreja_id' => $this->sede, 'alvo_id' => 'pessoa-localizada']);
+    linhaDeAuditoria($this->org, 'pessoa.atualizada', ['igreja_id' => $this->filial, 'alvo_id' => 'outra-pessoa']);
+
+    $igreja = uuidDe('igrejas', $this->sede);
+    $alvos = fn (string $consulta): array => array_column($this->getJson("/api/v1/painel/auditoria?{$consulta}")->assertOk()->json('data.*.alvo'), 'id');
+
+    expect($alvos("igreja={$igreja}"))->toBe(['pessoa-localizada'])
+        ->and($alvos('busca=pessoa.criada'))->toBe(['pessoa-localizada'])
+        ->and($alvos('busca=localizada'))->toBe(['pessoa-localizada'])
+        ->and($alvos('resultado=sucesso'))->toBe(['outra-pessoa', 'pessoa-localizada']);
+
+    $this->getJson('/api/v1/painel/auditoria?busca=%25')->assertUnprocessable();
+});
+
 it('com auditoria.ver só numa igreja, não mostra eventos de outra igreja nem os de governança', function (): void {
     entrarNoPainel($this->org, $this->sede, [Permissao::AuditoriaVer], 'igreja', $this->sede);
     DB::connection('pgsql_dono')->table('auditoria')->where('organizacao_id', $this->org)->delete();
@@ -112,11 +130,24 @@ it('devolve nomes de campos e metadados codificados, nunca valores', function ()
     ]);
 
     $linha = $this->getJson('/api/v1/painel/auditoria')->assertOk()->json('data.0');
+    $nomeAtor = DB::connection('pgsql_dono')->table('pessoas')->where('id', $ator['pessoa'])->value('nome');
 
-    expect(array_keys($linha))->toBe(['ocorrido_em', 'evento', 'ator', 'alvo', 'igreja', 'campos', 'metadados', 'canal', 'request_id'])
+    expect(array_keys($linha))->toBe(['ocorrido_em', 'evento', 'ator', 'alvo', 'igreja', 'campos', 'metadados', 'canal', 'request_id', 'resultado', 'codigo_falha', 'trace_id'])
         ->and($linha['campos'])->toBe(['nascimento', 'cep'])
         ->and($linha['metadados'])->toBe(['vinculo' => 'membro', 'campos_antes' => [], 'campos_depois' => ['cep', 'nascimento']])
-        ->and($linha['ator'])->toBe(['acesso' => uuidDe('acessos', $ator['acesso']), 'plataforma' => false]);
+        ->and($linha['ator'])->toBe(['acesso' => uuidDe('acessos', $ator['acesso']), 'nome' => $nomeAtor, 'plataforma' => false])
+        ->and($linha['resultado'])->toBe('sucesso')
+        ->and($linha['codigo_falha'])->toBeNull()
+        ->and($linha['trace_id'])->toBeNull();
+});
+
+it('devolve o nome legível do ator ligado ao acesso', function (): void {
+    $ator = entrarNoPainel($this->org, $this->sede, [Permissao::AuditoriaVer]);
+    DB::connection('pgsql_dono')->table('auditoria')->where('organizacao_id', $this->org)->delete();
+    linhaDeAuditoria($this->org, 'pessoa.criada', ['acesso_id' => $ator['acesso']]);
+
+    $this->getJson('/api/v1/painel/auditoria')->assertOk()
+        ->assertJsonPath('data.0.ator.nome', DB::connection('pgsql_dono')->table('pessoas')->where('id', $ator['pessoa'])->value('nome'));
 });
 
 it('mostra só eventos da organização ativa (RLS)', function (): void {

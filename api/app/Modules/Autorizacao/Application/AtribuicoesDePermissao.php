@@ -14,4 +14,12 @@ interface AtribuicoesDePermissao
 
     /** O acesso tem ao menos uma atribuição de papel (concessão sozinha não conta, OIK-ADR-0004 §13). */
     public function temPapel(int $organizacaoId, int $acessoId): bool;
+
+    /**
+     * Acessos da organização com a permissão em algum escopo, por papel ou concessão vigente. O escopo
+     * é conferido depois pelo `Alcance`.
+     *
+     * @return list<int>
+     */
+    public function acessosComPermissao(int $organizacaoId, string $permissao): array;
 }

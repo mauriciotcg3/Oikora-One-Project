@@ -3,7 +3,7 @@
 namespace App\Modules\Avisos\Infrastructure;
 
 use App\Modules\Avisos\Application\MensagemDeAviso;
-use App\Modules\Avisos\Domain\TipoAviso;
+use App\Modules\Avisos\Application\TextosDaCaixa;
 
 /**
  * Textos do template de e-mail por tipo. Só entram o nome da organização e o link: nada da ficha (nome da
@@ -15,12 +15,7 @@ final class TextosDeAviso
     public static function dados(MensagemDeAviso $mensagem): array
     {
         $organizacao = self::nomeSeguro($mensagem->nomeOrganizacao);
-        [$titulo, $texto, $acao] = match ($mensagem->tipo) {
-            TipoAviso::ConvitePainel => ['Convite para o painel', "Você foi convidado(a) para acessar o painel de {$organizacao} no Oikora.", 'Aceitar convite'],
-            TipoAviso::TransferenciaSolicitada => ['Pedido de transferência', "Há um pedido de transferência aguardando sua análise em {$organizacao}.", 'Ver pedido'],
-            TipoAviso::TransferenciaDecidida => ['Transferência decidida', "Um pedido de transferência de {$organizacao} foi decidido.", 'Ver transferência'],
-            TipoAviso::ExportacaoPronta => ['Exportação pronta', "A exportação que você pediu em {$organizacao} está pronta para baixar.", 'Baixar arquivo'],
-        };
+        ['titulo' => $titulo, 'texto' => $texto, 'acao' => $acao] = TextosDaCaixa::do($mensagem->tipo, $organizacao);
 
         return [
             'assunto' => "{$titulo} — {$organizacao}",

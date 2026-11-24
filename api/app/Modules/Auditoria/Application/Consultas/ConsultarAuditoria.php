@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
  * só eventos das igrejas do alcance — evento sem igreja (governança) fica de fora. Devolve nomes de campo
  * e metadados codificados, que é tudo o que a tabela guarda: nunca valores.
  *
- * @phpstan-type LinhaAuditoria array{id: int, ocorrido_em: string, evento: string, acesso_id: int|null, operador_id: int|null, alvo_tipo: string, alvo_id: string, igreja_id: int|null, campos: list<string>, metadados: array<string, mixed>, canal: string, request_id: string|null}
+ * @phpstan-type LinhaAuditoria array{id: int, ocorrido_em: string, evento: string, acesso_id: int|null, operador_id: int|null, alvo_tipo: string, alvo_id: string, igreja_id: int|null, campos: list<string>, metadados: array<string, mixed>, canal: string, request_id: string|null, resultado: string, codigo_falha: string|null, trace_id: string|null}
  */
 final readonly class ConsultarAuditoria
 {
@@ -41,7 +41,7 @@ final readonly class ConsultarAuditoria
             ->orderByDesc('ocorrido_em')
             ->orderByDesc('id')
             ->forPage($filtro->pagina, $filtro->porPagina)
-            ->get(['id', 'ocorrido_em', 'evento', 'acesso_id', 'operador_id', 'alvo_tipo', 'alvo_id', 'igreja_id', 'campos', 'metadados', 'canal', 'request_id']);
+            ->get(['id', 'ocorrido_em', 'evento', 'acesso_id', 'operador_id', 'alvo_tipo', 'alvo_id', 'igreja_id', 'campos', 'metadados', 'canal', 'request_id', 'resultado', 'codigo_falha', 'trace_id']);
 
         $itens = [];
         foreach ($linhas as $linha) {
@@ -63,6 +63,9 @@ final readonly class ConsultarAuditoria
                 'metadados' => $metadados,
                 'canal' => (string) $linha->canal,
                 'request_id' => $linha->request_id === null ? null : (string) $linha->request_id,
+                'resultado' => (string) $linha->resultado,
+                'codigo_falha' => $linha->codigo_falha === null ? null : (string) $linha->codigo_falha,
+                'trace_id' => $linha->trace_id === null ? null : (string) $linha->trace_id,
             ];
         }
 
@@ -80,7 +83,15 @@ final readonly class ConsultarAuditoria
             ->when($filtro->ate !== null, fn (Builder $q) => $q->where('ocorrido_em', '<', $filtro->ate))
             ->when($filtro->evento !== null, fn (Builder $q) => $q->where('evento', $filtro->evento))
             ->when($filtro->atorAcessoId !== null, fn (Builder $q) => $q->where('acesso_id', $filtro->atorAcessoId))
+            ->when($filtro->igrejaId !== null, fn (Builder $q) => $q->where('igreja_id', $filtro->igrejaId))
             ->when($filtro->alvoTipo !== null, fn (Builder $q) => $q->where('alvo_tipo', $filtro->alvoTipo))
-            ->when($filtro->alvoId !== null, fn (Builder $q) => $q->where('alvo_id', $filtro->alvoId));
+            ->when($filtro->alvoId !== null, fn (Builder $q) => $q->where('alvo_id', $filtro->alvoId))
+            ->when($filtro->busca !== null, fn (Builder $q) => $q->where(function (Builder $busca) use ($filtro): void {
+                $termo = '%'.$filtro->busca.'%';
+                $busca->where('evento', 'ilike', $termo)
+                    ->orWhere('alvo_tipo', 'ilike', $termo)
+                    ->orWhere('alvo_id', 'ilike', $termo);
+            }))
+            ->when($filtro->resultado !== null, fn (Builder $q) => $q->where('resultado', $filtro->resultado));
     }
 }

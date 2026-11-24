@@ -67,6 +67,51 @@ final readonly class ContatosDaPessoaPostgres implements ContatosDaPessoa
             ->update(['entrega_falhou_em' => now(), 'updated_at' => now()]) > 0;
     }
 
+    public function paraConvite(string $pessoaUuid): ?array
+    {
+        $pessoaId = $this->idAtivo(fn (Builder $consulta) => $consulta->where('uuid', $pessoaUuid));
+        if ($pessoaId === null) {
+            return null;
+        }
+
+        $principal = fn (string $tipo): mixed => PessoaContato::query()
+            ->where('pessoa_id', $pessoaId)
+            ->where('tipo', $tipo)
+            ->orderByDesc('principal')
+            ->orderBy('id')
+            ->value('valor');
+        $email = $principal('email');
+        $celular = $principal('celular');
+
+        return [
+            'id' => $pessoaId,
+            'uuid' => $pessoaUuid,
+            'nome' => (string) $this->nome($pessoaId),
+            'email' => is_string($email) && $email !== '' ? $email : null,
+            'celular' => is_string($celular) && $celular !== '' ? $celular : null,
+        ];
+    }
+
+    public function nome(int $pessoaId): ?string
+    {
+        $nome = $this->comoSistema(fn (): mixed => Pessoa::query()->whereKey($pessoaId)->value('nome'));
+
+        return is_string($nome) ? $nome : null;
+    }
+
+    public function nomes(array $pessoaIds): array
+    {
+        if ($pessoaIds === []) {
+            return [];
+        }
+
+        return $this->comoSistema(fn (): array => Pessoa::query()
+            ->whereIn('id', $pessoaIds)
+            ->pluck('nome', 'id')
+            ->mapWithKeys(static fn (mixed $nome, mixed $id): array => [(int) $id => (string) $nome])
+            ->all());
+    }
+
     /** @return Builder<PessoaContato> */
     private function contatosDoCanal(string $canal): Builder
     {

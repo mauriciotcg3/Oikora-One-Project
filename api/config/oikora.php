@@ -56,6 +56,18 @@ return [
     // WhatsApp da organização.
     'avisos' => [
         'provedores' => env('OIKORA_AVISOS_PROVEDORES', 'falso'),
+        // Tabela de preços do custo estimado em `uso_mensageria` (OIK-ADR-0008 §16), por canal e
+        // categoria. Valores em aberto (U-04): zero até a Spec de planos; a fatura real do WhatsApp é da Meta.
+        'precos' => [
+            'whatsapp' => [
+                'servico' => (float) env('OIKORA_PRECO_WHATSAPP_SERVICO', 0),
+                'convite' => (float) env('OIKORA_PRECO_WHATSAPP_CONVITE', 0),
+            ],
+            'email' => [
+                'servico' => (float) env('OIKORA_PRECO_EMAIL_SERVICO', 0),
+                'convite' => (float) env('OIKORA_PRECO_EMAIL_CONVITE', 0),
+            ],
+        ],
     ],
 
     // Arquivos privados (OIK-ADR-0011 §7): logo, fotos e anexos só por URL assinada de curta duração.

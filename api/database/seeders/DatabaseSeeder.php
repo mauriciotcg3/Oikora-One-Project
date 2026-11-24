@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -15,6 +16,17 @@ class DatabaseSeeder extends Seeder
         if (! app()->environment('local')) {
             return;
         }
+
+        // Organização fictícia pelo mesmo comando do operador (T-23); repetir o seed não duplica.
+        Artisan::call('oikora:organizacao:provisionar', [
+            'identificador' => 'demonstracao',
+            '--nome' => 'Igreja Demonstração',
+            '--igreja' => 'Sede',
+            '--admin-nome' => 'Administração Demo',
+            '--admin-email' => 'admin@oikora.test',
+            '--operador' => 'seeder',
+            '--motivo' => 'dados_ficticios',
+        ]);
 
         DB::table('contas')->insertOrIgnore([
             'uuid' => (string) Str::uuid(),

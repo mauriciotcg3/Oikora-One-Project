@@ -1,6 +1,15 @@
-import { createRootRoute, createRoute, createRouter, lazyRouteComponent, Outlet, useNavigate, type RouterHistory } from '@tanstack/react-router'
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  lazyRouteComponent,
+  Outlet,
+  useNavigate,
+  useParams,
+  type RouterHistory,
+} from '@tanstack/react-router'
 import type { ReactNode } from 'react'
-import { PaginaLogin } from '../../features/Identidade'
+import { CadastroDoisFatores, PaginaConvite, PaginaLogin } from '../../features/Identidade'
 import { InicioPainel } from './InicioPainel'
 import { PaginaAuditoria } from './PaginaAuditoria'
 import { Shell } from './Shell'
@@ -23,18 +32,48 @@ function TelaLogin(): ReactNode {
   return <PaginaLogin aoEntrar={aoEntrar} />
 }
 
+function TelaConvite(): ReactNode {
+  const { token } = useParams({ from: '/convites/$token' })
+  const voltar = encodeURIComponent(`/painel/convites/${token}`)
+  return <PaginaConvite token={token} linkLogin={`/painel/login?voltar=${voltar}`} />
+}
+
+function TelaCadastroDoisFatores(): ReactNode {
+  const navegar = useNavigate()
+  return <CadastroDoisFatores aoConcluir={() => void navegar({ to: '/' })} />
+}
+
 const raiz = createRootRoute({ component: Outlet })
 // Telas autenticadas ficam dentro do shell; o login fica fora dele.
 const rotaShell = createRoute({ getParentRoute: () => raiz, id: 'shell', component: Shell })
 const rotaInicio = createRoute({ getParentRoute: () => rotaShell, path: '/', component: InicioPainel })
 const rotaAuditoria = createRoute({ getParentRoute: () => rotaShell, path: 'auditoria', component: PaginaAuditoria })
 const rotaLogin = createRoute({ getParentRoute: () => raiz, path: 'login', component: TelaLogin })
+const rotaConvite = createRoute({ getParentRoute: () => raiz, path: 'convites/$token', component: TelaConvite })
+const rotaDoisFatores = createRoute({ getParentRoute: () => raiz, path: 'dois-fatores', component: TelaCadastroDoisFatores })
+// Telas de gestão carregadas sob demanda (FE-PERF-002), pelo index de cada feature.
+const rotaAcessos = createRoute({
+  getParentRoute: () => rotaShell,
+  path: 'acessos',
+  component: lazyRouteComponent(() => import('../../features/Autorizacao'), 'TelaAcessos'),
+})
+const rotaPapeis = createRoute({
+  getParentRoute: () => rotaShell,
+  path: 'papeis',
+  component: lazyRouteComponent(() => import('../../features/Autorizacao'), 'TelaPapeis'),
+})
 // Galeria de componentes: só no `pnpm dev`. O `if` constante (`import.meta.env.DEV`) é removido do build,
 // então nem a rota nem o chunk da galeria vão para produção.
 const rotasDev = import.meta.env.DEV
   ? [createRoute({ getParentRoute: () => raiz, path: 'galeria', component: lazyRouteComponent(() => import('./galeria/Galeria'), 'Galeria') })]
   : []
-const arvore = raiz.addChildren([rotaShell.addChildren([rotaInicio, rotaAuditoria]), rotaLogin, ...rotasDev])
+const arvore = raiz.addChildren([
+  rotaShell.addChildren([rotaInicio, rotaAuditoria, rotaAcessos, rotaPapeis]),
+  rotaLogin,
+  rotaConvite,
+  rotaDoisFatores,
+  ...rotasDev,
+])
 
 export function criarRoteador(historia?: RouterHistory) {
   return createRouter({ routeTree: arvore, basepath: '/painel', history: historia })

@@ -21,4 +21,7 @@ interface ConsultaOrganizacoes
 
     /** Modo de matrícula configurado (`manual` ou `automatica`; RN-05, U-18). */
     public function modoMatricula(int $organizacaoId): string;
+
+    /** Limite mensal de mensagens de WhatsApp (null = sem corte; OIK-ADR-0008 §16, U-04). */
+    public function limiteWhatsappMensal(int $organizacaoId): ?int;
 }

@@ -12,8 +12,11 @@ final readonly class FiltroAuditoria
         public ?DateTimeImmutable $ate = null,
         public ?string $evento = null,
         public ?int $atorAcessoId = null,
+        public ?int $igrejaId = null,
         public ?string $alvoTipo = null,
         public ?string $alvoId = null,
+        public ?string $busca = null,
+        public ?string $resultado = null,
         public int $pagina = 1,
         public int $porPagina = 25,
     ) {}

@@ -5,6 +5,8 @@ namespace App\Modules\Identidade;
 use App\Modules\Identidade\Application\AcessosDaConta;
 use App\Modules\Identidade\Application\Codigos;
 use App\Modules\Identidade\Application\Contas;
+use App\Modules\Identidade\Application\ConvidarAdministradorDoProvisionamento;
+use App\Modules\Identidade\Application\Convites;
 use App\Modules\Identidade\Application\EmissaoDeCodigos;
 use App\Modules\Identidade\Application\EventosAutenticacao;
 use App\Modules\Identidade\Application\ExigenciaDeDoisFatores;
@@ -12,17 +14,21 @@ use App\Modules\Identidade\Application\Totp;
 use App\Modules\Identidade\Contracts\AcessosDaOrganizacao;
 use App\Modules\Identidade\Contracts\CodigosDeIdentidade;
 use App\Modules\Identidade\Contracts\ContatosDaConta;
+use App\Modules\Identidade\Contracts\ConviteDoProvisionamento;
 use App\Modules\Identidade\Infrastructure\AcessosDaContaPostgres;
 use App\Modules\Identidade\Infrastructure\AcessosDaOrganizacaoPostgres;
 use App\Modules\Identidade\Infrastructure\CodigosPostgres;
+use App\Modules\Identidade\Infrastructure\Console\ExpirarConvites;
 use App\Modules\Identidade\Infrastructure\ContasPostgres;
 use App\Modules\Identidade\Infrastructure\ContatosDaContaPostgres;
+use App\Modules\Identidade\Infrastructure\ConvitesPostgres;
 use App\Modules\Identidade\Infrastructure\DoisFatoresPeloPapel;
 use App\Modules\Identidade\Infrastructure\EventosAutenticacaoPostgres;
 use App\Modules\Identidade\Infrastructure\ProvedorDeContas;
 use App\Modules\Identidade\Infrastructure\ResolvedorOrganizacaoSessao;
 use App\Modules\Identidade\Infrastructure\TotpGoogle2fa;
 use App\Modules\Identidade\Presentation\AbrirSessao;
+use App\Modules\Identidade\Presentation\ConvitesController;
 use App\Modules\Identidade\Presentation\ElevacaoController;
 use App\Modules\Identidade\Presentation\ElevacaoPainel;
 use App\Modules\Identidade\Presentation\EntrarRequest;
@@ -56,6 +62,8 @@ class IdentidadeServiceProvider extends ServiceProvider
         $this->app->bind(ResolvedorOrganizacaoAtiva::class, ResolvedorOrganizacaoSessao::class);
         $this->app->bind(Totp::class, TotpGoogle2fa::class);
         $this->app->bind(EventosAutenticacao::class, EventosAutenticacaoPostgres::class);
+        $this->app->bind(Convites::class, ConvitesPostgres::class);
+        $this->app->bind(ConviteDoProvisionamento::class, ConvidarAdministradorDoProvisionamento::class);
         $this->app->bind(LoginRequest::class, EntrarRequest::class);
         $this->app->singleton(LoginResponse::class, SemConteudo::class);
         $this->app->singleton(LogoutResponse::class, SemConteudo::class);
@@ -84,5 +92,17 @@ class IdentidadeServiceProvider extends ServiceProvider
         Route::aliasMiddleware(ElevacaoPainel::ALIAS, ElevacaoPainel::class);
         Route::middleware(['web', 'auth:web', ContextoOrganizacao::class])
             ->post('api/v1/painel/elevacao', ElevacaoController::class);
+
+        // Convite ao painel (T-22): emitir e revogar no grupo `painel`; ler e aceitar pelo link, com ou sem
+        // sessão (quem já tem conta entra antes de aceitar).
+        Route::middleware('painel')->prefix('api/v1/painel')->group(__DIR__.'/Presentation/rotas-painel.php');
+        Route::middleware(['web', 'throttle:30,1'])->prefix('api/v1/convites')->group(function (): void {
+            Route::get('{token}', [ConvitesController::class, 'mostrar'])->where('token', '[A-Za-z0-9]{48}');
+            Route::post('{token}/aceitar', [ConvitesController::class, 'aceitar'])->where('token', '[A-Za-z0-9]{48}');
+        });
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([ExpirarConvites::class]);
+        }
     }
 }

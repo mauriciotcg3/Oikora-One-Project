@@ -94,14 +94,14 @@ describe('Shell do painel', () => {
     const usuario = userEvent.setup()
     abrir('/painel/')
     await screen.findByRole('heading', { name: 'Painel da igreja' }, { timeout: 5000 })
-    expect(screen.queryByRole('navigation')).not.toBeInTheDocument()
+    expect(screen.queryByRole('navigation', { name: 'Menu do painel' })).not.toBeInTheDocument()
 
     const botao = screen.getByRole('button', { name: 'Abrir menu' })
     await usuario.click(botao)
     expect(await screen.findByRole('navigation', { name: 'Menu do painel' })).toBeInTheDocument()
 
     await usuario.keyboard('{Escape}')
-    await waitFor(() => expect(screen.queryByRole('navigation')).not.toBeInTheDocument())
+    await waitFor(() => expect(screen.queryByRole('navigation', { name: 'Menu do painel' })).not.toBeInTheDocument())
     expect(botao).toHaveFocus()
   })
 
