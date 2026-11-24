@@ -313,3 +313,17 @@ Não há dado existente: o repositório só tem documentação. Migrations criam
 - ❓ **Fidelidade do Scramble às projeções condicionais** (ADR-0006, lacunas): validar na T-05; se falhar, anotar os Resources.
 - ❓ Herdados da spec: OPEN-003, formato da matrícula automática (OPEN-016), limite de WhatsApp, valores iniciais das listas, modo de exclusão (OPEN-013), valores dos limites de login.
 - **Risco — tamanho:** são 6 módulos e 46 tasks. A ordem das tasks (`tasks.md`) entrega primeiro o isolamento e a identidade, porque todo o resto depende deles.
+
+## 14. Complemento — Oikora UI Standard e Auditoria no painel (2026-11-20)
+
+Decisão: OIK-ADR-0014 (UI Standard sobre MUI); estende §8 sem alterá-lo. Frontend Standard e OIK-ADR-0006 §6 (primitivos em `shared/ui/<Componente>/index.ts`), §9 (capacidades do `/me`), §13 (textos em i18n).
+
+- **Tokens e tema** (`shared/ui/tema`): paleta semântica `success`, `warning`, `info` além de `error`, nos dois esquemas; bordas de controle com contraste ≥ 3:1 (hoje `#CDBFB3` fixo em ambos os esquemas); escala de espaçamento e de densidade; o estilo de botão grande do login passa a ser variante, não padrão global. Contraste verificado por teste com `getContrastRatio` de `@mui/material/styles`.
+- **Componentes de estado** (`shared/ui/<Componente>/`): `EstadoCarregando`, `EstadoVazio`, `EstadoSucesso`, `EstadoAviso`, `EstadoErro`, `EstadoIndisponivel`, `DetalhesTecnicos`, `AjudaContextual`. Recebem dados e callbacks, sem fetch (FE-FLOW-001); textos vêm da feature (como `ResumoErros`).
+- **Erro com correlação:** `ErroHttp` já carrega `traceId` e `corpo.request_id`; o `EstadoErro` os exibe só em `DetalhesTecnicos`.
+- **Shell** (`app/painel`): layout com navegação, pular ao conteúdo e ajuda; itens por capacidades do `/me`; menu "Auditoria" próprio.
+- **Filtros/tabela/detalhe** (`shared/ui`): filtros ligados à URL pelo TanStack Router (search params validados com zod); DataGrid MIT carregado por rota (`lazy`) para proteger o orçamento de 350 KB (ADR-0010 §5; atual 265,74 KB).
+- **Auditoria** (`features/Auditoria`, dono `Modules/Auditoria`): consome `GET /painel/auditoria`; acrescenta no backend (`Modules/Auditoria`) filtro por igreja, busca, ator legível e `trace_id` (T-54). "Resultado" fica ❓ OPEN-UI-01.
+- **Dependência nova (aprovada em 2026-11-20): `@mui/x-data-grid` (MIT)**, já decidido na OIK-ADR-0006 §6; é a única, e entra só pelo chunk `lazy` da `TabelaDeRegistros` (`package.json` e lockfile são pontos quentes); axe segue no Playwright (ADR-0010 §5, T-45), com `eslint-plugin-jsx-a11y` no lint.
+- **Observabilidade:** logs estruturados `ui.*` com módulo, ação, resultado e `request_id`/`trace_id`, sem conteúdo de campo; abrir detalhe técnico e aplicar/limpar filtros são registrados (ADR-0014).
+- **Riscos:** bundle (mitigado por rota); T-54 regenera o contrato OpenAPI — executar depois da T-22 para não colidir em `api/openapi.json` e `esquema.ts`.

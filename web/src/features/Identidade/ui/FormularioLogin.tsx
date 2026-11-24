@@ -151,7 +151,7 @@ export function FormularioLogin({ aoEnviar, enviando, falha, aoEsquecer, focarAo
             )
           }}
         />
-        <Button type="submit" variant="contained" fullWidth loading={enviando} loadingPosition="start">
+        <Button type="submit" variant="contained" size="large" fullWidth loading={enviando} loadingPosition="start">
           {enviando ? t('login.entrando') : t('login.entrar')}
         </Button>
       </Box>

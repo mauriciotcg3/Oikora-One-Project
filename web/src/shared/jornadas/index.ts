@@ -1,0 +1,1 @@
+export { criarPersistenciaJornada } from './rascunho'

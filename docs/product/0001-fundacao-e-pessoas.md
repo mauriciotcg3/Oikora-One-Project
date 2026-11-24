@@ -1,8 +1,8 @@
 # Product Document: Oikora One — Fundação + Pessoas
 
-**Status:** `READY_FOR_ARCHITECTURE` (validado pelo usuário em 2026-10-19)
-**Origem:** `docs/analise/` (análise do painel inChurch e da Central de Ajuda, 12–13/10/2026) + entrevista com o usuário (Product Owner, 2026-10-16)
-**Data:** 2026-10-16 (entrevista) · 2026-10-19 (validação)
+**Status:** `READY_FOR_ARCHITECTURE` (validado pelo usuário em 2026-10-19; experiência e auditoria operacional ampliadas em 2026-11-20)
+**Origem:** `docs/analise/` (análise do painel inChurch e da Central de Ajuda, 12–13/10/2026) + entrevistas com o usuário (Product Owner, 2026-10-16 e 2026-11-20) + referência de auditoria do projeto `ThiagoAuquino/controle-de-alugueis`
+**Data:** 2026-10-16 (entrevista) · 2026-10-19 (validação) · 2026-11-20 (ampliação validada)
 
 > Convenção de origem: **(CA)** = comportamento do inChurch documentado na Central de Ajuda; **(Análise)** = proposta de `docs/analise/analise-e-plano-nova-plataforma.md`; **(Usuário)** = confirmado na entrevista. Comportamento do inChurch descreve o AS-IS e só vira requisito quando confirmado.
 > `docs/analise/especificacao-tecnica-php.md` (Laravel, Filament, banco, pacotes) **não** é fonte deste documento: essas escolhas pertencem ao ADR Arquiteto.
@@ -33,12 +33,15 @@ Hoje as secretarias das 3 igrejas operam o cadastro no inChurch.
 3. Cadastro rápido, sem duplicidade, com as mesmas regras em todos os canais.
 4. Membro mantém os próprios dados pela área do membro, com revisão da secretaria quando configurado.
 5. Migrar a base de Pessoas do inChurch unificada e conferida, preservando histórico.
+6. Tornar tarefas complexas operáveis por pessoas sem conhecimento técnico, com linguagem de tarefa, orientação progressiva, padrões consistentes e recuperação clara de erros.
 
 ## 4. Success Criteria
 
 - **(Usuário)** As 3 secretarias operam Pessoas só no Oikora e o inChurch deixa de ser usado para Pessoas — na virada conjunta com Células, Kids e Eventos (BR-014).
 - **(Usuário)** Critério de pronto desta fase, antes da virada: ensaio de migração aprovado (contagens conferidas, conflitos revisados pelas 3 secretarias) **e** homologação de uso aprovada pelas secretarias (BR-017).
 - Base migrada sem duplicados conhecidos e com contagens conferidas por uma definição única (contagem oficial: BR-012).
+- Na homologação, representantes das secretarias concluem as jornadas críticas sem intervenção de desenvolvedor; ajuda contextual e documentação destinada ao usuário podem ser consultadas.
+- Um administrador autorizado consegue responder pela interface de auditoria quem fez o quê, quando, em qual alvo e com qual resultado, além de localizar a trilha de um registro e o identificador técnico necessário ao suporte.
 
 ## 5. Actors
 
@@ -127,6 +130,7 @@ Migração do inChurch
 | FR-034 | A secretaria deve conseguir ver aniversários de batismo e de casamento do dia, da semana e do mês na tela e exportá-los. |
 | FR-035 | Uma pessoa com conta deve conseguir ver e atualizar a ficha de um familiar sem e-mail e sem celular, quando a secretaria a reconhecer como responsável por ele. |
 | FR-036 | Convites e avisos devem chegar por e-mail, por WhatsApp e como aviso dentro da plataforma. |
+| FR-037 | O administrador autorizado deve consultar a auditoria em um menu próprio, com busca, filtros por período, evento, ator, alvo, igreja e resultado, visão resumida, destaque de falhas, trilha completa do registro e detalhe progressivo com campos afetados, metadados seguros e identificadores técnicos. A interface nunca revela valores pessoais anteriores ou posteriores. |
 
 ## 10. Business Rules
 
@@ -358,7 +362,9 @@ Campos herdados do inChurch (assistente de 5 etapas, CA). Campos obrigatórios: 
 | NFR-003 | Auditoria de ações administrativas e exportações. | Análise |
 | NFR-004 | Interface em português do Brasil. | ASSUMPTION-001 |
 | NFR-005 | Área do membro disponível como site (funcionando bem no navegador do celular) e como app nas lojas; formulários públicos funcionam no celular. | Usuário |
-| NFR-006 | Acessibilidade nível WCAG AA. | Análise + Usuário |
+| NFR-006 | As jornadas e componentes reutilizáveis seguem WCAG 2.2 nível AA, incluindo teclado, foco visível, contraste, identificação textual de erros e ajuda em posição consistente. | Análise + Usuário + pesquisa de boas práticas, 2026-11-20 |
+| NFR-007 | A interface usa linguagem da tarefa, padrões consistentes, valores seguros, validação antes da confirmação e divulgação progressiva: detalhes de tokens, webhooks, IDs e payloads ficam ocultos até serem necessários. Jornadas complexas, como conectar um número do WhatsApp da Meta, devem ser guiadas, salváveis, retomáveis e recuperáveis sem exigir conhecimento de implementação. | Usuário + pesquisa de boas práticas, 2026-11-20 |
+| NFR-008 | A auditoria operacional apresenta primeiro informação compreensível ao usuário e mantém detalhes técnicos em uma camada avançada. Falhas mostram situação, severidade e próximo passo; `request_id`, correlação/trace e metadados seguros permitem ao suporte diagnosticar sem ler código. | Usuário + referência `controle-de-alugueis`, 2026-11-20 |
 
 ## 17. Acceptance Criteria
 

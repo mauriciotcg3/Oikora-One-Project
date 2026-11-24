@@ -68,7 +68,7 @@ export function FormularioEsqueci({ aoEnviar, enviando, aoVoltar }: Props): Reac
             />
           )}
         />
-        <Button type="submit" variant="contained" fullWidth loading={enviando} loadingPosition="start">
+        <Button type="submit" variant="contained" size="large" fullWidth loading={enviando} loadingPosition="start">
           {enviando ? t('esqueci.enviando') : t('esqueci.enviar')}
         </Button>
       </Box>

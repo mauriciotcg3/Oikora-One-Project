@@ -50,6 +50,14 @@
                         }
                     },
                     {
+                        "name": "igreja",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
                         "name": "alvo_tipo",
                         "in": "query",
                         "schema": {
@@ -63,6 +71,27 @@
                         "schema": {
                             "type": "string",
                             "maxLength": 80
+                        }
+                    },
+                    {
+                        "name": "busca",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z0-9_.:-]+$",
+                            "minLength": 2,
+                            "maxLength": 80
+                        }
+                    },
+                    {
+                        "name": "resultado",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "sucesso",
+                                "falha"
+                            ]
                         }
                     },
                     {
@@ -4137,6 +4166,245 @@
                 }
             }
         },
+        "/painel/rascunhos/{tipo}": {
+            "get": {
+                "operationId": "rascunhos.ler",
+                "tags": [
+                    "Rascunhos"
+                ],
+                "parameters": [
+                    {
+                        "name": "tipo",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tipo ID",
+                        "schema": {
+                            "$ref": "#/components/schemas/TipoJornada"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
+                                            "properties": {
+                                                "tipo": {
+                                                    "type": "string"
+                                                },
+                                                "etapa": {
+                                                    "type": "string"
+                                                },
+                                                "dados": {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        {},
+                                                        {}
+                                                    ],
+                                                    "minItems": 2,
+                                                    "maxItems": 2
+                                                },
+                                                "versao": {
+                                                    "type": "integer"
+                                                },
+                                                "atualizado_em": {
+                                                    "type": "string"
+                                                },
+                                                "expira_em": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "tipo",
+                                                "etapa",
+                                                "dados",
+                                                "versao",
+                                                "atualizado_em",
+                                                "expira_em"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "rascunhos.salvar",
+                "tags": [
+                    "Rascunhos"
+                ],
+                "parameters": [
+                    {
+                        "name": "tipo",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tipo ID",
+                        "schema": {
+                            "$ref": "#/components/schemas/TipoJornada"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "etapa": {
+                                        "type": "string",
+                                        "maxLength": 80
+                                    },
+                                    "dados": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "maxLength": 500
+                                        }
+                                    },
+                                    "versao": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                },
+                                "required": [
+                                    "etapa",
+                                    "dados",
+                                    "versao"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "409": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "rascunho_desatualizado"
+                                        },
+                                        "atual": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "atual"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tipo": {
+                                                    "type": "string"
+                                                },
+                                                "etapa": {
+                                                    "type": "string"
+                                                },
+                                                "dados": {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        {},
+                                                        {}
+                                                    ],
+                                                    "minItems": 2,
+                                                    "maxItems": 2
+                                                },
+                                                "versao": {
+                                                    "type": "integer"
+                                                },
+                                                "atualizado_em": {
+                                                    "type": "string"
+                                                },
+                                                "expira_em": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "tipo",
+                                                "etapa",
+                                                "dados",
+                                                "versao",
+                                                "atualizado_em",
+                                                "expira_em"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "rascunhos.descartar",
+                "tags": [
+                    "Rascunhos"
+                ],
+                "parameters": [
+                    {
+                        "name": "tipo",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tipo ID",
+                        "schema": {
+                            "$ref": "#/components/schemas/TipoJornada"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            }
+        },
         "/auth/senha/esqueci": {
             "post": {
                 "operationId": "recuperacaoSenha.esqueci",
@@ -6180,6 +6448,13 @@
                     "servico.limite_whatsapp_atingido"
                 ],
                 "title": "TipoAviso"
+            },
+            "TipoJornada": {
+                "type": "string",
+                "enum": [
+                    "conectar_whatsapp"
+                ],
+                "title": "TipoJornada"
             },
             "TipoRelacionamento": {
                 "type": "string",
