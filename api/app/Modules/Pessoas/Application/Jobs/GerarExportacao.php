@@ -4,7 +4,7 @@ namespace App\Modules\Pessoas\Application\Jobs;
 
 use App\Modules\Auditoria\Application\Auditoria;
 use App\Modules\Auditoria\Domain\EventoAuditoria;
-use App\Modules\Autorizacao\Application\AlcanceDaRequisicao;
+use App\Modules\Autorizacao\Contracts\AlcanceAtual;
 use App\Modules\Autorizacao\Contracts\Ator;
 use App\Modules\Autorizacao\Domain\Permissao;
 use App\Modules\Avisos\Contracts\Avisos;
@@ -44,7 +44,7 @@ final class GerarExportacao implements ShouldQueue
         return [new ContextoOrganizacaoJob];
     }
 
-    public function handle(AlcanceDaRequisicao $alcance, AcessosDaOrganizacao $acessos, DadosDeExportacao $dados, ArquivosDeExportacao $arquivos, Auditoria $auditoria, Avisos $avisos): void
+    public function handle(AlcanceAtual $alcance, AcessosDaOrganizacao $acessos, DadosDeExportacao $dados, ArquivosDeExportacao $arquivos, Auditoria $auditoria, Avisos $avisos): void
     {
         $exportacao = DB::table('exportacoes')->where('uuid', $this->exportacaoUuid)->lockForUpdate()->first();
         if ($exportacao === null || ! in_array($exportacao->estado, ['pendente', 'processando'], true)) {

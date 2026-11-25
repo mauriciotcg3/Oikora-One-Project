@@ -294,6 +294,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/novos-convertidos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["datasDaFe.novosConvertidos"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/aniversarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["datasDaFe.aniversarios"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}/conversao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["datasDaFe.registrarConversao"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/pessoas/{pessoa}/batismo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["datasDaFe.registrarBatismo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/descadastro": {
         parameters: {
             query?: never;
@@ -390,6 +454,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/mesclagens/{mesclagem}/desfazer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["duplicados.desfazer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/painel/elevacao": {
         parameters: {
             query?: never;
@@ -400,6 +480,38 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["presentation.elevacao"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/exportacoes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["exportacoes.criar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/exportacoes/{exportacao}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["exportacoes.mostrar"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1117,6 +1229,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/painel/avisos/whatsapp/oauth": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["whatsappNumero.autorizar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/avisos/whatsapp/oauth/retorno": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["whatsappNumero.retorno"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/painel/avisos/whatsapp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["whatsappNumero.desligar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1135,7 +1295,7 @@ export interface components {
          * EventoAuditoria
          * @enum {string}
          */
-        EventoAuditoria: "pessoa.criada" | "pessoa.atualizada" | "pessoa.excluida" | "pessoa.recuperada" | "pessoa.purgada" | "pessoa.mesclada" | "pessoa.mesclagem_desfeita" | "pessoa.transferencia_solicitada" | "pessoa.transferencia_aprovada" | "pessoa.transferencia_recusada" | "pessoa.importacao_concluida" | "pessoa.importacao_desfeita" | "pessoas.lista_valor_criado" | "pessoas.lista_valor_atualizado" | "pessoas.obrigatorios_atualizados" | "exportacao.pedida" | "exportacao.concluida" | "exportacao.negada" | "acesso.convite_emitido" | "acesso.convite_revogado" | "acesso.concedido" | "acesso.revogado" | "autorizacao.papel_criado" | "autorizacao.papel_atualizado" | "autorizacao.atribuicao_concedida" | "autorizacao.atribuicao_revogada" | "authz.escalation_blocked" | "authz.last_admin_blocked" | "suporte.autorizacao_criada" | "suporte.autorizacao_revogada" | "suporte.autorizacao_expirada" | "auth.elevacao" | "authz.permission_requested" | "authz.permission_request_cancelled" | "authz.permission_request_approved" | "authz.permission_request_rejected" | "authz.permission_grant_revoked" | "authz.permission_grant_expired" | "organizacao.configurada" | "organizacao.igreja_criada" | "organizacao.igreja_atualizada";
+        EventoAuditoria: "pessoa.criada" | "pessoa.atualizada" | "pessoa.excluida" | "pessoa.recuperada" | "pessoa.purgada" | "pessoa.mesclada" | "pessoa.mesclagem_desfeita" | "pessoa.transferencia_solicitada" | "pessoa.transferencia_aprovada" | "pessoa.transferencia_recusada" | "pessoa.importacao_concluida" | "pessoa.importacao_desfeita" | "pessoas.lista_valor_criado" | "pessoas.lista_valor_atualizado" | "pessoas.obrigatorios_atualizados" | "exportacao.pedida" | "exportacao.concluida" | "exportacao.negada" | "avisos.whatsapp_numero_ligado" | "avisos.whatsapp_numero_desligado" | "acesso.convite_emitido" | "acesso.convite_revogado" | "acesso.concedido" | "acesso.revogado" | "autorizacao.papel_criado" | "autorizacao.papel_atualizado" | "autorizacao.atribuicao_concedida" | "autorizacao.atribuicao_revogada" | "authz.escalation_blocked" | "authz.last_admin_blocked" | "suporte.autorizacao_criada" | "suporte.autorizacao_revogada" | "suporte.autorizacao_expirada" | "auth.elevacao" | "authz.permission_requested" | "authz.permission_request_cancelled" | "authz.permission_request_approved" | "authz.permission_request_rejected" | "authz.permission_grant_revoked" | "authz.permission_grant_expired" | "organizacao.configurada" | "organizacao.igreja_criada" | "organizacao.igreja_atualizada";
         /** LoginRequest */
         LoginRequest: {
             identificador: string;
@@ -1917,6 +2077,166 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "datasDaFe.novosConvertidos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            [key: string]: unknown;
+                        }[];
+                        meta: {
+                            criterio: {
+                                /** @constant */
+                                categoria: "fe";
+                                novo_convertido: boolean;
+                                lixeira: boolean;
+                                /** @constant */
+                                alcance: "igrejas_autorizadas";
+                            };
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+        };
+    };
+    "datasDaFe.aniversarios": {
+        parameters: {
+            query?: {
+                periodo?: "dia" | "semana" | "mes";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            [key: string]: unknown;
+                        }[];
+                        meta: {
+                            criterio: {
+                                /** @constant */
+                                categoria: "fe";
+                                periodo: string | "mes";
+                                inicio: string;
+                                fim: string;
+                                fuso: string;
+                                lixeira: boolean;
+                            };
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "datasDaFe.registrarConversao": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: date */
+                    data: string;
+                    canal?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            alterados: unknown;
+                        };
+                    } | string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "datasDaFe.registrarBatismo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pessoa: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: date */
+                    data: string;
+                    batizado_por?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            alterados: unknown;
+                        };
+                    } | string;
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "avisos.descadastro": {
         parameters: {
             query?: never;
@@ -2215,6 +2535,34 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "duplicados.desfazer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mesclagem: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     "presentation.elevacao": {
         parameters: {
             query?: never;
@@ -2271,6 +2619,109 @@ export interface operations {
                         codigo: "muitas_tentativas";
                         /** @constant */
                         message: "Muitas tentativas. Aguarde para tentar de novo.";
+                    };
+                };
+            };
+        };
+    };
+    "exportacoes.criar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    tipo: "pessoas" | "aniversarios" | "novos_convertidos";
+                    /** @enum {string} */
+                    formato: "xlsx" | "csv";
+                    filtro?: string[];
+                    selecionados?: string[];
+                    categorias: ("gerais" | "contatos" | "fe")[];
+                };
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            uuid: string | null;
+                            /** @constant */
+                            estado: "pendente";
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "export.denied";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "exportacoes.mostrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exportacao: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            uuid: string;
+                            tipo: string;
+                            formato: string;
+                            estado: string;
+                            contagem: string;
+                            expira_em: string;
+                            url: string | null;
+                            motivo_codigo: string;
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "exportacao.nao_encontrada";
                     };
                 };
             };
@@ -2994,17 +3445,6 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: unknown[];
-                    };
-                };
-            };
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        codigo: "authz.denied";
                     };
                 };
             };
@@ -4345,6 +4785,107 @@ export interface operations {
                 };
             };
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "whatsappNumero.autorizar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            302: {
+                headers: {
+                    Location: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+        };
+    };
+    "whatsappNumero.retorno": {
+        parameters: {
+            query: {
+                code: string;
+                state: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            waba_id: string;
+                            phone_number_id: string;
+                            nome_exibicao: string;
+                            /** @constant */
+                            estado: "ligado";
+                            templates: string[];
+                        };
+                    };
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "whatsappNumero.desligar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        codigo: "authz.denied";
+                    };
+                };
+            };
         };
     };
 }

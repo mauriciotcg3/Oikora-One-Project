@@ -125,7 +125,7 @@ final class MesclagensPostgres implements Mesclagens
         $mantida->save();
 
         unset($antesAbsorvida['id']);
-        DB::table('pessoas')->where('id', $absorvidaId)->update($antesAbsorvida);
+        Pessoa::query()->whereKey($absorvidaId)->update($antesAbsorvida);
 
         /** @var array<string, list<int>> $movidos */
         $movidos = $afetados['movidos'] ?? [];

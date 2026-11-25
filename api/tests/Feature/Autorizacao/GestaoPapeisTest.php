@@ -36,7 +36,12 @@ it('cria papel com permissões do catálogo e recusa permissão fora dele', func
 it('lista o catálogo de permissões e os papéis', function (): void {
     entrarComoAdministrador($this);
 
-    $this->getJson('/api/v1/painel/permissoes')->assertOk()->assertJsonPath('data', todasAsPermissoes());
+    $this->getJson('/api/v1/painel/permissoes')->assertOk()
+        ->assertJsonPath('data.0.chave', 'organizacao.configurar')
+        ->assertJsonPath('data.0.rotulo', 'Configurar organização')
+        ->assertJsonPath('data.0.grupo', 'Administração')
+        ->assertJsonPath('data.0.solicitavel', true)
+        ->assertJsonPath('data.3.solicitavel', false);
     $this->getJson('/api/v1/painel/papeis')->assertOk()->assertJsonPath('data.0.sistema', 'administrador');
 });
 

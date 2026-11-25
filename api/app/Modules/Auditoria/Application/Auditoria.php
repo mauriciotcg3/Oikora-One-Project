@@ -70,6 +70,34 @@ final class Auditoria
     }
 
     /**
+     * Registra, dentro da transação corrente, uma negação causada por regra de negócio sem expor os
+     * tipos internos de resultado e código de falha aos módulos consumidores.
+     *
+     * @param  array<string, bool|int|float|string|null|list<bool|int|float|string|null>>  $metadados
+     */
+    public function registrarNegacaoDeRegra(
+        EventoAuditoria $evento,
+        int $organizacaoId,
+        string $alvoTipo,
+        int|string $alvoId,
+        ?int $acessoId = null,
+        ?int $contaId = null,
+        array $metadados = [],
+    ): void {
+        $this->registrar(
+            $evento,
+            $organizacaoId,
+            $alvoTipo,
+            $alvoId,
+            $acessoId,
+            $contaId,
+            metadados: $metadados,
+            resultado: ResultadoAuditoria::Falha,
+            codigoFalha: CodigoFalhaAuditoria::RegraNegocio,
+        );
+    }
+
+    /**
      * Persiste uma falha depois de a transação de negócio já ter sido desfeita. Nunca substitui o erro
      * original: qualquer problema nesta gravação vira log técnico e `false` para alerta/telemetria.
      *

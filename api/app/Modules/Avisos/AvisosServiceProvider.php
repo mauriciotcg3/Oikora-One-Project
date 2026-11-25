@@ -2,12 +2,12 @@
 
 namespace App\Modules\Avisos;
 
-use App\Modules\Avisos\Application\CanaisDeAviso;
 use App\Modules\Avisos\Application\CadastroNumeroWhatsApp;
-use App\Modules\Avisos\Application\ConfiguracoesNumeroWhatsApp;
+use App\Modules\Avisos\Application\CanaisDeAviso;
 use App\Modules\Avisos\Application\CanalDeEmail;
 use App\Modules\Avisos\Application\CanalDeSms;
 use App\Modules\Avisos\Application\CanalDeWhatsApp;
+use App\Modules\Avisos\Application\ConfiguracoesNumeroWhatsApp;
 use App\Modules\Avisos\Application\DestinosDeAviso;
 use App\Modules\Avisos\Application\EnvioCodigoPelaFila;
 use App\Modules\Avisos\Application\EnviosExternos;
@@ -19,8 +19,8 @@ use App\Modules\Avisos\Application\WebhooksExternos;
 use App\Modules\Avisos\Contracts\Avisos;
 use App\Modules\Avisos\Contracts\AvisosDaPessoa;
 use App\Modules\Avisos\Contracts\EnvioCodigo;
-use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\MetaWhatsAppCodigos;
 use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\CadastroNumeroMeta;
+use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\MetaWhatsAppCodigos;
 use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\MetaWhatsAppFalso;
 use App\Modules\Avisos\Infrastructure\Canais\Postmark\PostmarkCodigos;
 use App\Modules\Avisos\Infrastructure\Canais\Postmark\PostmarkFalso;

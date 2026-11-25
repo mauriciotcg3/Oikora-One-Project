@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('pessoas', ListaPessoasController::class);
 Route::get('novos-convertidos', [DatasDaFeController::class, 'novosConvertidos']);
 Route::get('aniversarios', [DatasDaFeController::class, 'aniversarios']);
+Route::post('pessoas/{pessoa}/conversao', [DatasDaFeController::class, 'registrarConversao'])->whereUuid('pessoa');
+Route::post('pessoas/{pessoa}/batismo', [DatasDaFeController::class, 'registrarBatismo'])->whereUuid('pessoa');
 Route::post('exportacoes', [ExportacoesController::class, 'criar']);
 Route::get('exportacoes/{exportacao}', [ExportacoesController::class, 'mostrar'])->whereUuid('exportacao');
 Route::get('pessoas/duplicidade', [CadastroRapidoController::class, 'duplicidade']);

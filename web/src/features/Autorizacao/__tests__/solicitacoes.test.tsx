@@ -9,6 +9,11 @@ import { autorizacaoPtBR, TelaSolicitacoes } from '../index'
 const API = '*/api/v1'
 const recursos = { autorizacao: autorizacaoPtBR }
 const permissao = { chave: 'pessoas.sensiveis.fe.ver', categoria_sensivel: 'fe', escopo_tipo: 'organizacao', escopo_id: null }
+const catalogo = [
+  { chave: permissao.chave, rotulo: 'Ver dados de fé', grupo: 'Dados sensíveis', sensivel: true, categoria_sensivel: 'fe', solicitavel: true },
+  { chave: 'pessoas.exportar', rotulo: 'Exportar pessoas', grupo: 'Pessoas', sensivel: false, categoria_sensivel: null, solicitavel: false },
+]
+const igreja = { uuid: '33333333-3333-4333-8333-333333333333', nome: 'Igreja Central', regional: { uuid: '44444444-4444-4444-8444-444444444444', nome: 'Regional Norte' } }
 const base = {
   uuid: '11111111-1111-4111-8111-111111111111', estado: 'pendente', versao: 1,
   solicitante: { acesso: '22222222-2222-4222-8222-222222222222' }, duracao_horas: 4,
@@ -20,7 +25,8 @@ describe('solicitações temporárias', () => {
   it('cria pedido com categoria sensível explícita e duração limitada a 72 horas', async () => {
     let corpo: unknown
     servidor.use(
-      http.get(`${API}/painel/permissoes`, () => HttpResponse.json({ data: [permissao.chave] })),
+      http.get(`${API}/painel/permissoes`, () => HttpResponse.json({ data: catalogo })),
+      http.get(`${API}/painel/igrejas`, () => HttpResponse.json({ data: [igreja] })),
       http.get(`${API}/painel/solicitacoes-permissao`, () => HttpResponse.json({ data: [] })),
       http.post(`${API}/painel/solicitacoes-permissao`, async ({ request }) => {
         corpo = await request.json()
@@ -30,10 +36,13 @@ describe('solicitações temporárias', () => {
     const usuario = userEvent.setup()
     renderizarComProvedores(<TelaSolicitacoes />, recursos)
 
-    await usuario.selectOptions(await screen.findByLabelText('Permissão'), permissao.chave)
-    await usuario.clear(screen.getByLabelText('Duração em horas'))
-    await usuario.type(screen.getByLabelText('Duração em horas'), '4')
-    await usuario.type(screen.getByLabelText('Justificativa'), base.justificativa)
+    await usuario.click(await screen.findByRole('combobox', { name: 'Permissão' }))
+    expect(screen.queryByRole('option', { name: /Exportar pessoas/i })).not.toBeInTheDocument()
+    await usuario.click(await screen.findByRole('option', { name: /Ver dados de fé/i }))
+    const duracao = screen.getByRole('spinbutton')
+    await usuario.clear(duracao)
+    await usuario.type(duracao, '4')
+    await usuario.type(screen.getByRole('textbox'), base.justificativa)
     await usuario.click(screen.getByRole('button', { name: 'Solicitar acesso temporário' }))
 
     expect(await screen.findByText('Solicitação enviada.')).toBeInTheDocument()
@@ -44,8 +53,9 @@ describe('solicitações temporárias', () => {
     let listagens = 0
     let aprovacoes = 0
     servidor.use(
-      http.get(`${API}/painel/permissoes`, () => HttpResponse.json({ data: [permissao.chave] })),
-      http.get(`${API}/painel/solicitacoes-permissao`, ({ request }) => {
+      http.get(`${API}/painel/permissoes`, () => HttpResponse.json({ data: catalogo })),
+      http.get(`${API}/painel/igrejas`, () => HttpResponse.json({ data: [igreja] })),
+      http.get(`${API}/painel/solicitacoes-permissao`, () => {
         listagens++
         return HttpResponse.json({ data: [{ ...base, versao: listagens > 2 ? 2 : 1 }] })
       }),
@@ -57,11 +67,27 @@ describe('solicitações temporárias', () => {
     const usuario = userEvent.setup()
     renderizarComProvedores(<TelaSolicitacoes podeAprovar />, recursos)
 
-    const pendentes = await screen.findByRole('region', { name: 'Aguardando decisão' })
+    await screen.findByText(`Solicitante: ${base.solicitante.acesso}`)
+    const pendentes = screen.getByRole('region', { name: 'Aguardando decisão' })
+    expect(within(pendentes).getByText(`Solicitante: ${base.solicitante.acesso}`)).toBeInTheDocument()
+    expect(within(pendentes).getByText('Sensível: fe')).toBeInTheDocument()
     await usuario.click(within(pendentes).getByRole('button', { name: 'Aprovar' }))
 
     expect(await screen.findByText(/alterada por outra pessoa/i)).toBeInTheDocument()
     await waitFor(() => expect(listagens).toBeGreaterThanOrEqual(3))
     expect(aprovacoes).toBe(1)
+  })
+
+  it('exibe falha de autorização da fila administrativa', async () => {
+    servidor.use(
+      http.get(`${API}/painel/permissoes`, () => HttpResponse.json({ data: catalogo })),
+      http.get(`${API}/painel/igrejas`, () => HttpResponse.json({ data: [igreja] })),
+      http.get(`${API}/painel/solicitacoes-permissao`, ({ request }) => new URL(request.url).searchParams.get('visao') === 'aprovaveis'
+        ? HttpResponse.json({ codigo: 'authz.denied' }, { status: 403 })
+        : HttpResponse.json({ data: [] })),
+    )
+    renderizarComProvedores(<TelaSolicitacoes podeAprovar />, recursos)
+
+    expect(await screen.findByText(/não tem acesso a esta fila/i)).toBeInTheDocument()
   })
 })

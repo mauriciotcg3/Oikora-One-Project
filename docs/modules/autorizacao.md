@@ -68,3 +68,4 @@ Define o catálogo fechado de permissões e calcula, a cada chamada, em quais ig
 | 2026-11-10 | Gestão de papéis e atribuições com travas e auditoria; grupo de middleware `painel` (`ResolverAtor`) e Contract `AlcanceAtual` por requisição. | OIK-SPEC-0001 T-15 |
 | 2026-11-17 | Elevação (`elevacao.painel`) e exigência de papel no grupo `painel`; Contract `PapeisDaConta` (RN-16 e capacidades do `/me`). | OIK-SPEC-0001 T-16 |
 | 2026-11-17 | Solicitações e concessões temporárias de permissão, integradas ao alcance. | OIK-SPEC-0001 T-47 |
+| 2026-11-25 | Catálogo público ao painel com rótulo, grupo, sensibilidade e elegibilidade; telas de solicitação, decisão e revogação com escopo e tratamento explícito de 403/409/422. | OIK-SPEC-0001 T-48 |

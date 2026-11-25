@@ -30,6 +30,21 @@ export interface PedidoSolicitacao {
   justificativa: string
 }
 
+export interface PermissaoCatalogo {
+  chave: string
+  rotulo: string
+  grupo: string
+  sensivel: boolean
+  categoria_sensivel: string | null
+  solicitavel: boolean
+}
+
+export interface EscopoDisponivel {
+  uuid: string
+  nome: string
+  regional: { uuid: string; nome: string } | null
+}
+
 export interface RecusaSolicitacao {
   status: number
   codigo: string
@@ -40,8 +55,13 @@ export async function listarSolicitacoes(visao: 'proprias' | 'aprovaveis'): Prom
   return (await requisitar<{ data: SolicitacaoPermissao[] }>('GET', `/painel/solicitacoes-permissao?visao=${visao}`)).data
 }
 
-export async function catalogoSolicitavel(): Promise<string[]> {
-  return (await requisitar<{ data: string[] }>('GET', '/painel/permissoes')).data
+export async function catalogoSolicitavel(): Promise<PermissaoCatalogo[]> {
+  const itens = (await requisitar<{ data: PermissaoCatalogo[] }>('GET', '/painel/permissoes')).data
+  return itens.filter((item) => item.solicitavel)
+}
+
+export async function listarEscoposDisponiveis(): Promise<EscopoDisponivel[]> {
+  return (await requisitar<{ data: EscopoDisponivel[] }>('GET', '/painel/igrejas')).data
 }
 
 function recusa(erro: unknown): RecusaSolicitacao {

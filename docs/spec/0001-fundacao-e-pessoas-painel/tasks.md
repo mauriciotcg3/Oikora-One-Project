@@ -853,7 +853,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-23, CA-24; a exportação vem da T-31).
 - **Regra de negócio associada:** RN-18 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Concluída em W8 (2026-11-25): registros explícitos de conversão e batismo, novos convertidos e aniversários de nascimento, batismo e casamento por dia/semana/mês, com alcance, categoria fé, lixeira, `meta.criterio`, fuso e virada do ano; testes focados e gates finais Green.
 
 ---
 
@@ -1133,7 +1133,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-31), tipos estritos e lint de fronteiras aprovados.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W8 (2026-11-25): catálogo elegível agrupado e sensível, formulário com escopo e limite de 72h, listas própria e administrativa, decisão/revogação confirmada, estados de carregamento/erro/vazio, tratamento de 403/409/422 e invalidação das capacidades da sessão; testes focados e gate frontend Green.
 
 ## Complemento — Oikora UI Standard e Auditoria no painel (OIK-ADR-0014)
 

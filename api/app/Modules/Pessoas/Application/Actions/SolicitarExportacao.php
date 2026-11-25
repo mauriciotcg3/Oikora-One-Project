@@ -3,9 +3,7 @@
 namespace App\Modules\Pessoas\Application\Actions;
 
 use App\Modules\Auditoria\Application\Auditoria;
-use App\Modules\Auditoria\Domain\CodigoFalhaAuditoria;
 use App\Modules\Auditoria\Domain\EventoAuditoria;
-use App\Modules\Auditoria\Domain\ResultadoAuditoria;
 use App\Modules\Autorizacao\Contracts\AlcanceAtual;
 use App\Modules\Autorizacao\Domain\Permissao;
 use App\Modules\Pessoas\Application\Jobs\GerarExportacao;
@@ -26,7 +24,7 @@ final readonly class SolicitarExportacao
         $ator = $this->alcance->ator();
         $metadados = ['filtro' => array_keys($filtro), 'categorias' => $categorias, 'motivo_codigo' => 'authz.denied'];
         if ($this->alcance->igrejasCom(Permissao::PessoasExportar) === []) {
-            $this->auditoria->registrar(
+            $this->auditoria->registrarNegacaoDeRegra(
                 EventoAuditoria::ExportacaoNegada,
                 $ator->organizacaoId,
                 'exportacao',
@@ -34,8 +32,6 @@ final readonly class SolicitarExportacao
                 $ator->acessoId,
                 $ator->contaId,
                 metadados: $metadados,
-                resultado: ResultadoAuditoria::Falha,
-                codigoFalha: CodigoFalhaAuditoria::RegraNegocio,
             );
 
             return null;

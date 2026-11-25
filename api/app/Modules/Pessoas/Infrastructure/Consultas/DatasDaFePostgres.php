@@ -45,7 +45,7 @@ final class DatasDaFePostgres implements DatasDaFe
 
         $consulta = Pessoa::query()->whereIn('igreja_id', $igrejas)->whereNull('excluida_em')
             ->where(function (Builder $q) use ($dias): void {
-                foreach (['nascimento', 'conversao_data', 'batismo_data'] as $campo) {
+                foreach (['nascimento', 'batismo_data', 'data_casamento'] as $campo) {
                     $q->orWhere(function (Builder $datas) use ($campo, $dias): void {
                         foreach ($dias as $dia) {
                             [$mes, $numero] = array_map('intval', explode('-', $dia));
@@ -53,12 +53,16 @@ final class DatasDaFePostgres implements DatasDaFe
                         }
                     });
                 }
-            })->get(['uuid', 'nome', 'nascimento', 'conversao_data', 'batismo_data']);
+            })->get(['uuid', 'nome', 'nascimento', 'batismo_data', 'data_casamento']);
 
         $itens = [];
         foreach ($consulta as $pessoa) {
-            foreach (['nascimento', 'conversao', 'batismo'] as $tipo) {
-                $campo = $tipo === 'conversao' ? 'conversao_data' : ($tipo === 'batismo' ? 'batismo_data' : 'nascimento');
+            foreach (['nascimento', 'batismo', 'casamento'] as $tipo) {
+                $campo = match ($tipo) {
+                    'batismo' => 'batismo_data',
+                    'casamento' => 'data_casamento',
+                    default => 'nascimento',
+                };
                 $data = $pessoa->getAttribute($campo);
                 if ($data !== null && in_array($data->format('m-d'), $dias, true)) {
                     $itens[] = ['uuid' => $pessoa->uuid, 'nome' => $pessoa->nome, 'tipo' => $tipo, 'data' => $data->format('Y-m-d')];

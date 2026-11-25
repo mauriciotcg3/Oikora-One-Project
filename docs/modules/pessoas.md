@@ -1,6 +1,6 @@
 # Módulo: Pessoas
 
-**Última atualização:** 2026-11-20
+**Última atualização:** 2026-11-25
 **Arquivos principais:** `api/app/Modules/Pessoas/**`, `api/app/Shared/Cifra/**`, `api/config/oikora.php`
 
 ## Visão geral
@@ -39,11 +39,13 @@ O módulo Pessoas é dono do cadastro-base de pessoas, contatos e endereços de 
 | RN-19 | Lixeira: `DELETE /painel/pessoas/{id}` (motivo, `pessoas.excluir`) esconde a ficha de lista, busca e duplicados; `GET /painel/lixeira` e `POST /painel/lixeira/{id}/recuperar` em até 30 dias (`prazo_de_recuperacao_vencido` depois). A absorvida por mesclagem não está na lixeira. O job diário `pessoas:purgar-lixeira` (04h, um job por organização com contexto) passa as vencidas pelo removedor, sem as absorvidas de mesclagem ainda `executada` (U-33). | `ExcluirPessoaAction`, `RecuperarPessoaAction`, `PurgarLixeira` | OIK-SPEC-0001 T-35 |
 | RN-19 (removedor) | `lgpd.modo_exclusao` (`OIKORA_LGPD_MODO_EXCLUSAO`): `anonimizar` apaga contatos, endereços, documentos, saúde, foto e textos livres e troca o nome por "Pessoa removida", mantendo vínculo, situação e datas; `apagar` remove a ficha e o que só existe por ela. Nos dois: snapshots expirados, acesso revogado, avisos sem destino (ou apagados) e linha em `exclusoes_executadas`. Pessoa que teve acesso é anonimizada mesmo no `apagar`. Em produção sem modo: `lgpd.erasure.blocked_no_policy` e nada removido; fora de produção, anonimiza com aviso no log. | `RemovedorPessoas` | OIK-SPEC-0001 T-35; OIK-ADR-0005 §8 |
 | RN-20 | A exportação é solicitada por filtro ou seleção e gerada na fila `pesadas`. O job recalcula acesso, `pessoas.exportar` e permissões de categorias sensíveis; revogação nega a operação. CSV/XLSX fica privado, gera `servico.exportacao_pronta` e é apagado após 24h. | `SolicitarExportacao`; `GerarExportacao`; `ExpirarExportacao`; `DadosDeExportacaoPostgres` | OIK-SPEC-0001 T-31 |
+| RN-18 | Registrar conversão grava data/canal e marca a pessoa como novo convertido; registrar batismo preserva a conversão e remove essa marca. Novos convertidos e aniversários de nascimento, batismo e casamento respeitam alcance, excluem a lixeira e usam o fuso da organização; as consultas exigem acesso à categoria fé. | `RegistrarConversao`; `RegistrarBatismo`; `DatasDaFePostgres` | OIK-SPEC-0001 T-36 |
 
 ## Interfaces / contratos expostos
 - **Painel (`/api/v1/painel`, grupo `painel`):** `GET /pessoas/duplicidade?nome=&nascimento=&cpf=&email=`, `POST /pessoas` (`nome`, `celular`, `email`, `vinculo`, `igreja`, `como_chegou`, `nascimento`, `cpf`, `nao_duplicadas[]`; 201 com `data.uuid`; `cpf_em_uso` 422), `GET /pessoas/{id}` (com `completude` e `foto_url`), `PATCH /pessoas/{id}` (`secao` e os campos dela; devolve a ficha), `POST /pessoas/{id}/foto` (`tipo_conteudo`, `tamanho`; 201 com `url`, `cabecalhos`, `caminho`, `expira_em`), `POST /pessoas/{id}/vinculo` (`vinculo`, `motivo`, `matricula`), `POST /pessoas/{id}/situacao` (`situacao`, `motivo`), `GET /busca?q=`, `GET|POST /listas/{lista}`, `PUT /listas/{lista}/{id}`, `GET|PUT /configuracao/obrigatorios` (`{vinculo, campos[]}`, substitui o conjunto do vínculo). Erros: `authz.denied` (403), `item_inexistente` (404), `nome_em_uso` (422).
 - **Painel — registros da ficha (T-29):** `GET|POST /pessoas/{id}/linha-do-tempo` (`ocorrido_em`, `descricao`), `GET|POST /pessoas/{id}/relacionamentos` (`relacionada`, `tipo`, `descricao`), `DELETE /pessoas/{id}/relacionamentos/{id}`, `GET|POST /pessoas/{id}/funcoes` (`funcao`, `desde`, `ate`), `PATCH /pessoas/{id}/funcoes/{id}` (`ate`), `PUT /pessoas/{id}/tipo-membro` (`tipo_membro`: uuid ou null).
 - **Painel — transferências (T-34):** `GET /transferencias` (pedidos de origem ou destino no alcance, com `acoes.decidir`), `POST /transferencias` (`pessoa`, `igreja_destino`; 201), `POST /transferencias/{id}/aprovar`, `POST /transferencias/{id}/recusar` (`justificativa`); 422 `transferencia_pendente`, `mesma_igreja`, `transferencia_ja_decidida`.
+- **Painel — datas da fé (T-36):** `POST /pessoas/{id}/conversao` (`data`, `canal`), `POST /pessoas/{id}/batismo` (`data`, `batizado_por`), `GET /novos-convertidos` e `GET /aniversarios?periodo=dia|semana|mes`; as listagens devolvem `meta.criterio`.
 - **Comando:** `oikora:chaves:recifrar`, que regrava os campos sensíveis com a chave atual.
 - **Contract `ContatosDaPessoa`** (para Avisos e Identidade): endereço de entrega da ficha, uuid da Pessoa, descadastro por canal e por "SAIR"; `paraConvite` e `nome` para o convite ao painel (T-22).
 - **`BuscaDenominacao::resumos(ids)`:** a projeção restrita (uuid, nome, igreja, vínculo) por id, para relacionada, autor e pessoa de transferência — continua a única classe que sai do filtro de alcance.
@@ -75,6 +77,7 @@ O módulo Pessoas é dono do cadastro-base de pessoas, contatos e endereços de 
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
 | 2026-11-25 | Exportações de pessoas, aniversários e novos convertidos em CSV/XLSX na fila `pesadas`; alcance e categorias sensíveis são recalculados no job, o arquivo privado expira em 24h e a conclusão gera aviso. | OIK-SPEC-0001 T-31 |
+| 2026-11-25 | Registro de conversão e batismo; listas de novos convertidos e aniversários de nascimento, batismo e casamento no fuso da organização. | OIK-SPEC-0001 T-36 |
 | 2026-11-23 | Lista com filtros e critério; duplicados e mesclagem com operação desfazível; lixeira, removedor LGPD e purga diária; Contract `PessoasDoProvisionamento`. | OIK-SPEC-0001 T-30, T-32, T-35, T-23 |
 | 2026-11-25 | Desfazer mesclagem com compensação, conflitos de alterações posteriores e expiração definitiva em 90 dias. | OIK-SPEC-0001 T-33 |
 | 2026-11-20 | Transferência entre igrejas: pedido, aprovação e recusa, um pendente por pessoa, avisos de serviço. | OIK-SPEC-0001 T-34 |

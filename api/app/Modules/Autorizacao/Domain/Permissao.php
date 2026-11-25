@@ -43,6 +43,46 @@ enum Permissao: string
         ], true);
     }
 
+    /** Rótulo estável para clientes que exibem o catálogo de permissões. */
+    public function rotulo(): string
+    {
+        return match ($this) {
+            self::OrganizacaoConfigurar => 'Configurar organização',
+            self::IgrejasGerir => 'Gerir igrejas',
+            self::AcessosGerir => 'Gerir acessos',
+            self::PapeisGerir => 'Gerir papéis',
+            self::AuditoriaVer => 'Ver auditoria',
+            self::AvisosWhatsappGerir => 'Gerir avisos por WhatsApp',
+            self::PessoasConfigurar => 'Configurar pessoas',
+            self::SolicitacoesPermissaoAprovar => 'Aprovar solicitações temporárias',
+            self::PessoasVer => 'Ver pessoas',
+            self::PessoasCriar => 'Cadastrar pessoas',
+            self::PessoasEditar => 'Editar pessoas',
+            self::PessoasExcluir => 'Excluir pessoas',
+            self::PessoasExportar => 'Exportar pessoas',
+            self::PessoasMesclar => 'Mesclar pessoas',
+            self::TransferenciasSolicitar => 'Solicitar transferências',
+            self::TransferenciasAprovar => 'Aprovar transferências',
+            self::SaudeVer => 'Ver dados de saúde',
+            self::SaudeEditar => 'Editar dados de saúde',
+            self::DocumentosVer => 'Ver documentos',
+            self::DocumentosEditar => 'Editar documentos',
+            self::ContatosVer => 'Ver contatos',
+            self::ContatosEditar => 'Editar contatos',
+            self::FeVer => 'Ver dados de fé',
+            self::FeEditar => 'Editar dados de fé',
+        };
+    }
+
+    public function grupo(): string
+    {
+        return match (true) {
+            str_starts_with($this->value, 'pessoas.sensiveis.') => 'Dados sensíveis',
+            str_starts_with($this->value, 'pessoas.') => 'Pessoas',
+            default => 'Administração',
+        };
+    }
+
     /** Categoria sensível (`saude`, `documentos`, `contatos`, `fe`), ou null (OIK-ADR-0012 §5). */
     public function categoriaSensivel(): ?string
     {
