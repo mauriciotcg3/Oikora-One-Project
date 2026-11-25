@@ -35,7 +35,8 @@ final readonly class ListarDatasDaFe
     public function aniversarios(string $periodo): array
     {
         $perfil = $this->organizacoes->perfilDeEnvio($this->alcance->ator()->organizacaoId);
-        $inicio = CarbonImmutable::now($perfil->fuso)->startOfDay()->toDateTimeImmutable();
+        $hoje = CarbonImmutable::now($perfil->fuso)->startOfDay();
+        $inicio = ($periodo === 'mes' ? $hoje->startOfMonth() : $hoje)->toDateTimeImmutable();
         $fim = match ($periodo) {
             'dia' => $inicio,
             'semana' => $inicio->modify('+6 days'),

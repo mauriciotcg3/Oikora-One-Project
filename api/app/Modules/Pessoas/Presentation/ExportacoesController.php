@@ -6,6 +6,8 @@ use App\Modules\Autorizacao\Contracts\AlcanceAtual;
 use App\Modules\Autorizacao\Domain\Permissao;
 use App\Modules\Pessoas\Application\Actions\SolicitarExportacao;
 use App\Modules\Pessoas\Application\Exportacoes\ArquivosDeExportacao;
+use App\Modules\Pessoas\Domain\Situacao;
+use App\Modules\Pessoas\Domain\Vinculo;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +21,16 @@ final readonly class ExportacoesController
         $dados = $request->validate([
             'tipo' => ['required', Rule::in(['pessoas', 'aniversarios', 'novos_convertidos'])],
             'formato' => ['required', Rule::in(['xlsx', 'csv'])],
-            'filtro' => ['sometimes', 'array'], 'selecionados' => ['sometimes', 'array', 'max:1000'], 'selecionados.*' => ['uuid'],
+            'filtro' => ['sometimes', 'array:igreja,vinculo,situacao,tipo_membro,funcao,ficha_incompleta,aniversariantes_mes,mes'],
+            'filtro.igreja' => ['sometimes', 'uuid'],
+            'filtro.vinculo' => ['sometimes', Rule::enum(Vinculo::class)],
+            'filtro.situacao' => ['sometimes', Rule::enum(Situacao::class)],
+            'filtro.tipo_membro' => ['sometimes', 'uuid'],
+            'filtro.funcao' => ['sometimes', 'uuid'],
+            'filtro.ficha_incompleta' => ['sometimes', 'boolean'],
+            'filtro.aniversariantes_mes' => ['sometimes', 'integer', 'min:1', 'max:12'],
+            'filtro.mes' => ['sometimes', 'integer', 'min:1', 'max:12'],
+            'selecionados' => ['sometimes', 'array', 'max:1000'], 'selecionados.*' => ['uuid'],
             'categorias' => ['required', 'array', 'min:1'], 'categorias.*' => [Rule::in(['gerais', 'contatos', 'fe'])],
         ]);
         $uuid = $solicitar->executar($dados['tipo'], $dados['filtro'] ?? [], $dados['selecionados'] ?? [], array_values(array_unique($dados['categorias'])), $dados['formato']);

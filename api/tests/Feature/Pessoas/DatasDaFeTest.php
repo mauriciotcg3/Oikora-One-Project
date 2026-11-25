@@ -43,6 +43,7 @@ it('lista aniversários de nascimento batismo e casamento por dia semana e mês 
     criarPessoa($this->org, $this->igreja, [
         'nome' => 'Hoje', 'nascimento' => '1990-11-25', 'batismo_data' => '2020-11-26', 'data_casamento' => '2021-11-30',
     ]);
+    criarPessoa($this->org, $this->igreja, ['nome' => 'Antes no mês', 'nascimento' => '1990-11-02']);
     criarPessoa($this->org, $this->igreja, ['nome' => 'Lixeira', 'nascimento' => '1990-11-25', 'excluida_em' => now()]);
 
     $dia = $this->getJson('/api/v1/painel/aniversarios?periodo=dia')->assertOk();
@@ -53,7 +54,9 @@ it('lista aniversários de nascimento batismo e casamento por dia semana e mês 
 
     $mes = $this->getJson('/api/v1/painel/aniversarios?periodo=mes')->assertOk();
     expect(array_column($mes->json('data'), 'tipo'))->toContain('nascimento', 'batismo', 'casamento')
+        ->and(array_column($mes->json('data'), 'nome'))->toContain('Antes no mês')
         ->and(array_column($mes->json('data'), 'nome'))->not->toContain('Lixeira')
+        ->and($mes->json('meta.criterio.inicio'))->toBe('2026-11-01')
         ->and($mes->json('meta.criterio.fuso'))->toBe('America/Sao_Paulo');
 });
 
