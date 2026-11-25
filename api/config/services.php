@@ -26,6 +26,9 @@ return [
 
     // Número da plataforma, só para códigos de identidade (OIK-ADR-0008 §10).
     'meta_whatsapp' => [
+        'app_id' => env('META_WHATSAPP_APP_ID'),
+        'app_secret' => env('META_WHATSAPP_APP_SECRET'),
+        'oauth_redirect' => env('META_WHATSAPP_OAUTH_REDIRECT'),
         'token' => env('META_WHATSAPP_TOKEN'),
         'numero_id' => env('META_WHATSAPP_NUMERO_ID'),
         'versao' => env('META_GRAPH_VERSAO', 'v23.0'),

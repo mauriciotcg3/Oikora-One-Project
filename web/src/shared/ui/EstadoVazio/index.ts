@@ -1,0 +1,1 @@
+export { EstadoVazio } from './EstadoVazio'

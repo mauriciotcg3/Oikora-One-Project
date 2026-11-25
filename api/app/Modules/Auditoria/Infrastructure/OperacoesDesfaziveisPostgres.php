@@ -88,6 +88,22 @@ final readonly class OperacoesDesfaziveisPostgres implements OperacoesDesfazivei
             ->all());
     }
 
+    public function vencidas(string $tipo): array
+    {
+        $uuids = DB::table('operacoes_desfaziveis')
+            ->where('tipo', $tipo)
+            ->where('estado', 'executada')
+            ->where('expira_em', '<=', now())
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->pluck('uuid');
+
+        return array_values($uuids->map(fn (mixed $uuid): ?array => $this->porUuid((string) $uuid, true))
+            ->filter(static fn (?array $operacao): bool => $operacao !== null)
+            ->values()
+            ->all());
+    }
+
     public function expirarDaPessoa(int $pessoaId): int
     {
         return DB::table('operacoes_desfaziveis')

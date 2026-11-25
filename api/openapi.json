@@ -50,6 +50,14 @@
                         }
                     },
                     {
+                        "name": "igreja",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
                         "name": "alvo_tipo",
                         "in": "query",
                         "schema": {
@@ -63,6 +71,27 @@
                         "schema": {
                             "type": "string",
                             "maxLength": 80
+                        }
+                    },
+                    {
+                        "name": "busca",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z0-9_.:-]+$",
+                            "minLength": 2,
+                            "maxLength": 80
+                        }
+                    },
+                    {
+                        "name": "resultado",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "sucesso",
+                                "falha"
+                            ]
                         }
                     },
                     {
@@ -1342,6 +1371,370 @@
                 }
             }
         },
+        "/painel/novos-convertidos": {
+            "get": {
+                "operationId": "datasDaFe.novosConvertidos",
+                "tags": [
+                    "DatasDaFe"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "additionalProperties": {}
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "criterio": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "categoria": {
+                                                            "type": "string",
+                                                            "const": "fe"
+                                                        },
+                                                        "novo_convertido": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "lixeira": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "alcance": {
+                                                            "type": "string",
+                                                            "const": "igrejas_autorizadas"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "categoria",
+                                                        "novo_convertido",
+                                                        "lixeira",
+                                                        "alcance"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "criterio"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/aniversarios": {
+            "get": {
+                "operationId": "datasDaFe.aniversarios",
+                "tags": [
+                    "DatasDaFe"
+                ],
+                "parameters": [
+                    {
+                        "name": "periodo",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "dia",
+                                "semana",
+                                "mes"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "additionalProperties": {}
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "criterio": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "categoria": {
+                                                            "type": "string",
+                                                            "const": "fe"
+                                                        },
+                                                        "periodo": {
+                                                            "anyOf": [
+                                                                {
+                                                                    "type": "string"
+                                                                },
+                                                                {
+                                                                    "type": "string",
+                                                                    "enum": [
+                                                                        "mes"
+                                                                    ]
+                                                                }
+                                                            ]
+                                                        },
+                                                        "inicio": {
+                                                            "type": "string"
+                                                        },
+                                                        "fim": {
+                                                            "type": "string"
+                                                        },
+                                                        "fuso": {
+                                                            "type": "string"
+                                                        },
+                                                        "lixeira": {
+                                                            "type": "boolean"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "categoria",
+                                                        "periodo",
+                                                        "inicio",
+                                                        "fim",
+                                                        "fuso",
+                                                        "lixeira"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "criterio"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data",
+                                        "meta"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/conversao": {
+            "post": {
+                "operationId": "datasDaFe.registrarConversao",
+                "tags": [
+                    "DatasDaFe"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "canal": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 120
+                                    }
+                                },
+                                "required": [
+                                    "data"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "alterados": {}
+                                                    },
+                                                    "required": [
+                                                        "alterados"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/pessoas/{pessoa}/batismo": {
+            "post": {
+                "operationId": "datasDaFe.registrarBatismo",
+                "tags": [
+                    "DatasDaFe"
+                ],
+                "parameters": [
+                    {
+                        "name": "pessoa",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "data": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "batizado_por": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "maxLength": 160
+                                    }
+                                },
+                                "required": [
+                                    "data"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "anyOf": [
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "data": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "alterados": {}
+                                                    },
+                                                    "required": [
+                                                        "alterados"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "data"
+                                            ]
+                                        },
+                                        {
+                                            "type": "string"
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
         "/descadastro": {
             "post": {
                 "operationId": "avisos.descadastro",
@@ -1952,6 +2345,39 @@
                 }
             }
         },
+        "/painel/mesclagens/{mesclagem}/desfazer": {
+            "post": {
+                "operationId": "duplicados.desfazer",
+                "tags": [
+                    "Duplicados"
+                ],
+                "parameters": [
+                    {
+                        "name": "mesclagem",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "204": {
+                        "description": "No content"
+                    }
+                }
+            }
+        },
         "/painel/elevacao": {
             "post": {
                 "operationId": "presentation.elevacao",
@@ -2088,6 +2514,245 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/painel/exportacoes": {
+            "post": {
+                "operationId": "exportacoes.criar",
+                "tags": [
+                    "Exportacoes"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tipo": {
+                                        "type": "string",
+                                        "enum": [
+                                            "pessoas",
+                                            "aniversarios",
+                                            "novos_convertidos"
+                                        ]
+                                    },
+                                    "formato": {
+                                        "type": "string",
+                                        "enum": [
+                                            "xlsx",
+                                            "csv"
+                                        ]
+                                    },
+                                    "filtro": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "selecionados": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "uuid"
+                                        },
+                                        "maxItems": 1000
+                                    },
+                                    "categorias": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "enum": [
+                                                "gerais",
+                                                "contatos",
+                                                "fe"
+                                            ]
+                                        },
+                                        "minItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "tipo",
+                                    "formato",
+                                    "categorias"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "export.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "202": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "estado": {
+                                                    "type": "string",
+                                                    "const": "pendente"
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "estado"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            }
+        },
+        "/painel/exportacoes/{exportacao}": {
+            "get": {
+                "operationId": "exportacoes.mostrar",
+                "tags": [
+                    "Exportacoes"
+                ],
+                "parameters": [
+                    {
+                        "name": "exportacao",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "tipo": {
+                                                    "type": "string"
+                                                },
+                                                "formato": {
+                                                    "type": "string"
+                                                },
+                                                "estado": {
+                                                    "type": "string"
+                                                },
+                                                "contagem": {
+                                                    "type": "string"
+                                                },
+                                                "expira_em": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "motivo_codigo": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "tipo",
+                                                "formato",
+                                                "estado",
+                                                "contagem",
+                                                "expira_em",
+                                                "url",
+                                                "motivo_codigo"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "exportacao.nao_encontrada"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3686,25 +4351,6 @@
                                 }
                             }
                         }
-                    },
-                    "403": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "codigo": {
-                                            "type": "string",
-                                            "const": "authz.denied"
-                                        }
-                                    },
-                                    "required": [
-                                        "codigo"
-                                    ]
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -4133,6 +4779,245 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/painel/rascunhos/{tipo}": {
+            "get": {
+                "operationId": "rascunhos.ler",
+                "tags": [
+                    "Rascunhos"
+                ],
+                "parameters": [
+                    {
+                        "name": "tipo",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tipo ID",
+                        "schema": {
+                            "$ref": "#/components/schemas/TipoJornada"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": [
+                                                "object",
+                                                "null"
+                                            ],
+                                            "properties": {
+                                                "tipo": {
+                                                    "type": "string"
+                                                },
+                                                "etapa": {
+                                                    "type": "string"
+                                                },
+                                                "dados": {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        {},
+                                                        {}
+                                                    ],
+                                                    "minItems": 2,
+                                                    "maxItems": 2
+                                                },
+                                                "versao": {
+                                                    "type": "integer"
+                                                },
+                                                "atualizado_em": {
+                                                    "type": "string"
+                                                },
+                                                "expira_em": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "tipo",
+                                                "etapa",
+                                                "dados",
+                                                "versao",
+                                                "atualizado_em",
+                                                "expira_em"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "rascunhos.salvar",
+                "tags": [
+                    "Rascunhos"
+                ],
+                "parameters": [
+                    {
+                        "name": "tipo",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tipo ID",
+                        "schema": {
+                            "$ref": "#/components/schemas/TipoJornada"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "etapa": {
+                                        "type": "string",
+                                        "maxLength": 80
+                                    },
+                                    "dados": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": [
+                                                "string",
+                                                "null"
+                                            ],
+                                            "maxLength": 500
+                                        }
+                                    },
+                                    "versao": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                },
+                                "required": [
+                                    "etapa",
+                                    "dados",
+                                    "versao"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "409": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "rascunho_desatualizado"
+                                        },
+                                        "atual": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo",
+                                        "atual"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tipo": {
+                                                    "type": "string"
+                                                },
+                                                "etapa": {
+                                                    "type": "string"
+                                                },
+                                                "dados": {
+                                                    "type": "array",
+                                                    "prefixItems": [
+                                                        {},
+                                                        {}
+                                                    ],
+                                                    "minItems": 2,
+                                                    "maxItems": 2
+                                                },
+                                                "versao": {
+                                                    "type": "integer"
+                                                },
+                                                "atualizado_em": {
+                                                    "type": "string"
+                                                },
+                                                "expira_em": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "tipo",
+                                                "etapa",
+                                                "dados",
+                                                "versao",
+                                                "atualizado_em",
+                                                "expira_em"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "rascunhos.descartar",
+                "tags": [
+                    "Rascunhos"
+                ],
+                "parameters": [
+                    {
+                        "name": "tipo",
+                        "in": "path",
+                        "required": true,
+                        "description": "The tipo ID",
+                        "schema": {
+                            "$ref": "#/components/schemas/TipoJornada"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
                     }
                 }
             }
@@ -6000,6 +6885,176 @@
                     }
                 }
             }
+        },
+        "/painel/avisos/whatsapp/oauth": {
+            "get": {
+                "operationId": "whatsappNumero.autorizar",
+                "tags": [
+                    "WhatsappNumero"
+                ],
+                "responses": {
+                    "302": {
+                        "description": "",
+                        "headers": {
+                            "Location": {
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/avisos/whatsapp/oauth/retorno": {
+            "get": {
+                "operationId": "whatsappNumero.retorno",
+                "tags": [
+                    "WhatsappNumero"
+                ],
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 2048
+                        }
+                    },
+                    {
+                        "name": "state",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 128
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "waba_id": {
+                                                    "type": "string"
+                                                },
+                                                "phone_number_id": {
+                                                    "type": "string"
+                                                },
+                                                "nome_exibicao": {
+                                                    "type": "string"
+                                                },
+                                                "estado": {
+                                                    "type": "string",
+                                                    "const": "ligado"
+                                                },
+                                                "templates": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "waba_id",
+                                                "phone_number_id",
+                                                "nome_exibicao",
+                                                "estado",
+                                                "templates"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/painel/avisos/whatsapp": {
+            "delete": {
+                "operationId": "whatsappNumero.desligar",
+                "tags": [
+                    "WhatsappNumero"
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "403": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "codigo": {
+                                            "type": "string",
+                                            "const": "authz.denied"
+                                        }
+                                    },
+                                    "required": [
+                                        "codigo"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -6076,6 +7131,8 @@
                     "exportacao.pedida",
                     "exportacao.concluida",
                     "exportacao.negada",
+                    "avisos.whatsapp_numero_ligado",
+                    "avisos.whatsapp_numero_desligado",
                     "acesso.convite_emitido",
                     "acesso.convite_revogado",
                     "acesso.concedido",
@@ -6180,6 +7237,13 @@
                     "servico.limite_whatsapp_atingido"
                 ],
                 "title": "TipoAviso"
+            },
+            "TipoJornada": {
+                "type": "string",
+                "enum": [
+                    "conectar_whatsapp"
+                ],
+                "title": "TipoJornada"
             },
             "TipoRelacionamento": {
                 "type": "string",

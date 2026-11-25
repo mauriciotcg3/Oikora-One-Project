@@ -2,6 +2,7 @@
 
 namespace App\Modules\Pessoas\Presentation;
 
+use App\Modules\Pessoas\Application\Actions\DesfazerMesclagem;
 use App\Modules\Pessoas\Application\Actions\MarcarNaoDuplicadasAction;
 use App\Modules\Pessoas\Application\Actions\MesclarPessoasAction;
 use App\Modules\Pessoas\Application\Configuracao\Resultado;
@@ -67,6 +68,11 @@ final class DuplicadosController
         $valores = $dados['valores'] ?? [];
 
         return self::responder($acao->executar($dados['mantida'], $dados['absorvida'], $valores));
+    }
+
+    public function desfazer(string $mesclagem, DesfazerMesclagem $acao): JsonResponse
+    {
+        return self::responder($acao->executar($mesclagem));
     }
 
     public static function responder(Resultado $resultado): JsonResponse

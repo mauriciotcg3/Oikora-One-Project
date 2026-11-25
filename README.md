@@ -1,5 +1,12 @@
 # Oikora-One-Project
 
+## Documentação
+
+A base compartilhada de produto, arquitetura, spec, módulos e contexto de
+desenvolvimento está no [índice de documentação](docs/README.md). Os documentos
+específicos do Oikora são versionados neste repositório; a governança `.ai`
+mantém somente regras, skills, templates e espelhos reutilizáveis.
+
 ## Rodar com Docker
 
 Precisa só do Docker Desktop aberto; PHP, Composer, Node e pnpm ficam dentro dos containers.
@@ -17,7 +24,9 @@ Alterações em `web/src` e `api/` aparecem sozinhas. Depois de mudar dependênc
 
 O `./dev` é um atalho para `docker compose --env-file versoes.env --env-file dev.env`; o `dev.env` define `COMPOSE_FILE=compose.yaml:compose-dev.yaml`, o ajuste de dev: um único `worker-geral` consome `avisos,webhooks,default,pesadas`, e `worker-codigos` segue dedicado (2FA nunca espera). Para testar a separação de produção (três workers), use `./dev --profile producao up -d`. Produção e CI usam só o `versoes.env` (`docker compose --env-file versoes.env ...`), que sobe o `compose.yaml` puro.
 
-Ainda não têm backend: confirmação do código de 2FA e "Esqueci a senha" (T-11 e T-12). Para ver essas telas, use a API simulada, sem Docker:
+O login com confirmação de 2FA e a recuperação de senha usam a API real quando
+o ambiente Docker está ativo. Para desenvolver essas telas isoladamente, sem
+Docker, use a API simulada:
 
 ```bash
 pnpm dev:painel

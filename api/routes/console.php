@@ -13,3 +13,4 @@ Schedule::command('envios:varrer')->everyMinute()->onOneServer()->withoutOverlap
 Schedule::command('avisos:criar-particoes')->monthlyOn(20, '03:00')->onOneServer();
 Schedule::command('convites:expirar')->dailyAt('03:30')->onOneServer();
 Schedule::command('pessoas:purgar-lixeira')->dailyAt('04:00')->onOneServer();
+Schedule::command('jornadas:expirar-rascunhos')->dailyAt('04:30')->onOneServer();

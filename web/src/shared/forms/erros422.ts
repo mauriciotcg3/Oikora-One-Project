@@ -42,3 +42,10 @@ export function aplicarErros422<T extends FieldValues>(
 
   return fora
 }
+
+/** Índice da primeira etapa (na ordem da jornada) que tem campo com erro 422; `-1` se nenhuma tem. */
+export function etapaComErro422(erro: unknown, camposPorEtapa: readonly (readonly string[])[]): number {
+  if (!(erro instanceof ErroHttp) || erro.status !== 422 || !erro.corpo.errors) return -1
+  const comErro = erro.corpo.errors
+  return camposPorEtapa.findIndex((campos) => campos.some((campo) => campo in comErro))
+}

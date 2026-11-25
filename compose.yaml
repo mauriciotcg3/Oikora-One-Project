@@ -128,6 +128,7 @@ services:
       # O Vite repassa /api e /sanctum: front e API ficam na mesma origem, como exige a sessão (OIK-ADR-0003 §9).
       API_PROXY: http://caddy:80
     volumes:
+      - ./docs:/app/docs:ro
       - ./web/src:/app/web/src
       - ./web/public:/app/web/public
       - ./web/painel.html:/app/web/painel.html

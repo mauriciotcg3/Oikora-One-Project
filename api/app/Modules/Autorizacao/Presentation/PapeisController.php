@@ -19,14 +19,17 @@ use Symfony\Component\HttpFoundation\Response;
 /** `/painel/permissoes`, `/painel/papeis` e `/painel/acessos/{id}/atribuicoes` (plan.md §7). */
 final class PapeisController
 {
-    public function permissoes(AlcanceDaRequisicao $alcance): JsonResponse
+    public function permissoes(): JsonResponse
     {
-        if (! $alcance->temNaOrganizacao(Permissao::PapeisGerir)) {
-            return new JsonResponse(['codigo' => 'authz.denied'], Response::HTTP_FORBIDDEN);
-        }
-
         return new JsonResponse(['data' => array_map(
-            static fn (Permissao $permissao): string => $permissao->value,
+            static fn (Permissao $permissao): array => [
+                'chave' => $permissao->value,
+                'rotulo' => $permissao->rotulo(),
+                'grupo' => $permissao->grupo(),
+                'sensivel' => $permissao->categoriaSensivel() !== null,
+                'categoria_sensivel' => $permissao->categoriaSensivel(),
+                'solicitavel' => $permissao->solicitavel(),
+            ],
             Permissao::cases(),
         )]);
     }

@@ -17,7 +17,8 @@
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "open-telemetry/exporter-otlp": "^1",
-        "open-telemetry/sdk": "^1"
+        "open-telemetry/sdk": "^1",
+        "openspout/openspout": "^4.28"
     },
     "require-dev": {
         "deptrac/deptrac": "^4.7",

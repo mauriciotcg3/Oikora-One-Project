@@ -75,7 +75,8 @@ export async function listarPapeis(): Promise<Papel[]> {
 }
 
 export async function listarPermissoes(): Promise<string[]> {
-  return (await requisitar<{ data: string[] }>('GET', '/painel/permissoes')).data
+  return (await requisitar<{ data: Array<{ chave: string } | string> }>('GET', '/painel/permissoes')).data
+    .map((item) => typeof item === 'string' ? item : item.chave)
 }
 
 function recusaDe(erro: unknown): Recusa {
