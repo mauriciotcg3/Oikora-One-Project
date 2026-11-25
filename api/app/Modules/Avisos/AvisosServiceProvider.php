@@ -3,6 +3,8 @@
 namespace App\Modules\Avisos;
 
 use App\Modules\Avisos\Application\CanaisDeAviso;
+use App\Modules\Avisos\Application\CadastroNumeroWhatsApp;
+use App\Modules\Avisos\Application\ConfiguracoesNumeroWhatsApp;
 use App\Modules\Avisos\Application\CanalDeEmail;
 use App\Modules\Avisos\Application\CanalDeSms;
 use App\Modules\Avisos\Application\CanalDeWhatsApp;
@@ -18,6 +20,7 @@ use App\Modules\Avisos\Contracts\Avisos;
 use App\Modules\Avisos\Contracts\AvisosDaPessoa;
 use App\Modules\Avisos\Contracts\EnvioCodigo;
 use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\MetaWhatsAppCodigos;
+use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\CadastroNumeroMeta;
 use App\Modules\Avisos\Infrastructure\Canais\MetaWhatsApp\MetaWhatsAppFalso;
 use App\Modules\Avisos\Infrastructure\Canais\Postmark\PostmarkCodigos;
 use App\Modules\Avisos\Infrastructure\Canais\Postmark\PostmarkFalso;
@@ -29,7 +32,7 @@ use App\Modules\Avisos\Infrastructure\Console\CriarParticoesEnvios;
 use App\Modules\Avisos\Infrastructure\Console\VarrerEnvios;
 use App\Modules\Avisos\Infrastructure\DestinosPelaConta;
 use App\Modules\Avisos\Infrastructure\LinkDeDescadastroAssinado;
-use App\Modules\Avisos\Infrastructure\NumerosWhatsAppIndisponiveis;
+use App\Modules\Avisos\Infrastructure\NumerosWhatsAppPostgres;
 use App\Modules\Avisos\Infrastructure\Webhooks\LocalizadorEnvioExterno;
 use App\Modules\Avisos\Infrastructure\Webhooks\WebhooksDosProvedores;
 use App\Modules\Avisos\Presentation\PreferenciasAvisoController;
@@ -57,8 +60,9 @@ class AvisosServiceProvider extends ServiceProvider
         $this->app->bind(AvisosDaPessoa::class, RemoverAvisosDaPessoa::class);
         $this->app->bind(DestinosDeAviso::class, DestinosPelaConta::class);
         $this->app->bind(LinksDeDescadastro::class, LinkDeDescadastroAssinado::class);
-        // Número de WhatsApp da organização: `whatsapp_numeros` chega com a T-21; até lá, nenhum ativo.
-        $this->app->bind(NumerosWhatsApp::class, NumerosWhatsAppIndisponiveis::class);
+        $this->app->bind(NumerosWhatsApp::class, NumerosWhatsAppPostgres::class);
+        $this->app->bind(ConfiguracoesNumeroWhatsApp::class, NumerosWhatsAppPostgres::class);
+        $this->app->bind(CadastroNumeroWhatsApp::class, CadastroNumeroMeta::class);
         $this->app->bind(WebhooksExternos::class, WebhooksDosProvedores::class);
         $this->app->bind(EnviosExternos::class, LocalizadorEnvioExterno::class);
 
@@ -92,6 +96,8 @@ class AvisosServiceProvider extends ServiceProvider
             Route::get('api/v1/conta/preferencias-aviso', [PreferenciasAvisoController::class, 'mostrar']);
             Route::put('api/v1/conta/preferencias-aviso', [PreferenciasAvisoController::class, 'definir']);
         });
+
+        Route::middleware('painel')->prefix('api/v1/painel')->group(__DIR__.'/Presentation/rotas-painel.php');
 
         if ($this->app->runningInConsole()) {
             $this->commands([VarrerEnvios::class, CriarParticoesEnvios::class]);

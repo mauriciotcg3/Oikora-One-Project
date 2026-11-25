@@ -99,6 +99,55 @@ final class MesclagensPostgres implements Mesclagens
         ]);
     }
 
+    public function desfazer(array $snapshot, array $afetados): array
+    {
+        /** @var array<string, mixed> $antesMantida */
+        $antesMantida = $snapshot['mantida'];
+        /** @var array<string, mixed> $antesAbsorvida */
+        $antesAbsorvida = $snapshot['absorvida'];
+        /** @var list<string> $campos */
+        $campos = $snapshot['campos_da_absorvida'] ?? [];
+        $mantidaId = (int) $afetados['mantida_id'];
+        $absorvidaId = (int) $afetados['absorvida_id'];
+
+        /** @var Pessoa $mantida */
+        $mantida = Pessoa::query()->whereKey($mantidaId)->lockForUpdate()->firstOrFail();
+        $modeloAntesMantida = (new Pessoa)->setRawAttributes($antesMantida, true);
+        $modeloAntesAbsorvida = (new Pessoa)->setRawAttributes($antesAbsorvida, true);
+        $conflitos = [];
+        foreach ($campos as $campo) {
+            if ($mantida->getAttribute($campo) === $modeloAntesAbsorvida->getAttribute($campo)) {
+                $mantida->setAttribute($campo, $modeloAntesMantida->getAttribute($campo));
+            } else {
+                $conflitos[] = $campo;
+            }
+        }
+        $mantida->save();
+
+        unset($antesAbsorvida['id']);
+        DB::table('pessoas')->where('id', $absorvidaId)->update($antesAbsorvida);
+
+        /** @var array<string, list<int>> $movidos */
+        $movidos = $afetados['movidos'] ?? [];
+        $agora = now();
+        foreach (['contatos' => 'pessoa_contatos', 'enderecos' => 'pessoa_enderecos', 'funcoes' => 'pessoa_funcoes', 'eventos' => 'eventos_linha_do_tempo'] as $chave => $tabela) {
+            DB::table($tabela)->whereIn('id', $movidos[$chave] ?? [])->update(['pessoa_id' => $absorvidaId, 'updated_at' => $agora]);
+        }
+        $relacionamentos = $movidos['relacionamentos'] ?? [];
+        DB::table('relacionamentos')->whereIn('id', $relacionamentos)->where('pessoa_id', $mantidaId)
+            ->update(['pessoa_id' => $absorvidaId, 'updated_at' => $agora]);
+        DB::table('relacionamentos')->whereIn('id', $relacionamentos)->where('relacionada_id', $mantidaId)
+            ->update(['relacionada_id' => $absorvidaId, 'updated_at' => $agora]);
+
+        return $conflitos;
+    }
+
+    public function apagarAbsorvida(int $absorvidaId): void
+    {
+        DB::table('eventos_linha_do_tempo')->where('pessoa_id', $absorvidaId)->delete();
+        Pessoa::query()->whereKey($absorvidaId)->delete();
+    }
+
     public function evento(int $organizacaoId, int $pessoaId, string $tipo, ?int $autorAcessoId, array $dados): void
     {
         DB::table('eventos_linha_do_tempo')->insert([

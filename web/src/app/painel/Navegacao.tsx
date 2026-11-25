@@ -7,14 +7,15 @@ import { useTranslation } from 'react-i18next'
 
 /** Item de menu: aparece quando a pessoa tem a capacidade (sem `permissao`, aparece sempre). */
 interface ItemNavegacao {
-  chave: 'inicio' | 'auditoria'
-  para: '/' | '/auditoria'
+  chave: 'inicio' | 'auditoria' | 'solicitacoes'
+  para: '/' | '/auditoria' | '/solicitacoes'
   permissao?: string
 }
 
 // Novas telas entram aqui junto com a rota que as atende; item sem rota quebraria a navegação.
 const ITENS: readonly ItemNavegacao[] = [
   { chave: 'inicio', para: '/' },
+  { chave: 'solicitacoes', para: '/solicitacoes' },
   { chave: 'auditoria', para: '/auditoria', permissao: 'auditoria.ver' },
 ]
 

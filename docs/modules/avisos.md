@@ -19,6 +19,7 @@ Entrega mensagens para fora do sistema. Códigos de identidade (2FA e recuperaç
 | RN-21.2 | O job trava o envio e não chama o provedor de novo depois de `enviado`. Erro temporário: novas tentativas em 1 min, 5 min, 30 min e 2 h; na 5ª, ou em erro definitivo, `falhou_definitivo`. | `EntregarAviso`; `EnviarAviso` | OIK-SPEC-0001 T-17; OIK-ADR-0008 §3 |
 | RN-22 | Com a organização `em_migracao`, o aviso é gravado, nenhum envio é criado e o log registra `envio.suprimido` com motivo `migracao`. | `RegistrarAvisos` | OIK-SPEC-0001 T-17; OIK-ADR-0009 §10 |
 | RN-23 | Webhooks autenticados de Meta, Postmark e Twilio respondem antes do processamento e levam à fila `webhooks` somente o evento normalizado. A atualização é idempotente: um evento atrasado não regride o estado; envio desconhecido não produz efeito; falha definitiva marca o contato e reclamação de spam o descadastra. | `ReceberWebhook`; `ProcessarEventoWebhook`; `Infrastructure/Webhooks/*` | OIK-SPEC-0001 T-19; OIK-ADR-0008 §15 |
+| — | Quem tem `avisos.whatsapp.gerir` liga o número oficial por OAuth redirecionado da Meta. `waba_id`, `phone_number_id`, nome e catálogo de templates ficam por organização; o token fica cifrado e é apagado ao desligar. Ligar/desligar são auditados sem credencial. | `WhatsappNumeroController`; `CadastroNumeroMeta`; `NumerosWhatsAppPostgres` | OIK-SPEC-0001 T-21 |
 | — | O WhatsApp de código usa o número da plataforma e o template `authentication`. | `Application/EntregarCodigo.php` | OIK-ADR-0008 §10 |
 | — | O SMS só é usado quando o WhatsApp falha de vez ou esgota as tentativas, e só para +55. | `Application/EntregarCodigo.php` | OIK-ADR-0008 §3, §11 |
 | — | O SMS tem limite de 3 por hora e 10 por dia por número. | `Application/LimiteDeSms.php` | OIK-ADR-0008 §11 |
@@ -70,6 +71,7 @@ Cada canal de código implementa `CanalDeEmail`, `CanalDeWhatsApp` ou `CanalDeSm
 ## Changelog
 | Data | Mudança | Origem (task/spec/adr) |
 |---|---|---|
+| 2026-11-25 | OAuth do número oficial de WhatsApp da organização, token cifrado, catálogo de templates e desligamento seguro. | OIK-SPEC-0001 T-21 |
 | 2026-11-23 | Caixa de avisos, preferências, `uso_mensageria` e limite mensal de WhatsApp; Contract `AvisosDaPessoa` para o removedor. | OIK-SPEC-0001 T-20, T-35 |
 | 2026-11-07 | Criação do módulo, com a entrega de códigos e adapters falsos. | OIK-SPEC-0001 T-11 (recorte) |
 | 2026-11-10 | Caixa de saída transacional (`avisos`, `envios` particionada), catálogo `TipoAviso`, tentativas, supressão em migração e `envios:varrer`. | OIK-SPEC-0001 T-17 |

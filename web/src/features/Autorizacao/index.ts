@@ -2,3 +2,4 @@
 export { autorizacaoPtBR } from './i18n/pt-BR'
 export { TelaAcessos } from './ui/TelaAcessos'
 export { TelaPapeis } from './ui/TelaPapeis'
+export { TelaSolicitacoes } from './ui/TelaSolicitacoes'

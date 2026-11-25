@@ -12,6 +12,7 @@ import type { ReactNode } from 'react'
 import { CadastroDoisFatores, PaginaConvite, PaginaLogin } from '../../features/Identidade'
 import { InicioPainel } from './InicioPainel'
 import { PaginaAuditoria } from './PaginaAuditoria'
+import { PaginaSolicitacoes } from './PaginaSolicitacoes'
 import { Shell } from './Shell'
 
 // Rotas da entrada `painel` (OIK-ADR-0006 §3), servidas sob /painel.
@@ -62,13 +63,14 @@ const rotaPapeis = createRoute({
   path: 'papeis',
   component: lazyRouteComponent(() => import('../../features/Autorizacao'), 'TelaPapeis'),
 })
+const rotaSolicitacoes = createRoute({ getParentRoute: () => rotaShell, path: 'solicitacoes', component: PaginaSolicitacoes })
 // Galeria de componentes: só no `pnpm dev`. O `if` constante (`import.meta.env.DEV`) é removido do build,
 // então nem a rota nem o chunk da galeria vão para produção.
 const rotasDev = import.meta.env.DEV
   ? [createRoute({ getParentRoute: () => raiz, path: 'galeria', component: lazyRouteComponent(() => import('./galeria/Galeria'), 'Galeria') })]
   : []
 const arvore = raiz.addChildren([
-  rotaShell.addChildren([rotaInicio, rotaAuditoria, rotaAcessos, rotaPapeis]),
+  rotaShell.addChildren([rotaInicio, rotaAuditoria, rotaAcessos, rotaPapeis, rotaSolicitacoes]),
   rotaLogin,
   rotaConvite,
   rotaDoisFatores,

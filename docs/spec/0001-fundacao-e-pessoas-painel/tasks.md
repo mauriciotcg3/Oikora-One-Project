@@ -510,7 +510,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; validação real com a Meta registrada como pendente até o cadastro de *Tech Provider*.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Codificada em WUI-2 (2026-11-23): `GET /painel/auditoria` ampliado com filtros de igreja, busca segura por código do evento/alvo e resultado; ator com nome legível quando visível; resposta com `resultado`, `codigo_falha` e `trace_id`. `Auditoria::tentarRegistrarFalha` grava falhas catalogadas após o rollback em transação própria e não mascara a exceção original. Migration aditiva compatível, OpenAPI e `packages/api-contrato` regenerados. Red confirmado; `ConsultaAuditoriaTest` 8 Green/64 assertions e `RegistroAuditoriaTest` 6 Green/17 assertions; gate do contrato Green. Gate completo da API registrado no checkpoint da execução.
+- **Status:** Concluída em W8 (2026-11-25): OAuth redirecionado, credenciais cifradas, templates, desligamento e auditoria segura; `WhatsappNumeroTest` Green. Validação real na Meta continua como pendência externa do *Tech Provider*.
 
 ## T-22 — Convite ao painel e revogação de acesso
 - **Issue:** #22
@@ -738,7 +738,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-19, parte da exportação; CA-03, parte da exportação).
 - **Regra de negócio associada:** RN-20 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Concluída em W8 (2026-11-25): API assíncrona, job `pesadas` com recálculo de alcance, CSV/XLSX OpenSpout, armazenamento privado, aviso e expiração em 24h; `ExportacaoTest` Green.
 
 ## T-32 — Possíveis duplicados e mesclagem
 - **Issue:** #32
@@ -784,7 +784,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-04).
 - **Regra de negócio associada:** RN-11 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Concluída em W8 (2026-11-25): `POST /painel/mesclagens/{id}/desfazer` compensa a mesclagem sob `pessoas.mesclar` nas duas igrejas, restaura ficha absorvida, CPF/hash/matrícula, filhos e acesso; campos da mantida alterados depois são preservados e retornados em `conflitos`. Segunda tentativa é recusada. O job `ExpirarDesfazerMesclagem`, distribuído por organização junto da purga diária, apaga ficha absorvida e snapshot após 90 dias e marca a operação `expirada`. Eventos nas duas fichas e auditoria `pessoa.mesclagem_desfeita`. `DesfazerMesclagemTest` 4 Green; regressão de mesclagem 13 Green; PHPStan Green.
 
 ## T-34 — Transferência entre igrejas
 - **Issue:** #34

@@ -19,7 +19,7 @@ export const painelPtBR = {
     tentarDeNovo: 'Tentar de novo',
     ajuda: 'Ajuda',
     ajudaTexto: 'Use o menu para trocar de área. Se algo não aparecer, você pode não ter acesso a ela.',
-    itens: { inicio: 'Início', auditoria: 'Auditoria' },
+    itens: { inicio: 'Início', auditoria: 'Auditoria', solicitacoes: 'Acesso temporário' },
   },
   auditoria: {
     titulo: 'Auditoria',

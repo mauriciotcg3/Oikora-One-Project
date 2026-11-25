@@ -4,7 +4,9 @@ use App\Modules\Pessoas\Domain\ListaValores;
 use App\Modules\Pessoas\Presentation\CadastroRapidoController;
 use App\Modules\Pessoas\Presentation\Configuracao\ListasController;
 use App\Modules\Pessoas\Presentation\Configuracao\ObrigatoriosController;
+use App\Modules\Pessoas\Presentation\DatasDaFeController;
 use App\Modules\Pessoas\Presentation\DuplicadosController;
+use App\Modules\Pessoas\Presentation\ExportacoesController;
 use App\Modules\Pessoas\Presentation\FichaController;
 use App\Modules\Pessoas\Presentation\ListaPessoasController;
 use App\Modules\Pessoas\Presentation\LixeiraController;
@@ -15,6 +17,10 @@ use App\Modules\Pessoas\Presentation\VinculoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('pessoas', ListaPessoasController::class);
+Route::get('novos-convertidos', [DatasDaFeController::class, 'novosConvertidos']);
+Route::get('aniversarios', [DatasDaFeController::class, 'aniversarios']);
+Route::post('exportacoes', [ExportacoesController::class, 'criar']);
+Route::get('exportacoes/{exportacao}', [ExportacoesController::class, 'mostrar'])->whereUuid('exportacao');
 Route::get('pessoas/duplicidade', [CadastroRapidoController::class, 'duplicidade']);
 Route::post('pessoas', [CadastroRapidoController::class, 'cadastrar']);
 Route::get('pessoas/{pessoa}', [PessoasController::class, 'mostrar'])->whereUuid('pessoa');
@@ -40,6 +46,7 @@ Route::post('lixeira/{pessoa}/recuperar', [LixeiraController::class, 'recuperar'
 Route::get('duplicados', [DuplicadosController::class, 'listar']);
 Route::post('duplicados/nao-duplicados', [DuplicadosController::class, 'naoDuplicadas']);
 Route::post('mesclagens', [DuplicadosController::class, 'mesclar']);
+Route::post('mesclagens/{mesclagem}/desfazer', [DuplicadosController::class, 'desfazer'])->whereUuid('mesclagem');
 
 Route::get('transferencias', [TransferenciasController::class, 'listar']);
 Route::post('transferencias', [TransferenciasController::class, 'solicitar']);
