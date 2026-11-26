@@ -1,5 +1,10 @@
 // Namespace `autorizacao` (OIK-ADR-0006 §13): acessos, convites e papéis (T-40).
 export const autorizacaoPtBR = {
+  solicitacoes: {
+    titulo: 'Acesso temporário', formulario: 'Nova solicitação', permissao: 'Permissão',
+    duracao: 'Duração em horas', justificativa: 'Justificativa', enviar: 'Solicitar acesso temporário',
+    enviada: 'Solicitação enviada.', minhas: 'Minhas solicitações', aprovaveis: 'Aguardando decisão',
+  },
   acessos: {
     titulo: 'Acessos ao painel',
     pessoa: 'Pessoa',

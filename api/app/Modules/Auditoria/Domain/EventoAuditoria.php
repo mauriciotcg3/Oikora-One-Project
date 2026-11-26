@@ -22,6 +22,8 @@ enum EventoAuditoria: string
     case ExportacaoPedida = 'exportacao.pedida';
     case ExportacaoConcluida = 'exportacao.concluida';
     case ExportacaoNegada = 'exportacao.negada';
+    case WhatsappNumeroLigado = 'avisos.whatsapp_numero_ligado';
+    case WhatsappNumeroDesligado = 'avisos.whatsapp_numero_desligado';
     case ConviteEmitido = 'acesso.convite_emitido';
     case ConviteRevogado = 'acesso.convite_revogado';
     case AcessoConcedido = 'acesso.concedido';

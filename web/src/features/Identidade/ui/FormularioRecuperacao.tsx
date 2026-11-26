@@ -88,7 +88,7 @@ export function FormularioRecuperacao({ aoConfirmar, confirmando, aoVoltar }: Pr
             </FormHelperText>
           ) : null}
         </FormControl>
-        <Button type="submit" variant="contained" fullWidth loading={confirmando} loadingPosition="start">
+        <Button type="submit" variant="contained" size="large" fullWidth loading={confirmando} loadingPosition="start">
           {t('recuperacao.confirmar')}
         </Button>
       </Box>

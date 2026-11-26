@@ -23,6 +23,8 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 | W8 | T-21, T-31, T-33, T-36, T-48 |
 | W9 | T-39, T-41, T-42, T-43, T-44 |
 | W10 | T-45 |
+| WUI-1 — UI Standard (frontend) | T-49, T-50, T-51, T-52, T-53 |
+| WUI-2 — Auditoria e rascunhos (depende de backend: T-22, T-32) | T-54, T-55, T-56, T-57 |
 
 ---
 
@@ -508,7 +510,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green; validação real com a Meta registrada como pendente até o cadastro de *Tech Provider*.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W8 (2026-11-25): OAuth redirecionado, credenciais cifradas, templates, desligamento e auditoria segura; `WhatsappNumeroTest` Green. Validação real na Meta continua como pendência externa do *Tech Provider*.
 
 ## T-22 — Convite ao painel e revogação de acesso
 - **Issue:** #22
@@ -736,7 +738,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-19, parte da exportação; CA-03, parte da exportação).
 - **Regra de negócio associada:** RN-20 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Concluída em W8 (2026-11-25): API assíncrona, job `pesadas` com recálculo de alcance, CSV/XLSX OpenSpout, armazenamento privado, aviso e expiração em 24h; `ExportacaoTest` Green.
 
 ## T-32 — Possíveis duplicados e mesclagem
 - **Issue:** #32
@@ -782,7 +784,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-04).
 - **Regra de negócio associada:** RN-11 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Concluída em W8 (2026-11-25): `POST /painel/mesclagens/{id}/desfazer` compensa a mesclagem sob `pessoas.mesclar` nas duas igrejas, restaura ficha absorvida, CPF/hash/matrícula, filhos e acesso; campos da mantida alterados depois são preservados e retornados em `conflitos`. Segunda tentativa é recusada. O job `ExpirarDesfazerMesclagem`, distribuído por organização junto da purga diária, apaga ficha absorvida e snapshot após 90 dias e marca a operação `expirada`. Eventos nas duas fichas e auditoria `pessoa.mesclagem_desfeita`. `DesfazerMesclagemTest` 4 Green; regressão de mesclagem 13 Green; PHPStan Green.
 
 ## T-34 — Transferência entre igrejas
 - **Issue:** #34
@@ -851,7 +853,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-23, CA-24; a exportação vem da T-31).
 - **Regra de negócio associada:** RN-18 — atualizar `docs/modules/pessoas.md`.
-- **Status:** Pendente
+- **Status:** Concluída em W8 (2026-11-25): registros explícitos de conversão e batismo, novos convertidos e aniversários de nascimento, batismo e casamento por dia/semana/mês, com alcance, categoria fé, lixeira, `meta.criterio`, fuso e virada do ano; testes focados e gates finais Green.
 
 ---
 
@@ -922,16 +924,16 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): telas de organização, igrejas, listas de valores, obrigatórios por vínculo e integração WhatsApp em `features/Organizacao` e `features/Avisos`; ações condicionadas ao contrato e às capacidades, sem oferecer exclusão de igreja. Testes focados e gate completo do frontend Green.
 
 ## T-40 — Telas de acessos, convites, papéis e auditoria
 - **Issue:** #40
 - **Onda:** W7
 - **Depende de:** T-15, T-22, T-37, T-46
-- **Objetivo:** criar as telas de acessos (convidar Pessoa com papel e escopo, revogar), papéis (criar e editar permissões do catálogo, com marcação de sensíveis) e consulta de auditoria com filtros.
+- **Objetivo:** criar as telas de acessos (convidar Pessoa com papel e escopo, revogar), papéis (criar e editar permissões do catálogo, com marcação de sensíveis). A consulta de auditoria saiu desta task e passou à T-55 (2026-11-20, OIK-ADR-0014).
 - **Context Pack:** `context/T-40.md`
 - **Arquivos de entrada:** `plan.md` §8; T-15, T-22, T-37, T-46 concluídas.
-- **Arquivos de saída:** `web/src/features/{Autorizacao,Auditoria}/**`.
+- **Arquivos de saída:** `web/src/features/Autorizacao/**`.
 
 ### Teste que define esta tarefa (ciclo TDD)
 - **Arquivo de teste:** `web/src/features/Autorizacao/__tests__/*.test.tsx`; `web/src/features/Auditoria/__tests__/*.test.tsx`
@@ -939,7 +941,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
   1. Convidar: escolher a Pessoa pela busca, o papel e o escopo; o 422 de pessoa sem contato aparece no campo.
   2. Revogar um acesso pede confirmação e atualiza a lista.
   3. Papel: as permissões vêm do catálogo, agrupadas, e as sensíveis por categoria; `ultimo_administrador` e `escalada_bloqueada` mostram mensagens próprias.
-  4. Auditoria: filtrar por período e evento; a tela não mostra valores de campo (só nomes).
+  4. Auditoria: movida para a T-55.
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
@@ -965,7 +967,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): lista paginada 25/50/100 com filtros na URL, seleção e exportação; cadastro rápido com igreja, alerta de duplicidade e “salvar e cadastrar outro”; busca na denominação com abertura ou pedido de transferência. Testes focados e gate completo do frontend Green.
 
 ## T-42 — Tela da ficha por seções
 - **Issue:** #42
@@ -987,7 +989,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): ficha por seções conforme a projeção recebida, foto, completude, avanço de vínculo e situação com motivo/matrícula manual, linha do tempo, relacionamentos e funções; controles de escrita seguem `meta.acoes`. Testes focados e gate completo do frontend Green.
 
 ## T-43 — Telas de duplicados, mesclagem, transferências e lixeira
 - **Issue:** #43
@@ -1009,7 +1011,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): possíveis duplicados com comparação dos campos visíveis e escolha de origem, conflito de contas, desfazer e conflitos preservados; decisões de transferência com justificativa; lixeira com prazo e confirmação de recuperação. Testes focados e gate completo do frontend Green.
 
 ## T-44 — Telas de novos convertidos, datas, exportações e caixa de avisos
 - **Issue:** #44
@@ -1031,7 +1033,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): novos convertidos e datas por dia/semana/mês com XLSX/CSV, acompanhamento e download de exportação; caixa de avisos com contador atualizado por foco/visibilidade e intervalo, leitura individual/em lote e preferências obrigatórias bloqueadas. Testes focados e gate completo do frontend Green.
 
 ## T-45 — Jornadas críticas no Playwright + axe (noturno)
 - **Issue:** #45
@@ -1131,7 +1133,199 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green (CA-31), tipos estritos e lint de fronteiras aprovados.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W8 (2026-11-25): catálogo elegível agrupado e sensível, formulário com escopo e limite de 72h, listas própria e administrativa, decisão/revogação confirmada, estados de carregamento/erro/vazio, tratamento de 403/409/422 e invalidação das capacidades da sessão; testes focados e gate frontend Green.
+
+## Complemento — Oikora UI Standard e Auditoria no painel (OIK-ADR-0014)
+
+## T-49 — UI Standard: fundação visual (tokens, paleta semântica e contraste)
+- **Issue:** #70
+- **Onda:** WUI-1
+- **Depende de:** T-37
+- **Objetivo:** definir tokens do Oikora UI Standard no tema MUI: paleta semântica success/warning/info nos dois esquemas, bordas de controle com contraste ≥ 3:1, escala de espaçamento e foco visível; sem alterar o botão do login.
+- **Context Pack:** `context/T-49.md`
+- **Arquivos de entrada:** `plan.md` §14; ADR-0014; `web/src/shared/ui/tema.ts`.
+- **Arquivos de saída:** `web/src/shared/ui/{tema.ts,tokens.ts,index.ts}`, `web/src/shared/ui/__tests__/tema.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/tema.test.tsx`
+- **Casos cobertos:**
+  1. Texto primário e secundário sobre `background.default` e `paper` tem contraste ≥ 4,5:1 nos esquemas claro e escuro (`getContrastRatio`).
+  2. A borda de um campo (`notchedOutline`) sobre `paper` tem ≥ 3:1 nos dois esquemas (WCAG 1.4.11).
+  3. `success`, `warning`, `info` e `error` têm texto sobre fundo ≥ 4,5:1 nos dois esquemas.
+  4. Renderizado no `ProvedoresBase`, um `Alert` de cada severidade expõe o texto ao leitor de tela (`role=alert`) e o campo de texto focado por teclado recebe o anel de foco do tema.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-40); `pnpm gate` verde com `size-limit` ≤ 350 KB; nenhuma dependência nova.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Codificada em 2026-11-20 (fora das ondas da W6): `shared/ui/tokens.ts` (borda de controle ≥ 3:1, paleta success/warning/info e error com `contrastText`, espaçamento, raio, foco), `tema.ts` consome os tokens (corrige `notchedOutline` fixo em `#CDBFB3`, ~1,8:1; anel `:focus-visible` global), 8 testes; `pnpm gate` verde, 266,05 KB de 350 KB. Botão do login mantido (escopo na T-51).
+
+## T-50 — UI Standard: componentes de estado, detalhes técnicos e ajuda contextual
+- **Issue:** #71
+- **Onda:** WUI-1
+- **Depende de:** T-49
+- **Objetivo:** criar em `shared/ui/<Componente>/` os componentes de estado (carregando, vazio, sucesso, aviso, erro, indisponível), `DetalhesTecnicos` e `AjudaContextual`, com contrato de papéis ARIA, textos recebidos por props e telemetria `ui.*` sem dado pessoal.
+- **Context Pack:** `context/T-50.md`
+- **Arquivos de entrada:** T-49 concluída; `plan.md` §14; `shared/http/cliente.ts` (`ErroHttp`).
+- **Arquivos de saída:** `web/src/shared/ui/{EstadoCarregando,EstadoVazio,EstadoSucesso,EstadoAviso,EstadoErro,EstadoIndisponivel,DetalhesTecnicos,AjudaContextual}/**`, `web/src/shared/ui/index.ts`, `web/src/shared/ui/__tests__/estados.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/estados.test.tsx`
+- **Casos cobertos:**
+  1. Carregando usa `aria-busy` e `role=status` com texto; o vazio explica o próximo passo e oferece a ação.
+  2. Erro usa `role=alert`, mostra a mensagem da tarefa e o botão 'Tentar de novo' acionável por teclado.
+  3. `request_id` e `trace_id` ficam ocultos até abrir 'Detalhes técnicos' (disclosure por teclado) e podem ser copiados.
+  4. Indisponível e aviso são distinguíveis por texto e ícone, não só por cor.
+  5. Nenhum componente faz fetch nem contém texto fixo.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-41); gate verde; lint de fronteiras aprovado.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Codificada em 2026-11-20: `shared/ui/{EstadoCarregando,EstadoVazio,EstadoSucesso,EstadoAviso,EstadoErro,EstadoIndisponivel,DetalhesTecnicos,AjudaContextual}/` (um `index.ts` por componente, textos só por props), `shared/observabilidade/ui.ts` (`registrarEventoUi`, sem valores); erro e indisponível em `role=alert`, carregando/sucesso/aviso em `status`, identificadores só sob "Detalhes técnicos". 7 testes; `pnpm gate` verde, 38 testes, 266,05 KB (componentes ainda fora da entrada).
+
+## T-51 — UI Standard: shell do painel, navegação e menu por capacidades
+- **Issue:** #72
+- **Onda:** WUI-1
+- **Depende de:** T-50
+- **Objetivo:** montar o shell do painel (cabeçalho, navegação lateral responsiva, pular ao conteúdo, ajuda em posição fixa) com itens montados pelas capacidades do `/me`, incluindo o menu 'Auditoria'; escopar a densidade dos botões do tema ao login.
+- **Context Pack:** `context/T-51.md`
+- **Arquivos de entrada:** T-50 concluída; `app/painel/{roteador.tsx,Raiz.tsx,InicioPainel.tsx}`; ADR-0006 §9.
+- **Arquivos de saída:** `web/src/app/painel/{roteador.tsx,Shell.tsx,Navegacao.tsx,i18n/pt-BR.ts}`, `web/src/shared/ui/tema.ts`, `web/src/app/painel/__tests__/shell.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/app/painel/__tests__/shell.test.tsx`
+- **Casos cobertos:**
+  1. O primeiro Tab leva ao link 'Ir para o conteúdo' e o Enter move o foco para o `main`.
+  2. Os itens de menu vêm das capacidades do `/me`; sem `auditoria.ver` o item 'Auditoria' não aparece, e o acesso direto à rota mostra o estado de acesso negado.
+  3. Em tela estreita a navegação abre por botão com rótulo e fecha com Esc devolvendo o foco.
+  4. O item ativo é anunciado com `aria-current=page`.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-42); gate verde; entrada ≤ 350 KB.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Codificada em WUI-1 (2026-11-20): `app/painel/{Shell,Navegacao,PaginaAuditoria,capacidades}`; rotas do painel sob o layout `shell` (login fora); menu montado pelas capacidades do `/me` (Início sempre, Auditoria com `auditoria.ver`; acesso direto sem a capacidade mostra aviso de acesso negado); pular ao conteúdo, navegação estreita em `Drawer` (Esc devolve o foco), `aria-current=page`, ajuda fixa no canto. Botão grande/arredondado do login passou a `size="large"` (padrão do tema agora é a densidade normal). 5 testes; `pnpm gate` verde, 275,13 KB de 350 KB. Itens de menu das demais telas entram com suas rotas (T-55 e seguintes).
+
+## T-52 — UI Standard: formulários e jornadas guiadas
+- **Issue:** #73
+- **Onda:** WUI-1
+- **Depende de:** T-50
+- **Objetivo:** criar o padrão de jornada guiada (etapas, validação junto ao campo, foco no primeiro erro, confirmação antes de ação irreversível) sobre `shared/forms`; salvar e retomar fica fora (OIK-ADR-0016, T-57).
+- **Context Pack:** `context/T-52.md`
+- **Arquivos de entrada:** T-50 concluída; `shared/forms`; skill `frontend-form`.
+- **Arquivos de saída:** `web/src/shared/ui/{JornadaGuiada,ConfirmacaoIrreversivel}/**`, `web/src/shared/forms/**` (acréscimos), `web/src/shared/ui/__tests__/jornada.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/jornada.test.tsx`
+- **Casos cobertos:**
+  1. Avançar com campo inválido mostra o erro junto ao campo, move o foco a ele e não troca de etapa.
+  2. Voltar preserva o que foi digitado; a etapa atual é anunciada ('Etapa 2 de 4').
+  3. Ação irreversível só executa após confirmar no diálogo; Esc cancela sem executar e devolve o foco.
+  4. Erro 422 do servidor aparece no campo da etapa correspondente.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-43); gate verde.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Codificada em WUI-1 (2026-11-20): `shared/ui/{JornadaGuiada,ConfirmacaoIrreversivel}/`, `etapaComErro422` em `shared/forms`; validação da etapa ao avançar com foco no primeiro erro, valores preservados ao voltar, anúncio "Etapa n de N", 422 leva à etapa do campo (foco depois de montar), confirmação em `alertdialog` com foco inicial em cancelar. 5 testes; `pnpm gate` verde.
+
+## T-53 — UI Standard: filtros na URL, tabela e detalhe progressivo
+- **Issue:** #74
+- **Onda:** WUI-1
+- **Depende de:** T-50, T-51, T-52
+- **Objetivo:** criar `FiltrosNaUrl`, tabela com destaque de falha por texto e ícone, e painel de detalhe em camadas, com DataGrid MIT carregado por rota.
+- **Context Pack:** `context/T-53.md`
+- **Arquivos de entrada:** T-50 e T-51 concluídas; `plan.md` §14; ADR-0006 §6.
+- **Arquivos de saída:** `web/src/shared/ui/{FiltrosNaUrl,TabelaDeRegistros,DetalheEmCamadas}/**`, `web/src/shared/ui/__tests__/filtrosTabela.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/filtrosTabela.test.tsx`
+- **Casos cobertos:**
+  1. Aplicar um filtro atualiza a URL; abrir a URL restaura os filtros; 'Limpar filtros' zera URL e lista.
+  2. Valores inválidos na URL são ignorados com segurança.
+  3. Linha de falha traz o texto 'Falha' e o ícone, e o leitor de tela a identifica.
+  4. O detalhe abre por teclado, mostra resumo primeiro e a camada técnica só sob demanda.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-44, CA-47); build mostra DataGrid em chunk separado do `painel-*.js`.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Codificada em WUI-1 (2026-11-20): `shared/ui/{FiltrosNaUrl,TabelaDeRegistros,DetalheEmCamadas}/`; filtros na URL (zod por campo, valor inválido ignorado, aplicar/limpar), tabela sobre o DataGrid MIT (`@mui/x-data-grid` 9.18.0, adicionado com aprovação; `lazy` em `GradeDeRegistros`) com texto "Falha" + ícone e botão por linha, detalhe em `Drawer` modal com resumo e `DetalhesTecnicos` sob demanda. 5 testes; `pnpm gate` verde. Build: `GradeDeRegistros-*.js` em chunk próprio (550,99 KB, 162,44 KB gzip) fora do `painel-*.js` (276,16 KB de 350 KB). Paginação no servidor: `usePaginacaoDaUrl` (`pagina` e `por_pagina` 25/50/100 na URL, valor inválido volta ao padrão, tamanho novo ou filtro novo volta à página 1) e DataGrid com `paginationMode="server"`, `rowCount` do `meta.total` e rodapé em português por props; a tabela nunca recebe nem fatia a lista completa. A tela (T-55) só liga `useQuery` com a página na chave. 13 testes no arquivo, incluindo pedido `pagina=2&por_pagina=50` e a página 26+ ausente do DOM.
+
+## T-54 — Auditoria (API): filtro por igreja, busca, ator legível e correlação
+- **Issue:** #75
+- **Onda:** WUI-2
+- **Depende de:** T-05, T-22, T-32, T-46, T-47
+- **Objetivo:** estender `GET /painel/auditoria` com filtro `igreja`, busca textual por evento/alvo, nome do ator e `trace_id`, sem valores de campo; inclui `resultado`, `codigo_falha` e gravação da falha em transação própria (OIK-ADR-0015).
+- **Context Pack:** `context/T-54.md`
+- **Arquivos de entrada:** `docs/modules/auditoria.md`; T-46 e T-22 concluídas (regeneração do contrato).
+- **Arquivos de saída:** `api/app/Modules/Auditoria/**`, `api/tests/Feature/Auditoria/**`, `api/openapi.json`, `packages/api-contrato/src/esquema.ts`, `docs/modules/auditoria.md`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `api/tests/Feature/Auditoria/ConsultaAuditoriaTest.php`
+- **Casos cobertos:**
+  1. Filtrar por `igreja` devolve só eventos dessa igreja e respeita o alcance do usuário.
+  2. A busca encontra pelo código do evento e pelo alvo, sem aceitar texto livre sensível.
+  3. O ator vem com nome legível quando o usuário pode vê-lo; a resposta traz `trace_id` quando existe.
+  4. Nenhum valor anterior ou posterior aparece na resposta.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-46); contrato regenerado e versionado; `composer gate` verde.
+- **Regra de negócio associada:** RN-15 ampliada.
+- **Status:** Concluída em 2026-11-23; revisão consolidada corrigida em 2026-11-24: filtros por igreja e busca, ator legível, `trace_id`, resultado/código de falha e registro transacional das falhas entregues; a busca agora trata `%` e `_` como literais; contrato e gates verdes conforme o checkpoint de WUI-2.
+
+## T-55 — Auditoria (painel): consulta, trilha e detalhe técnico progressivo
+- **Issue:** #76
+- **Onda:** WUI-2
+- **Depende de:** T-51, T-53, T-54
+- **Objetivo:** criar `features/Auditoria` com menu próprio, busca, filtros na URL, destaque, trilha de um alvo, resumo compreensível e detalhe técnico progressivo, integrados ao `GET /painel/auditoria`; filtro e destaque de 'resultado' conforme a OIK-ADR-0015 (T-54).
+- **Context Pack:** `context/T-55.md`
+- **Arquivos de entrada:** T-51, T-53 e T-54 concluídas; `docs/modules/auditoria.md`; FR-037, NFR-008.
+- **Arquivos de saída:** `web/src/features/Auditoria/**`, `web/src/app/painel/roteador.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/features/Auditoria/__tests__/*.test.tsx`
+- **Casos cobertos:**
+  1. Filtrar por período, evento, ator, alvo e igreja atualiza a URL e a lista; limpar restaura.
+  2. Cada linha mostra um resumo compreensível; o detalhe técnico (campos afetados, metadados, `request_id`, correlação) abre sob demanda.
+  3. A trilha de um alvo lista seus eventos em ordem.
+  4. Nenhum valor anterior ou posterior aparece; sem `auditoria.ver` a tela mostra acesso negado.
+  5. Erro da consulta usa `EstadoErro` com 'Detalhes técnicos'.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green (CA-45); gate verde; Auditoria em chunk por rota.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Concluída em 2026-11-23; revisão consolidada corrigida em 2026-11-24: consulta com busca, filtros e paginação na URL, trilha por alvo, resumo e detalhe técnico progressivo, estados de erro/permissão e carregamento da Auditoria em chunk de rota entregues; testes e gate do web verdes.
+
+## T-56 — UI Standard: documentação e exemplos do padrão
+- **Issue:** #77
+- **Onda:** WUI-2
+- **Depende de:** T-52, T-55
+- **Objetivo:** documentar tokens, componentes, contratos de comportamento e jornadas em `docs/` com exemplos verificados por teste, sem nova ferramenta de catálogo (OPEN-UI-03).
+- **Context Pack:** `context/T-56.md`
+- **Arquivos de entrada:** T-49 a T-55 concluídas.
+- **Arquivos de saída:** `docs/ui/oikora-ui-standard.md`, `web/src/shared/ui/__tests__/exemplos.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `web/src/shared/ui/__tests__/exemplos.test.tsx`
+- **Casos cobertos:**
+  1. Cada exemplo do documento renderiza e passa nas asserções de papéis e texto do seu componente.
+  2. O documento lista os componentes exportados e o teste falha se um deles não estiver documentado.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green; links locais do documento existentes.
+- **Regra de negócio associada:** nenhuma.
+- **Status:** Concluída em 2026-11-23; revisão consolidada corrigida em 2026-11-24: padrão visual documentado em `docs/ui/oikora-ui-standard.md`, rota da galeria corrigida para `/painel/galeria` e exemplos executáveis ampliados para cobrir seções e estados; links locais e gate do web verdes.
+
+## T-57 — Rascunhos de jornada guiada (API) e integração na jornada
+- **Issue:** #78
+- **Onda:** WUI-2
+- **Depende de:** T-52, T-05
+- **Objetivo:** criar `rascunhos_jornada` com endpoints de ler, gravar com `versao` e descartar, expiração por job, e ligar o salvar e retomar à `JornadaGuiada` (OIK-ADR-0016).
+- **Context Pack:** `context/T-57.md`
+- **Arquivos de entrada:** OIK-ADR-0016; T-52 concluída; expiração de 30 dias e cifra só dos campos sensíveis (OIK-ADR-0016).
+- **Arquivos de saída:** `api/app/Modules/Jornadas/**`, `api/tests/Feature/Jornadas/**`, `web/src/shared/ui/JornadaGuiada/rascunho.ts`, `web/src/shared/ui/__tests__/rascunhoJornada.test.tsx`.
+
+### Teste que define esta tarefa (ciclo TDD)
+- **Arquivo de teste:** `api/tests/Feature/Jornadas/RascunhoTest.php`; `web/src/shared/ui/__tests__/rascunhoJornada.test.tsx`
+- **Casos cobertos:**
+  1. Gravar e ler devolve a etapa e os dados; outra conta ou outra organização não lê.
+  2. Gravar com `versao` antiga devolve 409 e o cliente recarrega.
+  3. Credenciais e segredos são recusados no rascunho; campos sensíveis ficam cifrados.
+  4. O job remove os expirados; concluir ou descartar remove o rascunho.
+  5. Na tela, recarregar a página retoma na etapa salva com os campos preenchidos.
+- **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
+- **Critério de aceite final:** testes Green; contrato regenerado; gate do front e `composer gate` verdes.
+- **Regra de negócio associada:** rascunho sem segredos e com expiração.
+- **Status:** Concluída em 2026-11-23; revisão consolidada corrigida em 2026-11-24: API com leitura, gravação otimista e serialização da primeira escrita concorrente, conflito 409, descarte, cifra seletiva, RLS e expiração por job; adaptador HTTP separado de `shared/ui`; `JornadaGuiada` não mascara uma conclusão bem-sucedida se o descarte falhar. Contrato e gates de API/web verdes.
 
 ---
 

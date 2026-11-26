@@ -3,6 +3,7 @@
 namespace App\Modules\Pessoas\Infrastructure\Console;
 
 use App\Modules\Organizacao\Contracts\ConsultaOrganizacoes;
+use App\Modules\Pessoas\Application\Jobs\ExpirarDesfazerMesclagem;
 use App\Modules\Pessoas\Application\Jobs\PurgarLixeira;
 use Illuminate\Console\Command;
 
@@ -17,6 +18,7 @@ final class PurgarLixeiras extends Command
     {
         $ids = $organizacoes->idsDisponiveis();
         foreach ($ids as $organizacaoId) {
+            ExpirarDesfazerMesclagem::dispatch($organizacaoId);
             PurgarLixeira::dispatch($organizacaoId);
         }
         $this->info(count($ids).' organização(ões) na fila.');

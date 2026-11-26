@@ -34,6 +34,9 @@ interface OperacoesDesfaziveis
      */
     public function protegidos(string $tipo, string $chave): array;
 
+    /** @return list<Operacao> Operações executadas cujo prazo já terminou, bloqueadas para atualização. */
+    public function vencidas(string $tipo): array;
+
     /**
      * Encerra como `expirada` (snapshot apagado) toda operação ainda `executada` em que a Pessoa é
      * `mantida_id` ou `absorvida_id` (removedor LGPD, OIK-ADR-0005 §8). @return int quantas

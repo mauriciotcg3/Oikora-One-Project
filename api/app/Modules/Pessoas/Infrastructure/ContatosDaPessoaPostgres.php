@@ -99,6 +99,19 @@ final readonly class ContatosDaPessoaPostgres implements ContatosDaPessoa
         return is_string($nome) ? $nome : null;
     }
 
+    public function nomes(array $pessoaIds): array
+    {
+        if ($pessoaIds === []) {
+            return [];
+        }
+
+        return $this->comoSistema(fn (): array => Pessoa::query()
+            ->whereIn('id', $pessoaIds)
+            ->pluck('nome', 'id')
+            ->mapWithKeys(static fn (mixed $nome, mixed $id): array => [(int) $id => (string) $nome])
+            ->all());
+    }
+
     /** @return Builder<PessoaContato> */
     private function contatosDoCanal(string $canal): Builder
     {

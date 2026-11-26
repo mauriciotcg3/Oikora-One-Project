@@ -1,0 +1,1 @@
+export { EstadoErro } from './EstadoErro'

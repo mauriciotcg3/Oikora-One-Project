@@ -206,3 +206,25 @@ Cada critério vira pelo menos um teste em `tasks.md`.
 - ❓ **OPEN-013 — modo da exclusão (anonimizar ou apagar)** — sem o modo, a purga da lixeira não roda em produção (RN-19). Não bloqueia esta Spec, que não vai a produção antes da virada (P BR-017).
 - ❓ **Valores dos limites de tentativas de login** (por identificador e por IP, com bloqueio progressivo) — o mecanismo é configurável nesta Spec; os números ficam para a Spec de infraestrutura/operação (ADR-0003 §4; U-22).
 - ❓ **Dependências externas (ação do usuário)** — conta Postmark, Meta Business + *Tech Provider* com número da plataforma, Twilio. Os testes usam Adapters falsos (ADR-0010 §2); a validação contra os provedores reais fica para quando as contas existirem.
+
+## Complemento — Oikora UI Standard e frontend da Auditoria (2026-11-20)
+
+Origem: OIK-ADR-0014; FR-037 e NFR-006 a NFR-008 de `docs/product/0001-fundacao-e-pessoas.md`; pedido do usuário de 2026-11-20. Não altera o escopo de backend já entregue; acrescenta o padrão visual e comportamental do painel e a tela de Auditoria.
+
+**Escopo acrescentado.** Tokens, tema e estados semânticos; componentes compartilhados com contrato de comportamento (carregando, vazio, sucesso, aviso, erro, indisponível; detalhes técnicos sob demanda; ajuda contextual); shell do painel com navegação por capacidades; padrões de formulário e jornada guiada; filtros na URL, tabela e detalhe progressivo; tela de Auditoria (FR-037); documentação e exemplos do padrão. Sem template administrativo, sem Tailwind/shadcn (OIK-ADR-0014).
+
+**Critérios de aceite acrescentados**
+- [ ] **CA-40** (P NFR-006; ADR-0014) Os pares de cor de texto e de borda de controle dos tokens atendem WCAG 2.2 AA (4,5:1 texto; 3:1 componentes), nos dois esquemas, verificado por teste; o foco é visível.
+- [ ] **CA-41** (P NFR-007; ADR-0014) Cada estado (carregando, vazio, sucesso, aviso, erro, indisponível) tem componente com papel ARIA correto, texto da tarefa e, no erro, ação de repetir alcançável por teclado; o `request_id`/`trace_id` aparece só dentro de "Detalhes técnicos".
+- [ ] **CA-42** (P NFR-006, NFR-007) O shell do painel tem navegação por teclado, link de pular ao conteúdo, ajuda em posição fixa e itens de menu montados pelas capacidades do `GET /me` (ADR-0006 §9).
+- [ ] **CA-43** (P NFR-007) A jornada guiada mostra etapas, valida junto ao campo, pede confirmação antes de ação irreversível e leva o foco ao primeiro erro.
+- [ ] **CA-44** (P FR-037; ADR-0014) Filtros da lista refletem na URL, são restaurados ao abrir o link e podem ser limpos; a tabela destaca linhas de falha com texto, não só cor.
+- [ ] **CA-45** (P FR-037, NFR-008; ADR-0005) A Auditoria mostra resumo compreensível, trilha do alvo e detalhe técnico progressivo (campos afetados, metadados catalogados, `request_id`, correlação) e nunca valores pessoais anteriores ou posteriores.
+- [ ] **CA-46** (P NFR-008) A API da Auditoria aceita filtro por igreja e busca, devolve o ator legível e a correlação (`trace_id`) além do `request_id`.
+- [ ] **CA-47** (ADR-0010 §5) A entrada `painel` permanece ≤ 350 KB gzip; DataGrid e telas de Auditoria carregam por rota.
+
+**Pontos em aberto acrescentados**
+- **OPEN-UI-01 — resultado e falhas na auditoria:** decidido pela OIK-ADR-0015 (Aceito, opção A, 2026-11-20): `resultado`, `codigo_falha` e `trace_id` na auditoria, falha gravada em transação própria após o desfazer. Entram as falhas de regra e de execução das ações do §5, com retenção de cinco anos; códigos na T-54.
+- **OPEN-UI-02 — salvar e retomar jornada:** decidido pela OIK-ADR-0016 (Aceito, opção A, 2026-11-20): rascunho no servidor por conta e organização, sem segredos. Expira em 30 dias; a primeira jornada é a conexão do WhatsApp (T-21/T-39).
+- ❓ **OPEN-UI-03 — catálogo visual (Storybook ou similar).** Seria nova ferramenta; a T-56 usa Markdown e exemplos verificados por teste até haver decisão.
+- ❓ **OPEN-UI-04 — métricas de funil das jornadas.** A ADR-0014 veda nova coleta de comportamento sem ADR; só logs e `traceparent` já existentes.

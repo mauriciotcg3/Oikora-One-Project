@@ -12,6 +12,12 @@ use Closure;
  */
 interface AlcanceAtual
 {
+    /** Define explicitamente o ator de um job que precisa recalcular o alcance no momento da execução. */
+    public function definir(Ator $ator): void;
+
+    /** Limpa o ator ao encerrar o contexto explícito de um job. */
+    public function limpar(): void;
+
     public function definido(): bool;
 
     public function ator(): Ator;

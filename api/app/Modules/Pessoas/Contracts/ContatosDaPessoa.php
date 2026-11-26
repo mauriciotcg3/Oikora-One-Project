@@ -36,4 +36,12 @@ interface ContatosDaPessoa
 
     /** Nome da Pessoa, para os dados mínimos do convite. */
     public function nome(int $pessoaId): ?string;
+
+    /**
+     * Nomes de várias Pessoas da organização ativa, sem expor a ficha completa.
+     *
+     * @param  list<int>  $pessoaIds
+     * @return array<int, string>
+     */
+    public function nomes(array $pessoaIds): array;
 }

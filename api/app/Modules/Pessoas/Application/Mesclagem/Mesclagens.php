@@ -42,6 +42,18 @@ interface Mesclagens
 
     public function marcarAbsorvida(int $absorvidaId, ?int $porAcessoId): void;
 
+    /**
+     * Compensa a mesclagem. Alterações posteriores na mantida vencem e são devolvidas como conflitos.
+     *
+     * @param  array<string, mixed>  $snapshot
+     * @param  array<string, mixed>  $afetados
+     * @return list<string>
+     */
+    public function desfazer(array $snapshot, array $afetados): array;
+
+    /** Remove definitivamente a ficha absorvida quando termina a janela de desfazer. */
+    public function apagarAbsorvida(int $absorvidaId): void;
+
     /** @param  array<string, mixed>  $dados */
     public function evento(int $organizacaoId, int $pessoaId, string $tipo, ?int $autorAcessoId, array $dados): void;
 

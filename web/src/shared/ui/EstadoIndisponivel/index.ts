@@ -1,0 +1,1 @@
+export { EstadoIndisponivel } from './EstadoIndisponivel'

@@ -39,6 +39,7 @@ export function TelaConcluida({ id, icone, titulo, texto, acao }: Props): ReactN
       {acao ? (
         <Button
           variant="contained"
+          size="large"
           onClick={acao.aoClicar}
           sx={{ bgcolor: 'afundado', color: 'text.primary', '&:hover': { bgcolor: 'divider' } }}
         >
