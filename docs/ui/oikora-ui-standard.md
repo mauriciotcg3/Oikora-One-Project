@@ -8,6 +8,12 @@ Decisões de origem: [experiência da interface](../adr/0014-padrao-de-experienc
 
 Use apenas o tema e os `tokens` exportados por `shared/ui`. As cores têm função semântica e nunca são a única forma de comunicar estado. Espaçamento, tipografia, raios e elevação vêm do tema; uma feature não cria um segundo sistema visual. Claro, escuro e preferência do sistema devem preservar contraste, foco visível e hierarquia.
 
+O painel segue `prefers-color-scheme` por padrão; o seletor do cabeçalho troca para claro, escuro ou sistema e o navegador guarda a escolha (`CHAVE_MODO_DE_COR`, preferência de quem usa). A cor primária da organização (`GET /painel/organizacao`) entra pelo `criarTemaOikora` e passa por `corLegivel`, que escurece ou clareia o tom até ter 4,5:1 sobre o papel e o fundo de cada esquema; cor inválida volta ao café/mel do Oikora. A tela de login usa o mesmo tema e é a referência visual: título forte, texto de apoio secundário, botões arredondados e Poppins.
+
+## Layout e reflow
+
+Toda tela autenticada usa `PaginaDoPainel` e funciona de 320 px CSS (zoom de 400% em 1280 px) a monitores ultrawide, sem rolagem horizontal da página (WCAG 1.4.10). O menu lateral fica fixo a partir de 900 px e vira gaveta abaixo disso; o conteúdo tem largura máxima (`estreita`, `media`, `larga`) e fica centrado. Grades usam `minmax(min(100%, Nrem), 1fr)` para nunca exigir mais largura que a tela; só uma faixa de abas pode rolar dentro dela, com botões de rolagem.
+
 ## Componentes públicos
 
 - `AjudaContextual`: explicação curta e opcional, fora do fluxo principal.
@@ -21,14 +27,16 @@ Use apenas o tema e os `tokens` exportados por `shared/ui`. As cores têm funç�
 - `EstadoErro`: falha recuperável, ação de tentar novamente e correlação técnica recolhida.
 - `EstadoIndisponivel`: serviço temporariamente inacessível, distinguido de erro de validação.
 - `FiltrosNaUrl`: filtros validados e reproduzíveis; aplicar e limpar voltam à primeira página.
-- `TabelaDeRegistros`: tabela paginada no servidor, navegável por teclado; falha usa texto e ícone além da cor.
+- `PaginaDoPainel`: moldura da tela — título de nível 1, descrição, ações, link de volta e largura máxima.
+- `BotaoLink` e `LinkTexto`: navegação dentro do painel pelo `Link` do roteador (sem `href` cru, `window.location` ou `pushState`).
+- `TabelaDeRegistros`: tabela paginada no servidor, navegável por teclado; falha usa texto e ícone além da cor. Abaixo de 900 px vira lista de cartões com o rótulo de cada coluna; aceita seleção de linhas que sobrevive à troca de página e um texto curto visível no botão da linha (`textoAbrir`).
 - `JornadaGuiada`: valida cada etapa, preserva respostas ao voltar e confirma antes de concluir.
 
 Hooks e utilitários (`useFiltrosDaUrl`, `usePaginacaoDaUrl`, `lerFiltros`, `lerPaginacao`) sustentam esses componentes e não são elementos visuais.
 
 ## Contratos de comportamento
 
-Estados de carregamento, vazio, sucesso, aviso, erro e indisponibilidade devem orientar a pessoa sobre o que ocorreu e o próximo passo. Mensagens de domínio ficam na feature e passam por i18n. Detalhes internos ficam fechados por padrão.
+Estados de carregamento, vazio, sucesso, aviso, erro e indisponibilidade devem orientar a pessoa sobre o que ocorreu e o próximo passo. Mensagens de domínio ficam na feature e passam por i18n. Detalhes internos ficam fechados por padrão: um código de erro da API (`operacao_expirada`) vira texto da feature, e código desconhecido cai numa mensagem pelo status HTTP, nunca no código cru. Toda ação que não muda de tela confirma o resultado (sucesso anunciado como `status`) e mostra o erro junto dela.
 
 Filtros, página e tamanho da página vivem na URL. Dados remotos ficam no React Query; dados de formulário ficam no React Hook Form; seleção efêmera fica no componente. Não se cria estado global para conveniência.
 

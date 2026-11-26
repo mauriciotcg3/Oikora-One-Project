@@ -2,8 +2,20 @@
 export const painelPtBR = {
   inicio: {
     titulo: 'Painel da igreja',
-    texto: 'Você entrou. As telas do painel chegam nas próximas tasks da OIK-SPEC-0001.',
-    atalhos: 'Gestão do painel',
+    texto: 'Escolha uma área para começar. O menu mostra só o que o seu acesso permite.',
+    atalhos: 'Áreas do painel',
+    descricoes: {
+      pessoas: 'Lista, cadastro rápido, busca e fichas.',
+      acompanhamentos: 'Novos convertidos e datas comemorativas.',
+      operacoes: 'Duplicados, transferências e lixeira.',
+      avisos: 'Recados do sistema e como recebê-los.',
+      whatsapp: 'Número usado para enviar avisos.',
+      configuracao: 'Organização, igrejas, listas e campos obrigatórios.',
+      solicitacoes: 'Pedidos de acesso temporário.',
+      auditoria: 'Quem fez o quê, e quando.',
+      acessos: 'Quem entra no painel e os convites enviados.',
+      papeis: 'O que cada papel pode fazer.',
+    },
     acessos: 'Acessos e convites',
     papeis: 'Papéis',
     auditoria: 'Auditoria',
@@ -20,6 +32,12 @@ export const painelPtBR = {
     ajuda: 'Ajuda',
     ajudaTexto: 'Use o menu para trocar de área. Se algo não aparecer, você pode não ter acesso a ela.',
     itens: { inicio: 'Início', pessoas: 'Pessoas', acompanhamentos: 'Acompanhamentos', operacoes: 'Operações de pessoas', avisos: 'Avisos', whatsapp: 'WhatsApp', configuracao: 'Configuração', auditoria: 'Auditoria', solicitacoes: 'Acesso temporário' },
+  },
+  tema: {
+    rotulo: 'Tema de cores: {{atual}}. Trocar',
+    system: 'Sistema',
+    light: 'Claro',
+    dark: 'Escuro',
   },
   auditoria: {
     titulo: 'Auditoria',

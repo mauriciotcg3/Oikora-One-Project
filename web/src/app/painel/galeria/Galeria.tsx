@@ -14,6 +14,9 @@ import { z } from 'zod'
 import { ErroHttp } from '../../../shared/http'
 import {
   AjudaContextual,
+  BotaoLink,
+  LinkTexto,
+  PaginaDoPainel,
   ConfirmacaoIrreversivel,
   DetalheEmCamadas,
   DetalhesTecnicos,
@@ -224,10 +227,22 @@ export function Galeria(): ReactNode {
         </Box>
         <SeletorDeTema />
       </Stack>
+      <Secao titulo="Moldura da tela" texto="Título forte como no login, apoio em texto secundário, ações que quebram linha e largura máxima centrada. Links navegam pelo roteador, sem recarregar o painel.">
+        <Box sx={{ p: 2, borderRadius: 4, border: 1, borderColor: 'divider', bgcolor: 'background.default' }}>
+          <PaginaDoPainel
+            titulo="Pessoas"
+            descricao="Cadastros da organização dentro do seu alcance."
+            voltar={<LinkTexto to="/galeria">Voltar para a galeria</LinkTexto>}
+            acoes={<><BotaoLink to="/galeria" variant="outlined">Buscar</BotaoLink><BotaoLink to="/galeria" variant="contained">Cadastrar pessoa</BotaoLink></>}
+          >
+            <Typography color="text.secondary">Conteúdo da tela.</Typography>
+          </PaginaDoPainel>
+        </Box>
+      </Secao>
       <Secao titulo="Estados" texto="Carregando, vazio, sucesso, aviso, erro e indisponível, com detalhes técnicos e ajuda."><Estados /></Secao>
       <Secao titulo="Jornada guiada" texto="Valida cada etapa junto ao campo, preserva o digitado ao voltar e confirma antes de concluir."><Jornada /></Secao>
       <Secao titulo="Confirmação de ação irreversível" texto="O foco começa em “Manter”; Esc cancela."><Confirmacao /></Secao>
-      <Secao titulo="Filtros, tabela e detalhe" texto="60 registros de exemplo, paginados por uma API simulada: só a página atual é pedida. Filtros e página ficam na URL; a cada sétima linha há uma falha."><Registros /></Secao>
+      <Secao titulo="Filtros, tabela e detalhe" texto="60 registros de exemplo, paginados por uma API simulada: só a página atual é pedida. Filtros e página ficam na URL; a cada sétima linha há uma falha. Abaixo de 900 px (celular ou zoom de 200% a 400%) a tabela vira uma lista de cartões."><Registros /></Secao>
     </Box>
   )
 }

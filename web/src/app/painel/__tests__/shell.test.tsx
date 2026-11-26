@@ -42,6 +42,7 @@ function responderMe(permissoes: string[]): void {
         },
       }),
     ),
+    http.get('*/api/v1/painel/organizacao', () => HttpResponse.json({ data: { cor_primaria: null } })),
   )
 }
 
@@ -110,6 +111,22 @@ describe('Shell do painel', () => {
     await usuario.keyboard('{Escape}')
     await waitFor(() => expect(screen.queryByRole('navigation', { name: 'Menu do painel' })).not.toBeInTheDocument())
     expect(botao).toHaveFocus()
+  })
+
+  it('troca o tema pelo seletor do cabeçalho e guarda a escolha no navegador', async () => {
+    definirTela(true)
+    responderMe([])
+    const usuario = userEvent.setup()
+    abrir('/painel/')
+    await screen.findByRole('heading', { name: 'Painel da igreja' }, { timeout: 5000 })
+
+    await usuario.click(screen.getByRole('button', { name: 'Tema de cores: Sistema. Trocar' }))
+    await usuario.click(await screen.findByRole('menuitemradio', { name: 'Escuro' }))
+
+    await waitFor(() => expect(document.documentElement).toHaveAttribute('data-tema', 'dark'))
+    expect(window.localStorage.getItem('oikora-tema')).toBe('dark')
+    expect(screen.getByRole('button', { name: 'Tema de cores: Escuro. Trocar' })).toBeInTheDocument()
+    window.localStorage.removeItem('oikora-tema')
   })
 
   it('anuncia o item ativo com aria-current=page', async () => {

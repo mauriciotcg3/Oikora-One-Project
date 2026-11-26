@@ -7,7 +7,7 @@ import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { renderizarComProvedores } from '../../../test/renderizar'
-import { temaOikora } from '../tema'
+import { corLegivel, criarTemaOikora, temaOikora } from '../tema'
 
 const ESQUEMAS = ['light', 'dark'] as const
 const SEMANTICAS = ['success', 'warning', 'info', 'error'] as const
@@ -42,6 +42,29 @@ describe('Tema Oikora — contraste (WCAG 2.2 AA)', () => {
       expect(getContrastRatio(cor.contrastText, cor.main), `${semantica} contrastText`).toBeGreaterThanOrEqual(TEXTO_AA)
       expect(getContrastRatio(cor.main, palette.background.paper), `${semantica} como texto`).toBeGreaterThanOrEqual(TEXTO_AA)
     }
+  })
+})
+
+describe('Tema Oikora — cor da organização', () => {
+  const paletaDe = (cor: string | null, esquema: (typeof ESQUEMAS)[number]): Palette => {
+    const sistema = (criarTemaOikora(cor) as unknown as CssVarsTheme).colorSchemes[esquema]
+    if (!sistema) throw new Error(`esquema ${esquema} ausente no tema`)
+    return sistema.palette as Palette
+  }
+
+  it.each(['#F5D000', '#1565C0', '#0A0A0A', '#FFFFFF'])('a cor %s vira primária legível como texto e com tinta AA nos dois esquemas', (cor) => {
+    for (const esquema of ESQUEMAS) {
+      const { primary, background } = paletaDe(cor, esquema)
+      expect(getContrastRatio(primary.main, background.paper), `${cor} ${esquema} sobre o papel`).toBeGreaterThanOrEqual(TEXTO_AA)
+      expect(getContrastRatio(primary.main, background.default), `${cor} ${esquema} sobre o fundo`).toBeGreaterThanOrEqual(TEXTO_AA)
+      expect(getContrastRatio(primary.contrastText, primary.main), `${cor} ${esquema} tinta do botão`).toBeGreaterThanOrEqual(TEXTO_AA)
+    }
+  })
+
+  it('mantém a cor que já é legível e ignora valor fora do formato #RRGGBB', () => {
+    expect(corLegivel('#1565C0', 'light')).toBe('#1565C0')
+    expect(corLegivel('azul', 'light')).toBeNull()
+    expect(paletaDe('azul', 'light').primary.main).toBe(paleta('light').primary.main)
   })
 })
 

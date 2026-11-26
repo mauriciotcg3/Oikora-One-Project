@@ -10,6 +10,9 @@ import {
 } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { CadastroDoisFatores, PaginaConvite, PaginaLogin } from '../../features/Identidade'
+import { IDIOMA_PADRAO } from '../../shared/i18n'
+import { useCapacidades } from './capacidades'
+import { i18nPainel } from './i18n'
 import { InicioPainel } from './InicioPainel'
 import { PaginaAuditoria } from './PaginaAuditoria'
 import { PaginaSolicitacoes } from './PaginaSolicitacoes'
@@ -64,16 +67,45 @@ const rotaPapeis = createRoute({
   component: lazyRouteComponent(() => import('../../features/Autorizacao'), 'TelaPapeis'),
 })
 const rotaSolicitacoes = createRoute({ getParentRoute: () => rotaShell, path: 'solicitacoes', component: PaginaSolicitacoes })
-const telaPessoas = (nome: 'TelaPessoas' | 'TelaCadastroPessoa' | 'TelaBuscaPessoas' | 'TelaFichaPessoaRoteada' | 'TelaOperacoesPessoas' | 'TelaDatasPessoas') => lazyRouteComponent(() => import('../../features/Pessoas'), nome)
+// Telas das features W9 carregadas sob demanda, com os textos do namespace da feature registrados na mesma hora.
+const registrarTextos = (namespace: string, textos: object): void => {
+  i18nPainel.addResourceBundle(IDIOMA_PADRAO, namespace, textos, true, true)
+}
+const carregarPessoas = async () => {
+  const modulo = await import('../../features/Pessoas')
+  registrarTextos('pessoas', modulo.pessoasPtBR)
+  return modulo
+}
+const carregarOrganizacao = async () => {
+  const modulo = await import('../../features/Organizacao')
+  registrarTextos('organizacao', modulo.organizacaoPtBR)
+  return modulo
+}
+const carregarAvisos = async () => {
+  const modulo = await import('../../features/Avisos')
+  registrarTextos('avisos', modulo.avisosPtBR)
+  return modulo
+}
+const telaPessoas = (nome: 'TelaPessoas' | 'TelaCadastroPessoa' | 'TelaBuscaPessoas' | 'TelaFichaPessoaRoteada' | 'TelaDatasPessoas') => lazyRouteComponent(carregarPessoas, nome)
+/** Operações recebem do shell se a pessoa pode decidir transferências; a API continua decidindo cada pedido. */
+const telaOperacoesPessoas = lazyRouteComponent(async () => {
+  const { TelaOperacoesPessoas } = await carregarPessoas()
+  return {
+    default: function PaginaOperacoesPessoas(): ReactNode {
+      const { tem } = useCapacidades()
+      return <TelaOperacoesPessoas podeDecidir={tem('transferencias.aprovar')} />
+    },
+  }
+})
 const rotaPessoas = createRoute({ getParentRoute: () => rotaShell, path: 'pessoas', component: telaPessoas('TelaPessoas') })
 const rotaNovaPessoa = createRoute({ getParentRoute: () => rotaShell, path: 'pessoas/nova', component: telaPessoas('TelaCadastroPessoa') })
 const rotaBuscaPessoas = createRoute({ getParentRoute: () => rotaShell, path: 'pessoas/busca', component: telaPessoas('TelaBuscaPessoas') })
 const rotaFichaPessoa = createRoute({ getParentRoute: () => rotaShell, path: 'pessoas/$uuid', component: telaPessoas('TelaFichaPessoaRoteada') })
-const rotaOperacoesPessoas = createRoute({ getParentRoute: () => rotaShell, path: 'pessoas/operacoes', component: telaPessoas('TelaOperacoesPessoas') })
+const rotaOperacoesPessoas = createRoute({ getParentRoute: () => rotaShell, path: 'pessoas/operacoes', component: telaOperacoesPessoas })
 const rotaDatasPessoas = createRoute({ getParentRoute: () => rotaShell, path: 'pessoas/acompanhamentos', component: telaPessoas('TelaDatasPessoas') })
-const rotaConfiguracao = createRoute({ getParentRoute: () => rotaShell, path: 'configuracao', component: lazyRouteComponent(() => import('../../features/Organizacao'), 'TelaConfiguracao') })
-const rotaWhatsapp = createRoute({ getParentRoute: () => rotaShell, path: 'whatsapp', component: lazyRouteComponent(() => import('../../features/Avisos'), 'TelaWhatsapp') })
-const rotaAvisos = createRoute({ getParentRoute: () => rotaShell, path: 'avisos', component: lazyRouteComponent(() => import('../../features/Avisos'), 'TelaAvisos') })
+const rotaConfiguracao = createRoute({ getParentRoute: () => rotaShell, path: 'configuracao', component: lazyRouteComponent(carregarOrganizacao, 'TelaConfiguracao') })
+const rotaWhatsapp = createRoute({ getParentRoute: () => rotaShell, path: 'whatsapp', component: lazyRouteComponent(carregarAvisos, 'TelaWhatsapp') })
+const rotaAvisos = createRoute({ getParentRoute: () => rotaShell, path: 'avisos', component: lazyRouteComponent(carregarAvisos, 'TelaAvisos') })
 // Galeria de componentes: só no `pnpm dev`. O `if` constante (`import.meta.env.DEV`) é removido do build,
 // então nem a rota nem o chunk da galeria vão para produção.
 const rotasDev = import.meta.env.DEV
