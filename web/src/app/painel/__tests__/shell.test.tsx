@@ -8,6 +8,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { servidor } from '../../../test/servidor'
 import { criarClienteConsulta } from '../clienteConsulta'
 import { i18nPainel } from '../i18n'
+import { itensVisiveis } from '../Navegacao'
 import { Raiz } from '../Raiz'
 import { criarRoteador } from '../roteador'
 
@@ -54,6 +55,12 @@ afterEach(() => {
 })
 
 describe('Shell do painel', () => {
+  it('mostra áreas compostas quando existe qualquer capacidade relevante', () => {
+    const chaves = (permissoes: string[]) => itensVisiveis((permissao) => permissoes.includes(permissao)).map((item) => item.chave)
+    expect(chaves(['transferencias.aprovar'])).toContain('operacoes')
+    expect(chaves(['igrejas.gerir'])).toContain('configuracao')
+  })
+
   it('o primeiro Tab leva a "Ir para o conteúdo" e o Enter move o foco para o main', async () => {
     definirTela(true)
     responderMe([])

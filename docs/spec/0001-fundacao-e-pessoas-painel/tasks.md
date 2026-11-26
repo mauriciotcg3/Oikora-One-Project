@@ -924,7 +924,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): telas de organização, igrejas, listas de valores, obrigatórios por vínculo e integração WhatsApp em `features/Organizacao` e `features/Avisos`; ações condicionadas ao contrato e às capacidades, sem oferecer exclusão de igreja. Testes focados e gate completo do frontend Green.
 
 ## T-40 — Telas de acessos, convites, papéis e auditoria
 - **Issue:** #40
@@ -967,7 +967,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): lista paginada 25/50/100 com filtros na URL, seleção e exportação; cadastro rápido com igreja, alerta de duplicidade e “salvar e cadastrar outro”; busca na denominação com abertura ou pedido de transferência. Testes focados e gate completo do frontend Green.
 
 ## T-42 — Tela da ficha por seções
 - **Issue:** #42
@@ -989,7 +989,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): ficha por seções conforme a projeção recebida, foto, completude, avanço de vínculo e situação com motivo/matrícula manual, linha do tempo, relacionamentos e funções; controles de escrita seguem `meta.acoes`. Testes focados e gate completo do frontend Green.
 
 ## T-43 — Telas de duplicados, mesclagem, transferências e lixeira
 - **Issue:** #43
@@ -1011,7 +1011,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): possíveis duplicados com comparação dos campos visíveis e escolha de origem, conflito de contas, desfazer e conflitos preservados; decisões de transferência com justificativa; lixeira com prazo e confirmação de recuperação. Testes focados e gate completo do frontend Green.
 
 ## T-44 — Telas de novos convertidos, datas, exportações e caixa de avisos
 - **Issue:** #44
@@ -1033,7 +1033,7 @@ As dependências formais e os conflitos de arquivos prevalecem sobre a divisão 
 - **Resultado esperado antes do código existir:** FALHAR (Red), com aprovação do usuário antes da implementação.
 - **Critério de aceite final:** testes Green.
 - **Regra de negócio associada:** nenhuma nova.
-- **Status:** Pendente
+- **Status:** Concluída em W9 (2026-11-25): novos convertidos e datas por dia/semana/mês com XLSX/CSV, acompanhamento e download de exportação; caixa de avisos com contador atualizado por foco/visibilidade e intervalo, leitura individual/em lote e preferências obrigatórias bloqueadas. Testes focados e gate completo do frontend Green.
 
 ## T-45 — Jornadas críticas no Playwright + axe (noturno)
 - **Issue:** #45

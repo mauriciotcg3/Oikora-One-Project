@@ -5,23 +5,37 @@ import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-/** Item de menu: aparece quando a pessoa tem a capacidade (sem `permissao`, aparece sempre). */
+/** Item de menu: aparece quando a pessoa tem ao menos uma capacidade (sem `permissoes`, aparece sempre). */
 interface ItemNavegacao {
-  chave: 'inicio' | 'auditoria' | 'solicitacoes'
-  para: '/' | '/auditoria' | '/solicitacoes'
-  permissao?: string
+  chave: 'inicio' | 'pessoas' | 'acompanhamentos' | 'operacoes' | 'avisos' | 'whatsapp' | 'configuracao' | 'auditoria' | 'solicitacoes'
+  para: '/' | '/pessoas' | '/pessoas/acompanhamentos' | '/pessoas/operacoes' | '/avisos' | '/whatsapp' | '/configuracao' | '/auditoria' | '/solicitacoes'
+  permissoes?: readonly string[]
 }
 
 // Novas telas entram aqui junto com a rota que as atende; item sem rota quebraria a navegação.
 const ITENS: readonly ItemNavegacao[] = [
   { chave: 'inicio', para: '/' },
+  { chave: 'pessoas', para: '/pessoas', permissoes: ['pessoas.ver'] },
+  { chave: 'acompanhamentos', para: '/pessoas/acompanhamentos', permissoes: ['pessoas.sensiveis.fe.ver'] },
+  {
+    chave: 'operacoes',
+    para: '/pessoas/operacoes',
+    permissoes: ['pessoas.mesclar', 'transferencias.aprovar', 'transferencias.solicitar', 'pessoas.excluir'],
+  },
+  { chave: 'avisos', para: '/avisos' },
+  { chave: 'whatsapp', para: '/whatsapp', permissoes: ['avisos.whatsapp.gerir'] },
+  {
+    chave: 'configuracao',
+    para: '/configuracao',
+    permissoes: ['organizacao.configurar', 'igrejas.gerir', 'pessoas.configurar'],
+  },
   { chave: 'solicitacoes', para: '/solicitacoes' },
-  { chave: 'auditoria', para: '/auditoria', permissao: 'auditoria.ver' },
+  { chave: 'auditoria', para: '/auditoria', permissoes: ['auditoria.ver'] },
 ]
 
 /** Itens visíveis para as capacidades da pessoa (OIK-ADR-0006 §9); o servidor continua decidindo cada acesso. */
 export function itensVisiveis(tem: (permissao: string) => boolean): readonly ItemNavegacao[] {
-  return ITENS.filter((item) => item.permissao === undefined || tem(item.permissao))
+  return ITENS.filter((item) => item.permissoes === undefined || item.permissoes.some(tem))
 }
 
 interface Props {
