@@ -86,6 +86,26 @@ it('não deixa o Administrador sem 2FA cadastrado entrar no painel', function ()
     $this->getJson('/api/v1/me')->assertJsonPath('data.dois_fatores.obrigatorio', true);
 });
 
+it('não confunde papel customizado com acesso total com o Administrador de sistema', function (): void {
+    $org = criarOrganizacao();
+    $conta = criarContaVerificada();
+    $igreja = criarIgreja($org, 'Sede');
+    $acesso = criarAcesso($org, $conta, criarPessoa($org, $igreja, ['nome' => 'Prévia']));
+    atribuirPapel($org, $acesso, criarPapel($org, 'Acesso total de prévia', Permissao::cases()));
+
+    $cookie = cookieDaSessao($this->postJson(ROTA_LOGIN, [
+        'identificador' => 'maria@exemplo.test',
+        'senha' => SENHA,
+        'entrada' => 'painel',
+    ])->assertNoContent());
+    comSessao($cookie);
+
+    $this->getJson(PAINEL)->assertOk();
+    $this->getJson('/api/v1/me')
+        ->assertJsonPath('data.dois_fatores.obrigatorio', false)
+        ->assertJsonCount(count(Permissao::cases()), 'data.autorizacao.capacidades');
+});
+
 it('exige o código do 2FA na elevação do Administrador que o cadastrou', function (): void {
     contaNoPainel('administrador');
     $cookie = logarNaConta();
