@@ -1,15 +1,29 @@
 import List from '@mui/material/List'
 import ListItemButton from '@mui/material/ListItemButton'
+import ListItemIcon from '@mui/material/ListItemIcon'
 import ListItemText from '@mui/material/ListItemText'
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { IconeAjustes, IconeCalendario, IconeEscudo, IconeInicio, IconeMensagem, IconeOperacoes, IconePessoas, IconeRelogio, IconeSino } from './icones'
 
 /** Item de menu: aparece quando a pessoa tem ao menos uma capacidade (sem `permissoes`, aparece sempre). */
 interface ItemNavegacao {
   chave: 'inicio' | 'pessoas' | 'acompanhamentos' | 'operacoes' | 'avisos' | 'whatsapp' | 'configuracao' | 'auditoria' | 'solicitacoes'
   para: '/' | '/pessoas' | '/pessoas/acompanhamentos' | '/pessoas/operacoes' | '/avisos' | '/whatsapp' | '/configuracao' | '/auditoria' | '/solicitacoes'
   permissoes?: readonly string[]
+}
+
+const ICONES: Record<ItemNavegacao['chave'], () => ReactNode> = {
+  inicio: IconeInicio,
+  pessoas: IconePessoas,
+  acompanhamentos: IconeCalendario,
+  operacoes: IconeOperacoes,
+  avisos: IconeSino,
+  whatsapp: IconeMensagem,
+  configuracao: IconeAjustes,
+  solicitacoes: IconeRelogio,
+  auditoria: IconeEscudo,
 }
 
 // Novas telas entram aqui junto com a rota que as atende; item sem rota quebraria a navegação.
@@ -47,19 +61,36 @@ export function Navegacao({ tem, aoNavegar }: Props): ReactNode {
   const { t } = useTranslation('painel')
   return (
     <nav aria-label={t('shell.navegacao')}>
-      <List>
-        {itensVisiveis(tem).map((item) => (
-          <ListItemButton
-            key={item.chave}
-            component={Link}
-            to={item.para}
-            activeOptions={{ exact: true }}
-            onClick={aoNavegar}
-            sx={{ '&[aria-current="page"]': { bgcolor: 'action.selected', fontWeight: 600 } }}
-          >
-            <ListItemText primary={t(`shell.itens.${item.chave}`)} />
-          </ListItemButton>
-        ))}
+      <List sx={{ display: 'grid', gap: 0.25, px: 1.5 }}>
+        {itensVisiveis(tem).map((item) => {
+          const Icone = ICONES[item.chave]
+          return (
+            <ListItemButton
+              key={item.chave}
+              component={Link}
+              to={item.para}
+              activeOptions={{ exact: true }}
+              onClick={aoNavegar}
+              sx={{
+                borderRadius: 999,
+                minHeight: 44,
+                color: 'text.secondary',
+                '& .MuiListItemText-primary': { fontWeight: 500 },
+                '&:hover': { color: 'text.primary' },
+                '&[aria-current="page"]': {
+                  bgcolor: 'rgba(var(--mui-palette-primary-mainChannel) / 0.12)',
+                  color: 'primary.main',
+                  '& .MuiListItemText-primary': { fontWeight: 600 },
+                },
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}>
+                <Icone />
+              </ListItemIcon>
+              <ListItemText primary={t(`shell.itens.${item.chave}`)} />
+            </ListItemButton>
+          )
+        })}
       </List>
     </nav>
   )

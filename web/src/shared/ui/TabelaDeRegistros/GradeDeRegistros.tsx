@@ -1,9 +1,10 @@
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import SvgIcon from '@mui/material/SvgIcon'
-import { DataGrid, type GridColDef } from '@mui/x-data-grid'
+import { DataGrid, type GridColDef, type GridRowSelectionModel } from '@mui/x-data-grid'
 import { useMemo, type ReactNode } from 'react'
 import { TAMANHOS_DE_PAGINA } from '../FiltrosNaUrl'
+import { mesclarSelecao } from './selecao'
 import type { TabelaDeRegistrosProps } from './TabelaDeRegistros'
 
 // Único arquivo que importa o DataGrid (MUI X, MIT): `TabelaDeRegistros` o carrega por `lazy`,
@@ -23,9 +24,11 @@ export default function GradeDeRegistros<L extends { id: string; falha?: boolean
   linhas,
   textoFalha,
   rotuloAbrir,
+  textoAbrir,
   aoAbrir,
   paginacao,
   textos,
+  selecao,
 }: Omit<TabelaDeRegistrosProps<L>, 'textoCarregando'>): ReactNode {
   const definicao = useMemo<GridColDef<L>[]>(
     () => [
@@ -52,17 +55,30 @@ export default function GradeDeRegistros<L extends { id: string; falha?: boolean
         headerName: '',
         sortable: false,
         disableColumnMenu: true,
-        width: 240,
+        width: textoAbrir ? 160 : 240,
         align: 'right',
         renderCell: ({ row }) => (
-          <Button size="small" variant="outlined" onClick={() => aoAbrir(row)}>
-            {rotuloAbrir(row)}
+          <Button size="small" variant="outlined" onClick={() => aoAbrir(row)} aria-label={textoAbrir ? rotuloAbrir(row) : undefined}>
+            {textoAbrir ?? rotuloAbrir(row)}
           </Button>
         ),
       },
     ],
-    [colunas, textoFalha, rotuloAbrir, aoAbrir],
+    [colunas, textoFalha, rotuloAbrir, textoAbrir, aoAbrir],
   )
+
+  const idsDaPagina = linhas.map((linha) => linha.id)
+  const modeloSelecao: GridRowSelectionModel = {
+    type: 'include',
+    ids: new Set(idsDaPagina.filter((id) => selecao?.selecionadas.has(id))),
+  }
+  const aoSelecionar = (modelo: GridRowSelectionModel): void => {
+    if (!selecao) return
+    const marcaveis = linhas.filter((linha) => selecao.podeSelecionar?.(linha) ?? true).map((linha) => linha.id)
+    // "Marcar todas" vem como exclusão: tudo o que é marcável na página, menos os excluídos.
+    const naPagina = modelo.type === 'include' ? [...modelo.ids].map(String) : marcaveis.filter((id) => !modelo.ids.has(id))
+    selecao.aoMudar(mesclarSelecao(selecao.selecionadas, idsDaPagina, naPagina))
+  }
 
   return (
     <DataGrid
@@ -84,11 +100,30 @@ export default function GradeDeRegistros<L extends { id: string; falha?: boolean
         paginationRowsPerPage: textos.linhasPorPagina,
         paginationDisplayedRows: ({ from, to, count }) => textos.exibindo(from, to, count ?? 0),
         paginationItemAriaLabel: (tipo) => (tipo === 'previous' ? textos.paginaAnterior : tipo === 'next' ? textos.proximaPagina : tipo),
+        ...(selecao && {
+          checkboxSelectionHeaderName: selecao.rotuloColuna,
+          checkboxSelectionSelectAllRows: selecao.rotuloPagina,
+          checkboxSelectionUnselectAllRows: selecao.rotuloPagina,
+          checkboxSelectionSelectRow: selecao.rotuloColuna,
+          checkboxSelectionUnselectRow: selecao.rotuloColuna,
+        }),
       }}
       disableRowSelectionOnClick
       disableColumnMenu
+      checkboxSelection={Boolean(selecao)}
+      rowSelectionModel={selecao ? modeloSelecao : undefined}
+      onRowSelectionModelChange={selecao ? aoSelecionar : undefined}
+      isRowSelectable={selecao?.podeSelecionar ? ({ row }) => selecao.podeSelecionar?.(row) ?? true : undefined}
       getRowClassName={({ row }) => (row.falha ? 'linha-falha' : '')}
-      sx={{ '& .linha-falha': { bgcolor: 'error.light' } }}
+      sx={{
+        borderRadius: 4,
+        borderColor: 'divider',
+        bgcolor: 'background.paper',
+        '--DataGrid-containerBackground': 'var(--mui-palette-afundado)',
+        '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 600 },
+        '& .MuiDataGrid-cell': { display: 'flex', alignItems: 'center' },
+        '& .linha-falha': { bgcolor: 'error.light' },
+      }}
     />
   )
 }

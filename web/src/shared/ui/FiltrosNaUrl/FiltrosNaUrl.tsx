@@ -100,7 +100,8 @@ function Formulario({ campos, atuais, rotuloAplicar, rotuloLimpar, rotuloGrupo, 
           select={Boolean(campo.opcoes)}
           value={rascunho[campo.chave] ?? ''}
           onChange={(evento) => setRascunho({ ...rascunho, [campo.chave]: evento.target.value })}
-          sx={{ minWidth: 200 }}
+          // Em tela estreita cada campo ocupa a linha; em tela larga, largura fixa lado a lado.
+          sx={{ minWidth: { sm: 200 }, flex: { xs: '1 1 100%', sm: '0 1 240px' } }}
           slotProps={campo.opcoes ? { inputLabel: { shrink: true }, select: { displayEmpty: true } } : undefined}
         >
           {campo.opcoes && [
